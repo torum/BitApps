@@ -1,0 +1,10 @@
+﻿{
+    "profiles": {
+      "BitDesk (Package)": {
+        "commandName": "MsixPackage"
+      },
+      "BitDesk (Unpackaged)": {
+        "commandName": "Project"
+      }
+    }
+}

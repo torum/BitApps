@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31402.337
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BitDesk", "BitDesk\BitDesk.csproj", "{940FE979-5321-4D9F-A881-F6CD8F4ECB1C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{940FE979-5321-4D9F-A881-F6CD8F4ECB1C}.Debug|x64.ActiveCfg = Debug|x64
+		{940FE979-5321-4D9F-A881-F6CD8F4ECB1C}.Debug|x64.Build.0 = Debug|x64
+		{940FE979-5321-4D9F-A881-F6CD8F4ECB1C}.Release|x64.ActiveCfg = Release|x64
+		{940FE979-5321-4D9F-A881-F6CD8F4ECB1C}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CB34A48C-9964-4731-8E03-505B9B757EB1}
+	EndGlobalSection
+EndGlobal
