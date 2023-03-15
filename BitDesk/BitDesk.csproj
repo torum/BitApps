@@ -17,7 +17,57 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Assets\CryptLogos\ada.svg" />
+    <None Remove="Assets\CryptLogos\astr.svg" />
+    <None Remove="Assets\CryptLogos\avax.svg" />
+    <None Remove="Assets\CryptLogos\axs.svg" />
+    <None Remove="Assets\CryptLogos\bat.svg" />
+    <None Remove="Assets\CryptLogos\bcc.svg" />
+    <None Remove="Assets\CryptLogos\boba.svg" />
+    <None Remove="Assets\CryptLogos\btc.svg" />
+    <None Remove="Assets\CryptLogos\doge.svg" />
+    <None Remove="Assets\CryptLogos\dot.svg" />
+    <None Remove="Assets\CryptLogos\enj.svg" />
+    <None Remove="Assets\CryptLogos\eth.svg" />
+    <None Remove="Assets\CryptLogos\flr.svg" />
+    <None Remove="Assets\CryptLogos\link.svg" />
+    <None Remove="Assets\CryptLogos\ltc.svg" />
+    <None Remove="Assets\CryptLogos\matic.svg" />
+    <None Remove="Assets\CryptLogos\mkr.svg" />
+    <None Remove="Assets\CryptLogos\mona.svg" />
+    <None Remove="Assets\CryptLogos\omg.svg" />
+    <None Remove="Assets\CryptLogos\qtum.svg" />
+    <None Remove="Assets\CryptLogos\sand.svg" />
+    <None Remove="Assets\CryptLogos\xlm.svg" />
+    <None Remove="Assets\CryptLogos\xrp.svg" />
+    <None Remove="Assets\CryptLogos\xym.svg" />
     <None Remove="Styles\Colors.xaml" />
+    <None Remove="Views\AdaJpyPage.xaml" />
+    <None Remove="Views\AstrJpyPage.xaml" />
+    <None Remove="Views\AvaxJpyPage.xaml" />
+    <None Remove="Views\AxsJpyPage.xaml" />
+    <None Remove="Views\BatJpyPage.xaml" />
+    <None Remove="Views\BccJpyPage.xaml" />
+    <None Remove="Views\BobaJpyPage.xaml" />
+    <None Remove="Views\BtcJpyPage.xaml" />
+    <None Remove="Views\ContentDialogContent.xaml" />
+    <None Remove="Views\DogeJpyPage.xaml" />
+    <None Remove="Views\DotJpyPage.xaml" />
+    <None Remove="Views\EnjJpyPage.xaml" />
+    <None Remove="Views\EthJpyPage.xaml" />
+    <None Remove="Views\FlrJpyPage.xaml" />
+    <None Remove="Views\LinkJpyPage.xaml" />
+    <None Remove="Views\LtcJpyPage.xaml" />
+    <None Remove="Views\MaticJpyPage.xaml" />
+    <None Remove="Views\MkrJpyPage.xaml" />
+    <None Remove="Views\MonaJpyPage.xaml" />
+    <None Remove="Views\OmgJpyPage.xaml" />
+    <None Remove="Views\QtumJpPage.xaml" />
+    <None Remove="Views\SandJpyPage.xaml" />
+    <None Remove="Views\UserControls\ChartContent.xaml" />
+    <None Remove="Views\XlmJpyPage.xaml" />
+    <None Remove="Views\XrpJpPage.xaml" />
+    <None Remove="Views\XymJpyPage.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,6 +80,7 @@
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.2.230217.4" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="2.0.9" />
     <PackageReference Include="WinUIEx" Version="2.1" />
+	  <PackageReference Include="LiveChartsCore.SkiaSharpView.WinUI" Version="2.0.0-beta.701" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,10 +93,180 @@
 
   <ItemGroup>
     <Folder Include="Models\" />
+    <Folder Include="Views\ChartPages\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Assets\CryptLogos\ada.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\astr.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\avax.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\axs.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\bat.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\bcc.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\boba.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\btc.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\doge.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\dot.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\enj.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\eth.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\flr.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\link.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\ltc.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\matic.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\mkr.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\mona.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\omg.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\qtum.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\sand.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\xlm.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\xrp.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="Assets\CryptLogos\xym.svg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
     <Page Update="Styles\Colors.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\AdaJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\AstrJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\AvaxJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\AxsJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\BatJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+    <Page Update="Views\BccJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+    <Page Update="Views\BobaJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\BtcJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+    <Page Update="Views\ContentDialogContent.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\DogeJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\DotJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\EnjJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\EthJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+    <Page Update="Views\FlrJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\LinkJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\LtcJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+    <Page Update="Views\MaticJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\MkrJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\MonaJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+    <Page Update="Views\OmgJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\QtumJpPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+    <Page Update="Views\SandJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\UserControls\ChartContent.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+    <Page Update="Views\XlmJpyPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+    <Page Update="Views\XrpJpPage.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+    <Page Update="Views\XymJpyPage.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>

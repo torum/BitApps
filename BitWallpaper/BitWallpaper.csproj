@@ -432,6 +432,10 @@
 		</Page>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Views\ChartPages\" />
+	</ItemGroup>
+
 	<!-- https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/self-contained-deploy/deploy-self-contained-apps  -->
 	<Target Name="_RemoveFrameworkReferences" BeforeTargets="_ConvertItems;_CalculateInputsForGenerateCurrentProjectAppxManifest">
 		<ItemGroup>

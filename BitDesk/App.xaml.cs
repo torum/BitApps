@@ -79,12 +79,11 @@ public partial class App : Application
             //services.AddSingleton<IFileService, FileService>();
 
             // Views and ViewModels
-            services.AddTransient<SettingsViewModel>();
-            services.AddTransient<SettingsPage>();
-            services.AddTransient<MainViewModel>();
-            services.AddTransient<MainPage>();
-            services.AddTransient<ShellPage>();
-            services.AddTransient<ShellViewModel>();
+            services.AddSingleton<SettingsViewModel>();
+            services.AddSingleton<SettingsPage>();
+            services.AddSingleton<MainViewModel>();
+            services.AddSingleton<ShellPage>();
+            services.AddSingleton<ShellViewModel>();
 
             // Configuration
             //services.Configure<LocalSettingsOptions>(context.Configuration.GetSection(nameof(LocalSettingsOptions)));
@@ -92,6 +91,8 @@ public partial class App : Application
         Build();
 
         UnhandledException += App_UnhandledException;
+        TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
+        AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
     }
 
     protected async override void OnLaunched(LaunchActivatedEventArgs args)
@@ -158,8 +159,9 @@ public partial class App : Application
         // This does not fire...because of winui3 bugs. should be fixed in v1.2.2 WinAppSDK
         // see https://github.com/microsoft/microsoft-ui-xaml/issues/5221
 
-        Debug.WriteLine("App_UnhandledException", e.Message + $"StackTrace: {e.Exception.StackTrace}, Source: {e.Exception.Source}");
-        AppendErrorLog("App_UnhandledException", e.Message + $"StackTrace: {e.Exception.StackTrace}, Source: {e.Exception.Source}");
+        Debug.WriteLine("App_UnhandledException", e.Message);
+        Debug.WriteLine($"StackTrace: {e.Exception.StackTrace}, Source: {e.Exception.Source}");
+        AppendErrorLog("App_UnhandledException", e.Message + System.Environment.NewLine + $"StackTrace: {e.Exception.StackTrace}, Source: {e.Exception.Source}");
 
         try
         {

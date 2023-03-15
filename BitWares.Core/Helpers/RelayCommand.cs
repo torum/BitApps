@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 
-namespace BitWallpaper.Helpers;
+namespace BitWare.Core.Helpers;
 
 public class GenericRelayCommand<T> : ICommand
 {

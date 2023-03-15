@@ -246,6 +246,7 @@ public partial class App : Application
 
     protected void OnProcessExit(object? sender, EventArgs e)
     {
+        //_viewModel.ShowBalloon -= (sender, arg) => { ShowBalloon(arg); };
         notificationManager.Unregister();
     }
 
@@ -280,14 +281,16 @@ public partial class App : Application
         // This does not fire...because of winui3 bugs. should be fixed in v1.3 WinAppSDK
         // see https://github.com/microsoft/microsoft-ui-xaml/issues/5221
 
-        Debug.WriteLine("App_UnhandledException", e.Message + $"StackTrace: {e.Exception.StackTrace}, Source: {e.Exception.Source}");
-        AppendErrorLog("App_UnhandledException", e.Message + $"StackTrace: {e.Exception.StackTrace}, Source: {e.Exception.Source}");
+        Debug.WriteLine("App_UnhandledException", e.Message);
+        Debug.WriteLine($"StackTrace: {e.Exception.StackTrace}, Source: {e.Exception.Source}");
+        AppendErrorLog("App_UnhandledException", e.Message + System.Environment.NewLine + $"StackTrace: {e.Exception.StackTrace}, Source: {e.Exception.Source}");
 
         try
         {
             SaveErrorLog();
         }catch(Exception) { }
     }
+
     private void TaskScheduler_UnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
     {
         var exception = e.Exception.InnerException as Exception;

@@ -1,4 +1,5 @@
 ﻿using BitWallpaper.Helpers;
+using BitWare.Core.Helpers;
 using BitWares.Core.Models;
 using BitWares.Core.Models.APIClients;
 using LiveChartsCore;

@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Windows.Input;
 using Windows.ApplicationModel;
 using Windows.Storage;
+using BitWare.Core.Helpers;
 
 namespace BitWallpaper.ViewModels;
 
@@ -1575,11 +1576,7 @@ public partial class MainViewModel : ViewModelBase
                             hoge.HighLowInfoTextColorFlag = true;
                             hoge.HighLowInfoText = hoge.PairString + "Alarm";
 
-                            ShowBalloonEventArgs ag = new()
-                            {
-                                Title = hoge.PairString + " High Price Alarm",
-                                Text = hoge.AlarmPlusString
-                            };
+                            ShowBalloonEventArgs ag = new((hoge.PairString + " High Price Alarm"), hoge.AlarmPlusString);
 
                             // クリア
                             hoge.AlarmPlus = 0;
@@ -1596,11 +1593,7 @@ public partial class MainViewModel : ViewModelBase
                             hoge.HighLowInfoTextColorFlag = false;
                             hoge.HighLowInfoText = hoge.PairString + "Alarm";
 
-                            ShowBalloonEventArgs ag = new()
-                            {
-                                Title = hoge.PairString + " Low Price Alarm",
-                                Text = hoge.AlarmMinusString
-                            };
+                            ShowBalloonEventArgs ag = new(hoge.PairString + " Low Price Alarm", hoge.AlarmMinusString);
 
                             // クリア
                             hoge.AlarmMinus = 0;
