@@ -12,6 +12,9 @@
             <SolidColorBrush x:Key="WindowCaptionBackground">Transparent</SolidColorBrush>
             <SolidColorBrush x:Key="WindowCaptionBackgroundDisabled">Transparent</SolidColorBrush>
 
+            <helpers:ElementThemeEnumToBooleanConverter x:Key="ElementThemeEnumToBooleanConverter" />
+            <helpers:SystemBackdropEnumToBooleanConverter x:Key="SystemBackdropEnumToBooleanConverter" />
+            
             <x:Double x:Key="CustumTextOpacity">0.7</x:Double>
 
             <SolidColorBrush x:Key="PriceUpColorBrush" Color="#8BC34A"/>

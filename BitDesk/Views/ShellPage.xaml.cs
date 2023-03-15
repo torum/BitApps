@@ -9,16 +9,13 @@ using Windows.System;
 using BitWares.Core.Models;
 using Microsoft.UI.Xaml.Media.Animation;
 using System.Diagnostics;
+using System.Xml.Linq;
+using System.Xml;
 
 namespace BitDesk.Views;
 
 public sealed partial class ShellPage : Page
 {
-    public ShellViewModel ViewModel
-    {
-        get; private set;
-    }
-
     public MainViewModel MainViewModel
     {
         get; private set;
@@ -53,20 +50,327 @@ public sealed partial class ShellPage : Page
         ("settings", typeof(SettingsPage)),
     };
 
-    public ShellPage(ShellViewModel viewModel)
+    public ShellPage(MainViewModel viewModel)
     {
-        ViewModel = viewModel;
-        MainViewModel = App.GetService<MainViewModel>();
+        MainViewModel = viewModel;
 
         InitializeComponent();
-
-        ViewModel.NavigationService.Frame = NavigationFrame;
-        ViewModel.NavigationViewService.Initialize(NavigationViewControl);
 
         App.MainWindow.ExtendsContentIntoTitleBar = true;
         App.MainWindow.SetTitleBar(AppTitleBar);
         App.MainWindow.Activated += MainWindow_Activated;
-        //AppTitleBarText.Text = "AppDisplayName".GetLocalized();
+        App.MainWindow.Closed += MainWindow_Closed;
+
+        #region == Load settings ==
+
+        double height = 640; 
+        double width = 480;
+        var navigationViewControl_IsPaneOpen = false;
+
+        if (System.IO.File.Exists(App.AppConfigFilePath))
+        {
+            var xdoc = XDocument.Load(App.AppConfigFilePath);
+
+            //Debug.WriteLine(xdoc.ToString());
+
+            // Main window
+            if (App.MainWindow != null && xdoc.Root != null)
+            {
+                // Main Window element
+                var mainWindow = xdoc.Root.Element("MainWindow");
+                if (mainWindow != null)
+                {
+                    /*
+                    var hoge = mainWindow.Attribute("top");
+                    if (hoge != null)
+                    {
+                        (sender as Window).Top = double.Parse(hoge.Value);
+                    }
+                    */
+                    /*
+                    hoge = mainWindow.Attribute("left");
+                    if (hoge != null)
+                    {
+                        (sender as Window).Left = double.Parse(hoge.Value);
+                    }
+                    */
+                    var hoge = mainWindow.Attribute("height");
+                    if (hoge != null)
+                    {
+                        height = double.Parse(hoge.Value);
+                    }
+
+                    hoge = mainWindow.Attribute("width");
+                    if (hoge != null)
+                    {
+                        width = double.Parse(hoge.Value);
+                    }
+                    /*
+                    hoge = mainWindow.Attribute("state");
+                    if (hoge != null)
+                    {
+                        if (hoge.Value == "Maximized")
+                        {
+                            (sender as Window).WindowState = WindowState.Maximized;
+                        }
+                        else if (hoge.Value == "Normal")
+                        {
+                            (sender as Window).WindowState = WindowState.Normal;
+                        }
+                        else if (hoge.Value == "Minimized")
+                        {
+                            (sender as Window).WindowState = WindowState.Normal;
+                        }
+                    }
+                    */
+
+                    var xNavView = mainWindow.Element("NavigationViewControl");
+                    if (xNavView != null)
+                    {
+                        if (xNavView.Attribute("IsPaneOpen") != null)
+                        {
+                            var xvalue = xNavView.Attribute("IsPaneOpen")?.Value;
+                            if (!string.IsNullOrEmpty(xvalue))
+                            {
+                                navigationViewControl_IsPaneOpen = xvalue == "True";
+                            }
+                        }
+                    }
+                }
+
+                // Options
+                var opts = xdoc.Root.Element("Opts");
+                if (opts != null)
+                {
+                    var xvalue = opts.Attribute("IsChartTooltipVisible");
+                    if (xvalue != null)
+                    {
+                        if (!string.IsNullOrEmpty(xvalue.Value))
+                        {
+                            MainViewModel.IsChartTooltipVisible = xvalue.Value == "True";
+                        }
+                    }
+
+                    xvalue = opts.Attribute("IsDebugSaveLog");
+                    if (xvalue != null)
+                    {
+                        if (!string.IsNullOrEmpty(xvalue.Value))
+                        {
+                            MainViewModel.IsDebugSaveLog = xvalue.Value == "True";
+                        }
+                    }
+                }
+
+                // Pairs
+                var xPairs = xdoc.Root.Element("Pairs");
+                if (xPairs != null)
+                {
+                    var pairList = xPairs.Elements("Pair");
+
+                    foreach (var hoge in pairList)
+                    {
+                        var xvalue = hoge.Attribute("PairCode");
+                        if (xvalue != null)
+                        {
+                            if (!string.IsNullOrEmpty(xvalue.Value))
+                            {
+                                try
+                                {
+                                    var pc = MainViewModel.GetPairs[xvalue.Value];
+
+                                    var pair = MainViewModel.Pairs.FirstOrDefault(x => x.PairCode == pc);
+                                    if (pair is not null)
+                                    {
+                                        // TODO:
+                                        pair.IsChartTooltipVisible = MainViewModel.IsChartTooltipVisible;
+
+                                        var attrv = hoge.Attribute("IsEnabled");
+                                        if (attrv != null)
+                                        {
+                                            if (!string.IsNullOrEmpty(attrv.Value))
+                                            {
+                                                pair.IsEnabled = attrv.Value == "True";
+                                            }
+                                        }
+
+                                        attrv = hoge.Attribute("IsPaneVisible");
+                                        if (attrv != null)
+                                        {
+                                            if (!string.IsNullOrEmpty(attrv.Value))
+                                            {
+                                                pair.IsPaneVisible = attrv.Value == "True";
+                                            }
+                                        }
+
+                                        attrv = hoge.Attribute("CandleType");
+                                        if (attrv != null)
+                                        {
+                                            if (!string.IsNullOrEmpty(attrv.Value))
+                                            {
+                                                var candleTypeString = attrv.Value;
+
+                                                if (candleTypeString == "OneMin")
+                                                {
+                                                    pair.SelectedCandleType = CandleTypes.OneMin;
+                                                }
+                                                else if (candleTypeString == "FiveMin")
+                                                {
+                                                    pair.SelectedCandleType = CandleTypes.FiveMin;
+                                                }
+                                                else if (candleTypeString == "FifteenMin")
+                                                {
+                                                    pair.SelectedCandleType = CandleTypes.FifteenMin;
+                                                }
+                                                else if (candleTypeString == "ThirtyMin")
+                                                {
+                                                    pair.SelectedCandleType = CandleTypes.ThirtyMin;
+                                                }
+                                                else if (candleTypeString == "OneHour")
+                                                {
+                                                    pair.SelectedCandleType = CandleTypes.OneHour;
+                                                }
+                                                else if (candleTypeString == "FourHour")
+                                                {
+                                                    pair.SelectedCandleType = CandleTypes.FourHour;
+                                                }
+                                                else if (candleTypeString == "EightHour")
+                                                {
+                                                    pair.SelectedCandleType = CandleTypes.EightHour;
+                                                }
+                                                else if (candleTypeString == "TwelveHour")
+                                                {
+                                                    pair.SelectedCandleType = CandleTypes.TwelveHour;
+                                                }
+                                                else if (candleTypeString == "OneDay")
+                                                {
+                                                    pair.SelectedCandleType = CandleTypes.OneDay;
+                                                }
+                                                else if (candleTypeString == "OneWeek")
+                                                {
+                                                    pair.SelectedCandleType = CandleTypes.OneWeek;
+                                                }
+                                                else if (candleTypeString == "OneMonth")
+                                                {
+                                                    pair.SelectedCandleType = CandleTypes.OneMonth;
+                                                }
+                                            }
+                                        }
+
+                                        // TODO: 個別設定が必要
+                                        if (pair.PairCode == PairCodes.btc_jpy)
+                                        {
+                                            MainViewModel.IsOnBtcJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.xrp_jpy)
+                                        {
+                                            MainViewModel.IsOnXrpJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.eth_jpy)
+                                        {
+                                            MainViewModel.IsOnEthJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.ltc_jpy)
+                                        {
+                                            MainViewModel.IsOnLtcJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.bcc_jpy)
+                                        {
+                                            MainViewModel.IsOnBccJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.mona_jpy)
+                                        {
+                                            MainViewModel.IsOnMonaJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.xlm_jpy)
+                                        {
+                                            MainViewModel.IsOnXlmJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.qtum_jpy)
+                                        {
+                                            MainViewModel.IsOnQtumJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.bat_jpy)
+                                        {
+                                            MainViewModel.IsOnBatJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.omg_jpy)
+                                        {
+                                            MainViewModel.IsOnOmgJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.xym_jpy)
+                                        {
+                                            MainViewModel.IsOnXymJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.link_jpy)
+                                        {
+                                            MainViewModel.IsOnLinkJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.mkr_jpy)
+                                        {
+                                            MainViewModel.IsOnMkrJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.boba_jpy)
+                                        {
+                                            MainViewModel.IsOnBobaJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.enj_jpy)
+                                        {
+                                            MainViewModel.IsOnEnjJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.matic_jpy)
+                                        {
+                                            MainViewModel.IsOnMaticJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.dot_jpy)
+                                        {
+                                            MainViewModel.IsOnDotJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.doge_jpy)
+                                        {
+                                            MainViewModel.IsOnDogeJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.astr_jpy)
+                                        {
+                                            MainViewModel.IsOnAstrJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.ada_jpy)
+                                        {
+                                            MainViewModel.IsOnAdaJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.avax_jpy)
+                                        {
+                                            MainViewModel.IsOnAvaxJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.axs_jpy)
+                                        {
+                                            MainViewModel.IsOnAxsJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.flr_jpy)
+                                        {
+                                            MainViewModel.IsOnFlrJpy = pair.IsEnabled;
+                                        }
+                                        else if (pair.PairCode == PairCodes.sand_jpy)
+                                        {
+                                            MainViewModel.IsOnSandJpy = pair.IsEnabled;
+                                        }
+                                    }
+
+                                }
+                                catch { }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        var app = App.Current as App;
+        if (app is not null)
+        {
+            app.IsSaveErrorLog = MainViewModel.IsDebugSaveLog;
+        }
+
+        #endregion
     }
 
     private void OnLoaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
@@ -80,6 +384,184 @@ public sealed partial class ShellPage : Page
         var resource = args.WindowActivationState == WindowActivationState.Deactivated ? "WindowCaptionForegroundDisabled" : "WindowCaptionForeground";
 
         AppTitleBarText.Foreground = (SolidColorBrush)App.Current.Resources[resource];
+    }
+
+    private void MainWindow_Closed(object sender, WindowEventArgs args)
+    {
+        #region == Save setting ==
+
+        XmlDocument doc = new();
+        var xmlDeclaration = doc.CreateXmlDeclaration("1.0", "UTF-8", null);
+        doc.InsertBefore(xmlDeclaration, doc.DocumentElement);
+
+        // Root Document Element
+        var root = doc.CreateElement(string.Empty, "App", string.Empty);
+        doc.AppendChild(root);
+
+        //XmlAttribute attrs = doc.CreateAttribute("Version");
+        //attrs.Value = _appVer;
+        //root.SetAttributeNode(attrs);
+        XmlAttribute attrs;
+
+        // Main window
+        if (App.MainWindow != null)
+        {
+            // Main Window element
+            var mainWindow = doc.CreateElement(string.Empty, "MainWindow", string.Empty);
+
+            // Main Window attributes
+            attrs = doc.CreateAttribute("width");
+            /*
+            if ((sender as Window).WindowState == WindowState.Maximized)
+            {
+                attrs.Value = (sender as Window).RestoreBounds.Width.ToString();
+            }
+            else
+            {
+                attrs.Value = (sender as Window).Width.ToString();
+            }
+            */
+            attrs.Value = App.MainWindow.GetAppWindow().Size.Width.ToString();
+            mainWindow.SetAttributeNode(attrs);
+
+            attrs = doc.CreateAttribute("height");
+            /*
+            if ((sender as Window).WindowState == WindowState.Maximized)
+            {
+                attrs.Value = (sender as Window).RestoreBounds.Height.ToString();
+            }
+            else
+            {
+                attrs.Value = (sender as Window).Height.ToString();
+            }
+            */
+            attrs.Value = App.MainWindow.GetAppWindow().Size.Height.ToString();
+            mainWindow.SetAttributeNode(attrs);
+
+            /*
+            attrs = doc.CreateAttribute("top");
+            if ((sender as Window).WindowState == WindowState.Maximized)
+            {
+                attrs.Value = (sender as Window).RestoreBounds.Top.ToString();
+            }
+            else
+            {
+                attrs.Value = (sender as Window).Top.ToString();
+            }
+            mainWindow.SetAttributeNode(attrs);
+            */
+            /*
+            attrs = doc.CreateAttribute("left");
+            if ((sender as Window).WindowState == WindowState.Maximized)
+            {
+                attrs.Value = (sender as Window).RestoreBounds.Left.ToString();
+            }
+            else
+            {
+                attrs.Value = (sender as Window).Left.ToString();
+            }
+            mainWindow.SetAttributeNode(attrs);
+            */
+            /*
+            attrs = doc.CreateAttribute("state");
+            if ((sender as Window).WindowState == WindowState.Maximized)
+            {
+                attrs.Value = "Maximized";
+            }
+            else if ((sender as Window).WindowState == WindowState.Normal)
+            {
+                attrs.Value = "Normal";
+
+            }
+            else if ((sender as Window).WindowState == WindowState.Minimized)
+            {
+                attrs.Value = "Minimized";
+            }
+            mainWindow.SetAttributeNode(attrs);
+            */
+
+
+            var xNavigationViewControl = doc.CreateElement(string.Empty, "NavigationViewControl", string.Empty);
+
+            var xAttrs = doc.CreateAttribute("IsPaneOpen");
+            xAttrs.Value = MainViewModel.NavigationViewControl_IsPaneOpen.ToString();
+            xNavigationViewControl.SetAttributeNode(xAttrs);
+
+            mainWindow.AppendChild(xNavigationViewControl);
+
+            // set Main Window element to root.
+            root.AppendChild(mainWindow);
+
+        }
+
+        // Options
+        var xOpts = doc.CreateElement(string.Empty, "Opts", string.Empty);
+
+        attrs = doc.CreateAttribute("IsChartTooltipVisible");
+        attrs.Value = MainViewModel.IsChartTooltipVisible.ToString();
+        xOpts.SetAttributeNode(attrs);
+
+        attrs = doc.CreateAttribute("IsDebugSaveLog");
+        attrs.Value = MainViewModel.IsDebugSaveLog.ToString();
+        xOpts.SetAttributeNode(attrs);
+
+        root.AppendChild(xOpts);
+
+        // Each pairs
+        var xPairs = doc.CreateElement(string.Empty, "Pairs", string.Empty);
+        foreach (var hoge in MainViewModel.Pairs)
+        {
+            var xPair = doc.CreateElement(string.Empty, "Pair", string.Empty);
+
+            var xAttrs = doc.CreateAttribute("PairCode");
+            xAttrs.Value = hoge.PairCode.ToString();
+            xPair.SetAttributeNode(xAttrs);
+
+            xAttrs = doc.CreateAttribute("IsEnabled");
+            xAttrs.Value = hoge.IsEnabled.ToString();
+            xPair.SetAttributeNode(xAttrs);
+
+            xAttrs = doc.CreateAttribute("IsPaneVisible");
+            xAttrs.Value = hoge.IsPaneVisible.ToString();
+            xPair.SetAttributeNode(xAttrs);
+
+            xAttrs = doc.CreateAttribute("CandleType");
+            xAttrs.Value = hoge.SelectedCandleType.ToString();
+            xPair.SetAttributeNode(xAttrs);
+
+
+            xAttrs = doc.CreateAttribute("IsChartTooltipVisible");
+            // TODO:
+            //xAttrs.Value = hoge.IsChartTooltipVisible.ToString();
+            //xAttrs.Value = MainVM.IsChartTooltipVisible.ToString();
+            xPair.SetAttributeNode(xAttrs);
+
+
+            xPairs.AppendChild(xPair);
+
+            // Since we are here, we might as well clean up.
+            hoge.IsEnabled = false;
+            hoge.CleanUp();
+        }
+        root.AppendChild(xPairs);
+
+        try
+        {
+            doc.Save(App.AppConfigFilePath);
+        }
+        //catch (System.IO.FileNotFoundException) { }
+        catch (Exception ex)
+        {
+            Debug.WriteLine("MainWindow_Closed: " + ex + " while saving : " + App.AppConfigFilePath);
+        }
+
+        #endregion
+
+        MainViewModel.CleanUp();
+
+        // error logs.
+        var app = App.Current as App;
+        app?.SaveErrorLog();
     }
 
     private void NavigationViewControl_DisplayModeChanged(NavigationView sender, NavigationViewDisplayModeChangedEventArgs args)
@@ -109,11 +591,13 @@ public sealed partial class ShellPage : Page
 
     private static void OnKeyboardAcceleratorInvoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
+        /*
         var navigationService = App.GetService<INavigationService>();
 
         var result = navigationService.GoBack();
 
         args.Handled = result;
+        */
     }
 
     private void NavigationViewControl_Loaded(object sender, RoutedEventArgs e)
@@ -331,7 +815,6 @@ public sealed partial class ShellPage : Page
 
         PairCodes _activePair;
 
-        // （個別設定が必要）
         if (e.SourcePageType == typeof(BtcJpyPage))
         {
             _activePair = PairCodes.btc_jpy;
@@ -436,7 +919,6 @@ public sealed partial class ShellPage : Page
 
         // Set IsActive and Init & Start.
         MainViewModel.SetSelectedPairFromCode(_activePair);
-
     }
 
     private void NavigationFrame_NavigationFailed(object sender, Microsoft.UI.Xaml.Navigation.NavigationFailedEventArgs e)

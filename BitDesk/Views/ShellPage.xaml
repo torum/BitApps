@@ -13,7 +13,7 @@
               Height="{Binding ElementName=NavigationViewControl, Path=CompactPaneLength}"
               IsHitTestVisible="True"
               VerticalAlignment="Top">
-            <Image Source="/Assets/WindowIcon.ico"
+            <Image Source="/Assets/App.ico"
                    HorizontalAlignment="Left"
                    Width="16"
                    Height="16" />
@@ -26,17 +26,14 @@
         <NavigationView
             x:Name="NavigationViewControl"
             Canvas.ZIndex="0"
-            IsBackButtonVisible="Visible"
-            IsBackEnabled="{x:Bind ViewModel.IsBackEnabled, Mode=OneWay}"
-            SelectedItem="{x:Bind ViewModel.Selected, Mode=OneWay}"
+            IsBackButtonVisible="Collapsed"
             IsSettingsVisible="True"
             PaneDisplayMode="Auto"
             ExpandedModeThresholdWidth="1007"
             OpenPaneLength ="180"
             DisplayModeChanged="NavigationViewControl_DisplayModeChanged"
             Loaded="NavigationViewControl_Loaded"
-            ItemInvoked="NavigationViewControl_ItemInvoked"
-            Header="{x:Bind ((ContentControl)ViewModel.Selected).Content, Mode=OneWay}">
+            ItemInvoked="NavigationViewControl_ItemInvoked">
             <NavigationView.MenuItems>
 
                 <NavigationViewItem x:Uid="Shell_BtcJpy" Tag="btc_jpy" Padding="3" Style="{StaticResource NavigationViewItemStyle1}" Visibility="{x:Bind MainViewModel.IsOnBtcJpy, Mode=OneWay}">

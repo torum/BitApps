@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json.Nodes;
-using BitDesk.Activation;
 using BitDesk.Contracts.Services;
 using BitDesk.Services;
 using BitDesk.ViewModels;
@@ -18,8 +17,7 @@ namespace BitDesk;
 
 public partial class App : Application
 {
-
-    private static readonly string _appName = "BitDesk";//_resourceLoader.GetString("AppName");
+    private static readonly string _appName = "BitDesk";
     private static readonly string _appDeveloper = "torum";
     private static readonly string _envDataFolder = System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
     public static string AppDataFolder { get; } = _envDataFolder + System.IO.Path.DirectorySeparatorChar + _appDeveloper + System.IO.Path.DirectorySeparatorChar + _appName;
@@ -62,31 +60,13 @@ public partial class App : Application
         UseContentRoot(AppContext.BaseDirectory).
         ConfigureServices((context, services) =>
         {
-            // Default Activation Handler
-            services.AddTransient<ActivationHandler<LaunchActivatedEventArgs>, DefaultActivationHandler>();
-
-            // Other Activation Handlers
-
             // Services
             services.AddSingleton<IThemeSelectorService, ThemeSelectorService>();
-            services.AddTransient<INavigationViewService, NavigationViewService>();
-
-            services.AddSingleton<IActivationService, ActivationService>();
-            services.AddSingleton<IPageService, PageService>();
-            services.AddSingleton<INavigationService, NavigationService>();
-
-            // Core Services
-            //services.AddSingleton<IFileService, FileService>();
 
             // Views and ViewModels
-            services.AddSingleton<SettingsViewModel>();
             services.AddSingleton<SettingsPage>();
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<ShellPage>();
-            services.AddSingleton<ShellViewModel>();
-
-            // Configuration
-            //services.Configure<LocalSettingsOptions>(context.Configuration.GetSection(nameof(LocalSettingsOptions)));
         }).
         Build();
 
@@ -96,7 +76,8 @@ public partial class App : Application
     }
 
     protected async override void OnLaunched(LaunchActivatedEventArgs args)
-    {        /*
+    {
+        /*
          * https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/migrate-to-windows-app-sdk/guides/applifecycle
         */
         // If this is the first instance launched, then register it as the "main" instance.
@@ -135,7 +116,12 @@ public partial class App : Application
 
         base.OnLaunched(args);
 
-        await App.GetService<IActivationService>().ActivateAsync(args);
+        var _viewModel = App.GetService<MainViewModel>();
+        var _shell = new ShellPage(_viewModel);
+        MainWindow.Content = _shell;
+
+
+        MainWindow?.Activate();
     }
 
     // Activated from other instance.
@@ -153,21 +139,11 @@ public partial class App : Application
 
     private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
     {
-        // TODO: Log and handle exceptions as appropriate.
-        // https://docs.microsoft.com/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.application.unhandledexception.
-
-        // This does not fire...because of winui3 bugs. should be fixed in v1.2.2 WinAppSDK
-        // see https://github.com/microsoft/microsoft-ui-xaml/issues/5221
-
         Debug.WriteLine("App_UnhandledException", e.Message);
         Debug.WriteLine($"StackTrace: {e.Exception.StackTrace}, Source: {e.Exception.Source}");
         AppendErrorLog("App_UnhandledException", e.Message + System.Environment.NewLine + $"StackTrace: {e.Exception.StackTrace}, Source: {e.Exception.Source}");
 
-        try
-        {
-            SaveErrorLog();
-        }
-        catch (Exception) { }
+        SaveErrorLog();
     }
 
     private void TaskScheduler_UnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)

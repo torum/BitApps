@@ -102,7 +102,7 @@ public class MainViewModel : ObservableRecipient
                 version = Assembly.GetExecutingAssembly().GetName().Version!;
             }
 
-            return $"{"AppDisplayName/Text".GetLocalized()} - {version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
+            return $"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
         }
     }
     public ICommand SwitchThemeCommand

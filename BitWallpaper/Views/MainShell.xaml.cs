@@ -434,6 +434,7 @@ public sealed partial class MainShell : Page
         AppTitleBarText.Foreground = (SolidColorBrush)App.Current.Resources[resource];
 
     }
+
     private void MainWindow_Closed(object sender, WindowEventArgs args)
     {
         XmlDocument doc = new();
@@ -598,7 +599,7 @@ public sealed partial class MainShell : Page
         //catch (System.IO.FileNotFoundException) { }
         catch (Exception ex)
         {
-            Debug.WriteLine("Å°Å°Å°Å°Å° Error  ê›íËÉtÉ@ÉCÉãÇÃï€ë∂íÜ: " + ex + " while opening : " + App.AppConfigFilePath);
+            Debug.WriteLine("MainWindow_Closed: " + ex + " while saving : " + App.AppConfigFilePath);
         }
 
         MainVM.CleanUp();
