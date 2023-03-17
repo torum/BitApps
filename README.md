@@ -1,6 +1,6 @@
 # BitApps
 
-A collection of [BitBank](https://bitbank.cc/)'s client apps.
+A collection of [BitBank](https://bitbank.cc/)'s client apps. This is a source code only repo.
 
 ## [BitWallpaper](https://github.com/torum/BitWallpaper)
 Cryptocurrency charting app. 
