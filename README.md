@@ -1,13 +1,8 @@
 # BitApps
 
-A collection of BitBank's client apps.
+A collection of [BitBank](https://bitbank.cc/)'s client apps.
 
-## BitDesk
-A cryptocurrency trading app. 
-
-Currently rewriting [the old .NET4.x framework app](https://github.com/torum/BitDesk) to .NET7/WinUI3. Original repository: [BitDesk](https://github.com/torum/BitDesk)
-
-## BitWallpaper
+## [BitWallpaper](https://github.com/torum/BitWallpaper)
 Cryptocurrency charting app. 
 
 Displays cryptocurrency charts using [BitBank](https://bitbank.cc/)'s [public API](https://github.com/bitbankinc/bitbank-api-docs). No registration required. Original repository: [BitWallpaper](https://github.com/torum/BitWallpaper)
@@ -47,3 +42,9 @@ Feel free to open issues and send PRs.
 1. Visual Studio 2022 with support for .NET Desktop App UI development (and optionally .NET Universal App development)
 2. Clone this repository
 3. Open solution in Visual Studio and run
+
+
+## [BitDesk](https://github.com/torum/BitDesk)
+A cryptocurrency trading app. 
+
+Currently rewriting [the old .NET4.x framework app](https://github.com/torum/BitDesk) to .NET7/WinUI3. Original repository: [BitDesk](https://github.com/torum/BitDesk)
