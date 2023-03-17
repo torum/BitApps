@@ -3,14 +3,14 @@
 A collection of BitBank's client apps.
 
 ## BitDesk
-A cryptocurrency trading app. Currently rewriting .NET 4.x framework app to .NET 7. Original repository: [BitDesk](https://github.com/torum/BitDesk)
+A cryptocurrency trading app. 
 
-
+Currently rewriting [the old .NET4.x framework app](https://github.com/torum/BitDesk) to .NET7/WinUI3. Original repository: [BitDesk](https://github.com/torum/BitDesk)
 
 ## BitWallpaper
-Cryptocurrency charting app. Original repository: [BitWallpaper](https://github.com/torum/BitWallpaper)
+Cryptocurrency charting app. 
 
-Displays cryptocurrency charts using [BitBank](https://bitbank.cc/)'s [public API](https://github.com/bitbankinc/bitbank-api-docs). No registration required. 
+Displays cryptocurrency charts using [BitBank](https://bitbank.cc/)'s [public API](https://github.com/bitbankinc/bitbank-api-docs). No registration required. Original repository: [BitWallpaper](https://github.com/torum/BitWallpaper)
 
 Pairs: BTC/JPY, XRP/JPY, ETH/JPY, LTC/JPY, MONA/JPY, BCC/JPY, XLM/JPY, QTUM/JPY, BAT/JPY, OMG/JPY, XYM/JPY, LINK/JPY, MKR/JPY, BOBA/JPY, ENJ/JPY, MATIC/JPY, DOT/JPY, DOGE/JPY, ASTR/JPY, ADA/JPY, AVAX/JPY, AXS/JPY, FLR/JPY, SAND/JPY.
 
