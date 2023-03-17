@@ -1,4 +1,4 @@
-﻿namespace BitWares.Core.Models;
+﻿namespace BitApps.Core.Models;
 
 public class ShowBalloonEventArgs : EventArgs
 {

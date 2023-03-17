@@ -8,11 +8,44 @@
     Loaded="OnLoaded">
 
     <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="1007" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+
+                        <Setter Target="NavigationVewPageContent.Margin" Value="{StaticResource NavigationViewPageContentMargin}" />
+                        <Setter Target="NavigationViewControl.PaneDisplayMode" Value="Left" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="650" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="NavigationVewPageContent.Margin" Value="0,0,0,0" />
+                        <Setter Target="NavigationViewControl.PaneDisplayMode" Value="LeftCompact" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="NavigationVewPageContent.Margin" Value="0,44,0,0" />
+                        <Setter Target="NavigationViewControl.PaneDisplayMode" Value="LeftMinimal" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
         <Grid x:Name="AppTitleBar"
               Canvas.ZIndex="1"
               Height="{Binding ElementName=NavigationViewControl, Path=CompactPaneLength}"
               IsHitTestVisible="True"
-              VerticalAlignment="Top">
+              VerticalAlignment="Top"
+              Margin="50,0,0,0">
             <Image Source="/Assets/App.ico"
                    HorizontalAlignment="Left"
                    Width="16"
@@ -21,7 +54,8 @@
                        VerticalAlignment="Center"
                        TextWrapping="NoWrap"
                        Style="{StaticResource CaptionTextBlockStyle}"
-                       Margin="28,0,0,0"/>
+                       Margin="28,0,0,0"
+                       Text="BitDesk"/>
         </Grid>
         <NavigationView
             x:Name="NavigationViewControl"
@@ -325,7 +359,7 @@
                 </NavigationViewItem>
 
             </NavigationView.MenuItems>
-            <Grid Margin="{StaticResource NavigationViewPageContentMargin}">
+            <Grid x:Name="NavigationVewPageContent" Margin="{StaticResource NavigationViewPageContentMargin}">
                 <Frame x:Name="NavigationFrame" Navigated="NavigationFrame_Navigated" NavigationFailed="NavigationFrame_NavigationFailed"/>
             </Grid>
         </NavigationView>

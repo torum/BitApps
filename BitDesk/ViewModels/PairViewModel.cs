@@ -1,6 +1,6 @@
-﻿using BitWare.Core.Helpers;
-using BitWares.Core.Models;
-using BitWares.Core.Models.APIClients;
+﻿using BitApps.Core.Helpers;
+using BitApps.Core.Models;
+using BitApps.Core.Models.APIClients;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
@@ -1201,10 +1201,11 @@ public class PairViewModel : ObservableRecipient
     {
         new Axis()
         {
-            LabelsRotation = -15,
+            LabelsRotation = -13,
             LabelsPaint = new SolidColorPaint(SKColors.Gray),
-            Labeler = value => new DateTime((long) value).ToString("MM/dd"), //TODO: localize aware
-            UnitWidth = TimeSpan.FromHours(0.5).Ticks,
+            Labeler = value => new DateTime((long) value).ToString("M/d"), //TODO: localize aware
+            //UnitWidth = TimeSpan.FromHours(0.5).Ticks,
+            UnitWidth = TimeSpan.FromDays(1).Ticks,
             MinStep = TimeSpan.FromDays(1).Ticks,
             MaxLimit = null,
             MinLimit= DateTime.Now.Ticks - TimeSpan.FromDays(2.8).Ticks,
@@ -1643,70 +1644,70 @@ public class PairViewModel : ObservableRecipient
         // キャンドルタイプにあわせてチャートXAxes[0]表示tweak
         if (ct == CandleTypes.OneMin)
         {
-            XAxes[0].Labeler = value => new DateTime((long)value).ToString("HH:mm");
+            XAxes[0].Labeler = value => new DateTime((long)value).ToString("H:mm");
             XAxes[0].UnitWidth = TimeSpan.FromMinutes(0.4).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromMinutes(1).Ticks;
+            XAxes[0].MinStep = TimeSpan.FromMinutes(10).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromMinutes(60).Ticks;
         }
         else if (ct == CandleTypes.FiveMin)
         {
-            XAxes[0].Labeler = value => new DateTime((long)value).ToString("HH:mm");
+            XAxes[0].Labeler = value => new DateTime((long)value).ToString("H:mm");
             XAxes[0].UnitWidth = TimeSpan.FromMinutes(2.5).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromMinutes(5).Ticks;
+            XAxes[0].MinStep = TimeSpan.FromMinutes(10).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromMinutes(300).Ticks;
         }
         else if (ct == CandleTypes.FifteenMin)
         {
-            XAxes[0].Labeler = value => new DateTime((long)value).ToString("MM/dd HH:mm");
+            XAxes[0].Labeler = value => new DateTime((long)value).ToString("M/d H:mm");
             XAxes[0].UnitWidth = TimeSpan.FromMinutes(7).Ticks;
             XAxes[0].MinStep = TimeSpan.FromMinutes(15).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromMinutes(750).Ticks;
         }
         else if (ct == CandleTypes.ThirtyMin)
         {
-            XAxes[0].Labeler = value => new DateTime((long)value).ToString("MM/dd HH:mm");
+            XAxes[0].Labeler = value => new DateTime((long)value).ToString("M/d H:mm");
             XAxes[0].UnitWidth = TimeSpan.FromMinutes(15).Ticks;
             XAxes[0].MinStep = TimeSpan.FromMinutes(30).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromMinutes(1500).Ticks;
         }
         else if (ct== CandleTypes.OneHour)
         {
-            XAxes[0].Labeler = value => new DateTime((long)value).ToString("MM/dd HH");
+            XAxes[0].Labeler = value => new DateTime((long)value).ToString("M/d H:mm");
             XAxes[0].UnitWidth = TimeSpan.FromHours(0.5).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromHours(1).Ticks;
+            XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(3).Ticks;
         }
         else if (ct == CandleTypes.FourHour)
         {
-            XAxes[0].Labeler = value => new DateTime((long)value).ToString("MM/dd HH");
+            XAxes[0].Labeler = value => new DateTime((long)value).ToString("M/d HH");
             XAxes[0].UnitWidth = TimeSpan.FromHours(2).Ticks;
             XAxes[0].MinStep = TimeSpan.FromHours(4).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(6).Ticks;
         }
         else if (ct == CandleTypes.EightHour)
         {
-            XAxes[0].Labeler = value => new DateTime((long)value).ToString("MM/dd HH");
+            XAxes[0].Labeler = value => new DateTime((long)value).ToString("M/d HH");
             XAxes[0].UnitWidth = TimeSpan.FromHours(4).Ticks;
             XAxes[0].MinStep = TimeSpan.FromHours(8).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(12).Ticks;
         }
         else if (ct == CandleTypes.TwelveHour)
         {
-            XAxes[0].Labeler = value => new DateTime((long)value).ToString("yyyy MM/dd");
+            XAxes[0].Labeler = value => new DateTime((long)value).ToString("yyyy M/d");
             XAxes[0].UnitWidth = TimeSpan.FromHours(6).Ticks;
             XAxes[0].MinStep = TimeSpan.FromDays(0.5).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(24).Ticks;
         }
         else if (ct == CandleTypes.OneDay)
         {
-            XAxes[0].Labeler = value => new DateTime((long)value).ToString("yyyy MM/dd");
+            XAxes[0].Labeler = value => new DateTime((long)value).ToString("yyyy M/d");
             XAxes[0].UnitWidth = TimeSpan.FromDays(0.4).Ticks;
             XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(90).Ticks;
         }
         else if (ct == CandleTypes.OneWeek)
         {
-            XAxes[0].Labeler = value => new DateTime((long)value).ToString("yyyy MM/dd");
+            XAxes[0].Labeler = value => new DateTime((long)value).ToString("yyyy M/d");
             XAxes[0].UnitWidth = TimeSpan.FromDays(2).Ticks;
             XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(300).Ticks;
@@ -1714,7 +1715,7 @@ public class PairViewModel : ObservableRecipient
         }
         else if (ct == CandleTypes.OneMonth)
         {
-            XAxes[0].Labeler = value => new DateTime((long)value).ToString("yyyy/MM");
+            XAxes[0].Labeler = value => new DateTime((long)value).ToString("yyyy/M");
             XAxes[0].UnitWidth = TimeSpan.FromDays(21).Ticks;
             XAxes[0].MinStep = TimeSpan.FromDays(30).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(360*3).Ticks;

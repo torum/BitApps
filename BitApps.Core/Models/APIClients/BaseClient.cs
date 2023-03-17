@@ -5,7 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BitWares.Core.Models.APIClients;
+namespace BitApps.Core.Models.APIClients;
 
 public abstract class BaseClient : IDisposable
 {

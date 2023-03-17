@@ -4,7 +4,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:model="using:BitWares.Core.Models"
+    xmlns:model="using:BitApps.Core.Models"
     xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
     mc:Ignorable="d">
 
@@ -66,12 +66,16 @@
 
     </UserControl.Resources>
     <Grid>
-
+        <Grid.RowDefinitions>
+            <RowDefinition Height="7*"/>
+            <RowDefinition Height="3*"/>
+        </Grid.RowDefinitions>
+        
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="640" />
+                        <AdaptiveTrigger MinWindowWidth="650" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="SecondaryTitle.Margin" Value="0"/>
@@ -82,8 +86,9 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="SecondaryTitle.Margin" Value="48,0,0,0"/>
+                        <Setter Target="SecondaryTitle.Margin" Value="12,0,0,0"/>
                         <Setter Target="SplitViewControl.IsPaneOpen" Value="False"/>
+                        <Setter Target="PanelOpenClose.Visibility" Value="Collapsed"/>
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -100,9 +105,7 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
-        <!--  IsPaneOpen="{x:Bind Path=PairViewModel.IsPaneVisible, Mode=TwoWay}"  PaneBackground="{ThemeResource LayerFillColorAltBrush}" -->
-
-        <SplitView x:Name="SplitViewControl" Margin="0,0,0,0" CornerRadius="0,0,0,0" BorderThickness="0,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}" PaneBackground="Transparent" IsPaneOpen="{x:Bind Path=PairViewModel.IsPaneVisible, Mode=TwoWay}" PanePlacement="Right" OpenPaneLength="280" CompactPaneLength="0" DisplayMode="CompactInline">
+        <SplitView x:Name="SplitViewControl" Grid.Row="0" Grid.Column="0" Margin="0" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}" PaneBackground="Transparent" IsPaneOpen="{x:Bind Path=PairViewModel.IsPaneVisible, Mode=TwoWay}" PanePlacement="Right" OpenPaneLength="280" CompactPaneLength="0" DisplayMode="CompactInline">
             <SplitView.Pane>
                 <Grid Margin="12,6,0,0">
                     <Grid.RowDefinitions>
@@ -117,7 +120,7 @@
 
                             <TabViewItem x:Uid="TabHeader_Orders" IsClosable="False" Opacity="0.7" Background="Transparent">
 
-                                <ListBox x:Name="DepthListBox" BorderThickness="1,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}" ItemTemplateSelector="{StaticResource DepthListItemTemplateSelector}" ItemsSource="{x:Bind Path=PairViewModel.Depth, Mode=OneWay}" SizeChanged="ListBoxDepth_SizeChanged" IsDoubleTapEnabled="True" DoubleTapped="DepthListBox_DoubleTapped" Background="Transparent" Margin="0,0,0,6" Padding="0,12,0,12" HorizontalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                <ListBox x:Name="DepthListBox" BorderThickness="1,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}" ItemTemplateSelector="{StaticResource DepthListItemTemplateSelector}" ItemsSource="{x:Bind Path=PairViewModel.Depth, Mode=OneWay}" SizeChanged="ListBoxDepth_SizeChanged" IsDoubleTapEnabled="True" DoubleTapped="DepthListBox_DoubleTapped" Background="Transparent" Margin="0,0,0,0" Padding="0,12,0,12" HorizontalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
                                     <!--  VerticalAlignment="Stretch" removed so that SizeChagen gets invoked. -->
                                     <ListBox.ItemContainerStyle>
                                         <Style TargetType="ListBoxItem" BasedOn="{StaticResource DefaultListBoxItemStyle}">
@@ -254,7 +257,7 @@
 
                             <TabViewItem x:Uid="TabHeader_History" IsClosable="False" Opacity="0.7" Background="Transparent">
                                 
-                                <ListBox BorderThickness="1,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}" ItemsSource="{x:Bind Path=PairViewModel.Transactions, Mode=OneWay}" Background="Transparent" Margin="0,0,0,12" HorizontalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible">
+                                <ListBox BorderThickness="1,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}" ItemsSource="{x:Bind Path=PairViewModel.Transactions, Mode=OneWay}" Background="Transparent" Margin="0" HorizontalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible">
                                     <ListBox.ItemContainerStyle>
                                         <Style TargetType="ListBoxItem" BasedOn="{StaticResource DefaultListBoxItemStyle}">
                                             <Setter Property="Padding" Value="3"/>
@@ -408,7 +411,7 @@
                     -->
                 </StackPanel>
 
-                <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
+                <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
                     <lvc:CartesianChart x:Name="LiveChart"
                         Margin="0,0,0,0" 
                                     Series="{x:Bind PairViewModel.Series, Mode=OneWay}" 
@@ -419,9 +422,14 @@
                                     ZoomMode="X"/>
 
                 </Grid>
+                
 
             </Grid>
 
         </SplitView>
+
+        <Grid Grid.Row="1" Grid.Column="0">
+
+        </Grid>
     </Grid>
 </UserControl>

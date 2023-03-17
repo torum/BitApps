@@ -7,7 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
-    xmlns:model="using:BitWares.Core.Models"
+    xmlns:model="using:BitApps.Core.Models"
     xmlns:vm="using:BitWallpaper.ViewModels"
     mc:Ignorable="d">
     <UserControl.Resources>
@@ -104,7 +104,7 @@
 
         <!--  IsPaneOpen="{x:Bind Path=PairVM.IsPaneVisible, Mode=TwoWay}"  PaneBackground="{ThemeResource LayerFillColorAltBrush}" -->
 
-        <SplitView x:Name="SplitViewControl" Margin="0,0,0,0" CornerRadius="0,0,0,0" BorderThickness="1,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}" PaneBackground="Transparent" IsPaneOpen="{x:Bind Path=PairVM.IsPaneVisible, Mode=TwoWay}" PanePlacement="Right" OpenPaneLength="280" CompactPaneLength="0" DisplayMode="CompactInline">
+        <SplitView x:Name="SplitViewControl" Margin="0,0,0,0" CornerRadius="0,0,0,0" BorderThickness="0,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}" PaneBackground="Transparent" IsPaneOpen="{x:Bind Path=PairVM.IsPaneVisible, Mode=TwoWay}" PanePlacement="Right" OpenPaneLength="280" CompactPaneLength="0" DisplayMode="CompactInline">
             <SplitView.Pane>
                 <Grid Margin="12,6,0,0">
                     <Grid.RowDefinitions>

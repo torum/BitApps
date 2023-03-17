@@ -1,7 +1,7 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
-namespace BitWares.Core.Models;
+namespace BitApps.Core.Models;
 
 public class Depth : ViewModelBase
 {

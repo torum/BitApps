@@ -1,15 +1,13 @@
-﻿using BitWares.Core.Helpers;
-using BitWallpaper.Helpers;
-using BitWares.Core.Models;
-using BitWares.Core.Models.APIClients;
-using Microsoft.UI.Xaml;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Input;
+using BitApps.Core.Helpers;
+using BitApps.Core.Models;
+using BitApps.Core.Models.APIClients;
+using Microsoft.UI.Xaml;
 using Windows.ApplicationModel;
 using Windows.Storage;
-using BitWare.Core.Helpers;
 
 namespace BitWallpaper.ViewModels;
 
@@ -101,6 +99,7 @@ public partial class MainViewModel : ViewModelBase
             return $"{"AppDisplayName/Text".GetLocalized()} - {version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
         }
     }
+
     public ICommand SwitchThemeCommand
     {
         get; private set;
@@ -814,7 +813,7 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    private bool _isOnOmgJpy = false;
+    private bool _isOnOmgJpy = true;
     public bool IsOnOmgJpy
     {
         get => _isOnOmgJpy;
@@ -836,7 +835,7 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    private bool _isOnXymJpy = false;
+    private bool _isOnXymJpy = true;
     public bool IsOnXymJpy
     {
         get => _isOnXymJpy;
@@ -858,7 +857,7 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    private bool _isOnLinkJpy = false;
+    private bool _isOnLinkJpy = true;
     public bool IsOnLinkJpy
     {
         get => _isOnLinkJpy;
@@ -880,7 +879,7 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    private bool _isOnMkrJpy = false;
+    private bool _isOnMkrJpy = true;
     public bool IsOnMkrJpy
     {
         get => _isOnMkrJpy;
@@ -902,7 +901,7 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    private bool _isOnBobaJpy = false;
+    private bool _isOnBobaJpy = true;
     public bool IsOnBobaJpy
     {
         get => _isOnBobaJpy;
@@ -924,7 +923,7 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    private bool _isOnEnjJpy = false;
+    private bool _isOnEnjJpy = true;
     public bool IsOnEnjJpy
     {
         get => _isOnEnjJpy;
@@ -946,7 +945,7 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    private bool _isOnMaticJpy = false;
+    private bool _isOnMaticJpy = true;
     public bool IsOnMaticJpy
     {
         get => _isOnMaticJpy;
@@ -968,7 +967,7 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    private bool _isOnDotJpy = false;
+    private bool _isOnDotJpy = true;
     public bool IsOnDotJpy
     {
         get => _isOnDotJpy;
@@ -990,7 +989,7 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    private bool _isOnDogeJpy = false;
+    private bool _isOnDogeJpy = true;
     public bool IsOnDogeJpy
     {
         get => _isOnDogeJpy;
@@ -1012,7 +1011,7 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    private bool _isOnAstrJpy = false;
+    private bool _isOnAstrJpy = true;
     public bool IsOnAstrJpy
     {
         get => _isOnAstrJpy;
@@ -1034,7 +1033,7 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    private bool _isOnAdaJpy = false;
+    private bool _isOnAdaJpy = true;
     public bool IsOnAdaJpy
     {
         get => _isOnAdaJpy;
@@ -1056,7 +1055,7 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    private bool _isOnAvaxJpy = false;
+    private bool _isOnAvaxJpy = true;
     public bool IsOnAvaxJpy
     {
         get => _isOnAvaxJpy;
@@ -1078,7 +1077,7 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    private bool _isOnAxsJpy = false;
+    private bool _isOnAxsJpy = true;
     public bool IsOnAxsJpy
     {
         get => _isOnAxsJpy;
@@ -1100,7 +1099,7 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    private bool _isOnFlrJpy = false;
+    private bool _isOnFlrJpy = true;
     public bool IsOnFlrJpy
     {
         get => _isOnFlrJpy;
@@ -1122,7 +1121,7 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    private bool _isOnSandJpy = false;
+    private bool _isOnSandJpy = true;
     public bool IsOnSandJpy
     {
         get => _isOnSandJpy;

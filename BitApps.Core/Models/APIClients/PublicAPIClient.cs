@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Net.Http.Headers;
 
-namespace BitWares.Core.Models.APIClients;
+namespace BitApps.Core.Models.APIClients;
 
 public class PublicAPIClient : BaseClient
 {

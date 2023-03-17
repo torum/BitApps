@@ -5,7 +5,7 @@
     xmlns:controls="using:Microsoft.UI.Xaml.Controls"
     xmlns:primitives="using:Microsoft.UI.Xaml.Controls.Primitives"
     xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
-    xmlns:helpers="using:BitWares.Core.Helpers">
+    xmlns:helpers="using:BitApps.Core.Helpers">
     <Application.Resources>
         <ResourceDictionary>
 

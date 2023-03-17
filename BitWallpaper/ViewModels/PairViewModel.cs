@@ -1,7 +1,7 @@
 ﻿using BitWallpaper.Helpers;
-using BitWare.Core.Helpers;
-using BitWares.Core.Models;
-using BitWares.Core.Models.APIClients;
+using BitApps.Core.Helpers;
+using BitApps.Core.Models;
+using BitApps.Core.Models.APIClients;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.Kernel.Sketches;

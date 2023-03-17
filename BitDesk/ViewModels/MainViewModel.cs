@@ -1,6 +1,6 @@
-﻿using BitWares.Core.Helpers;
-using BitWares.Core.Models.APIClients;
-using BitWares.Core.Models;
+﻿using BitApps.Core.Helpers;
+using BitApps.Core.Models.APIClients;
+using BitApps.Core.Models;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reflection;
@@ -9,15 +9,12 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml;
 using Windows.ApplicationModel;
 using Windows.Storage;
-using BitWare.Core.Helpers;
+using BitApps.Core.Helpers;
 
 namespace BitDesk.ViewModels;
 
 public class MainViewModel : ObservableRecipient
 {
-    // SetProperty(ref _debuEventLog, value)
-
-    // OnPropertyChanged(nameof(Services));
 
     #region == Application general ==
 
@@ -821,7 +818,7 @@ public class MainViewModel : ObservableRecipient
         }
     }
 
-    private bool _isOnOmgJpy = false;
+    private bool _isOnOmgJpy = true;
     public bool IsOnOmgJpy
     {
         get => _isOnOmgJpy;
@@ -843,7 +840,7 @@ public class MainViewModel : ObservableRecipient
         }
     }
 
-    private bool _isOnXymJpy = false;
+    private bool _isOnXymJpy = true;
     public bool IsOnXymJpy
     {
         get => _isOnXymJpy;
@@ -865,7 +862,7 @@ public class MainViewModel : ObservableRecipient
         }
     }
 
-    private bool _isOnLinkJpy = false;
+    private bool _isOnLinkJpy = true;
     public bool IsOnLinkJpy
     {
         get => _isOnLinkJpy;
@@ -887,7 +884,7 @@ public class MainViewModel : ObservableRecipient
         }
     }
 
-    private bool _isOnMkrJpy = false;
+    private bool _isOnMkrJpy = true;
     public bool IsOnMkrJpy
     {
         get => _isOnMkrJpy;
@@ -909,7 +906,7 @@ public class MainViewModel : ObservableRecipient
         }
     }
 
-    private bool _isOnBobaJpy = false;
+    private bool _isOnBobaJpy = true;
     public bool IsOnBobaJpy
     {
         get => _isOnBobaJpy;
@@ -931,7 +928,7 @@ public class MainViewModel : ObservableRecipient
         }
     }
 
-    private bool _isOnEnjJpy = false;
+    private bool _isOnEnjJpy = true;
     public bool IsOnEnjJpy
     {
         get => _isOnEnjJpy;
@@ -953,7 +950,7 @@ public class MainViewModel : ObservableRecipient
         }
     }
 
-    private bool _isOnMaticJpy = false;
+    private bool _isOnMaticJpy = true;
     public bool IsOnMaticJpy
     {
         get => _isOnMaticJpy;
@@ -975,7 +972,7 @@ public class MainViewModel : ObservableRecipient
         }
     }
 
-    private bool _isOnDotJpy = false;
+    private bool _isOnDotJpy = true;
     public bool IsOnDotJpy
     {
         get => _isOnDotJpy;
@@ -997,7 +994,7 @@ public class MainViewModel : ObservableRecipient
         }
     }
 
-    private bool _isOnDogeJpy = false;
+    private bool _isOnDogeJpy = true;
     public bool IsOnDogeJpy
     {
         get => _isOnDogeJpy;
@@ -1019,7 +1016,7 @@ public class MainViewModel : ObservableRecipient
         }
     }
 
-    private bool _isOnAstrJpy = false;
+    private bool _isOnAstrJpy = true;
     public bool IsOnAstrJpy
     {
         get => _isOnAstrJpy;
@@ -1041,7 +1038,7 @@ public class MainViewModel : ObservableRecipient
         }
     }
 
-    private bool _isOnAdaJpy = false;
+    private bool _isOnAdaJpy = true;
     public bool IsOnAdaJpy
     {
         get => _isOnAdaJpy;
@@ -1063,7 +1060,7 @@ public class MainViewModel : ObservableRecipient
         }
     }
 
-    private bool _isOnAvaxJpy = false;
+    private bool _isOnAvaxJpy = true;
     public bool IsOnAvaxJpy
     {
         get => _isOnAvaxJpy;
@@ -1085,7 +1082,7 @@ public class MainViewModel : ObservableRecipient
         }
     }
 
-    private bool _isOnAxsJpy = false;
+    private bool _isOnAxsJpy = true;
     public bool IsOnAxsJpy
     {
         get => _isOnAxsJpy;
@@ -1107,7 +1104,7 @@ public class MainViewModel : ObservableRecipient
         }
     }
 
-    private bool _isOnFlrJpy = false;
+    private bool _isOnFlrJpy = true;
     public bool IsOnFlrJpy
     {
         get => _isOnFlrJpy;
@@ -1129,7 +1126,7 @@ public class MainViewModel : ObservableRecipient
         }
     }
 
-    private bool _isOnSandJpy = false;
+    private bool _isOnSandJpy = true;
     public bool IsOnSandJpy
     {
         get => _isOnSandJpy;

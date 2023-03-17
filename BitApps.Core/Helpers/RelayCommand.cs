@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 
-namespace BitWare.Core.Helpers;
+namespace BitApps.Core.Helpers;
 
 public class GenericRelayCommand<T> : ICommand
 {
@@ -13,7 +13,7 @@ public class GenericRelayCommand<T> : ICommand
     public GenericRelayCommand(Action<T> execute, Predicate<T> canExecuteFunc)
     {
         this.execute = execute;
-        this.CanExecuteFunc = canExecuteFunc;
+        CanExecuteFunc = canExecuteFunc;
     }
 
     public event EventHandler? CanExecuteChanged;
@@ -32,7 +32,7 @@ public class GenericRelayCommand<T> : ICommand
     {
         if (parameter != null)
         {
-            var canExecute = this.CanExecuteFunc((T)parameter);
+            var canExecute = CanExecuteFunc((T)parameter);
             return canExecute;
         }
         else
@@ -45,7 +45,7 @@ public class GenericRelayCommand<T> : ICommand
     {
         if (parameter is not null)
         {
-            this.execute((T)parameter);
+            execute((T)parameter);
         }
     }
 }

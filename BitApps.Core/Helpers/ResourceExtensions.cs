@@ -1,6 +1,6 @@
 ﻿using Microsoft.Windows.ApplicationModel.Resources;
 
-namespace BitWares.Core.Helpers;
+namespace BitApps.Core.Helpers;
 
 public static class ResourceExtensions
 {

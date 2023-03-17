@@ -1,4 +1,4 @@
-using BitWares.Core.Helpers;
+using BitApps.Core.Helpers;
 using Microsoft.UI.Xaml.Markup;
 using System.Diagnostics;
 

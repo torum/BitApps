@@ -1,4 +1,4 @@
-﻿using BitWares.Core.Helpers;
+﻿using BitApps.Core.Helpers;
 
 namespace BitDesk;
 

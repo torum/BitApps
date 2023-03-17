@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
 
-namespace BitWares.Core.Helpers;
+namespace BitApps.Core.Helpers;
 
 public class RuntimeHelper
 {

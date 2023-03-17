@@ -1,5 +1,5 @@
 ﻿using BitDesk.Contracts.Services;
-using BitWares.Core.Helpers;
+using BitApps.Core.Helpers;
 
 using Microsoft.UI.Xaml;
 using Windows.Storage;

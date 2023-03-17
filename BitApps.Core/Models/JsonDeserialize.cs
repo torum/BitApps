@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 
-namespace BitWares.Core.Models;
+namespace BitApps.Core.Models;
+
+#region == Error == 
 
 public class JsonErrorData
 {
@@ -26,45 +28,10 @@ public class JsonErrorObject
     }
 }
 
-public partial class JsonDepthObject
-{
-    [JsonProperty("success")]
-    public long Success
-    {
-        get; set;
-    }
+#endregion
 
-    [JsonProperty("data")]
-    public JsonDepthData? Data
-    {
-        get; set;
-    }
-}
+#region == Ticker ==
 
-public partial class JsonDepthData
-{
-    [JsonProperty("asks")]
-    public List<List<string>>? Asks
-    {
-        get; set;
-    }
-
-    [JsonProperty("bids")]
-    public List<List<string>>? Bids
-    {
-        get; set;
-    }
-
-    [JsonProperty("timestamp")]
-    public long Timestamp
-    {
-        get; set;
-    }
-}
-
-#region == JsonTickerClass Json デシリアライズ用 ==
-
-// Ticker
 public class JsonTickerData
 {
     public string? Sell
@@ -109,7 +76,50 @@ public class JsonTickerObject
     }
 }
 
-// Transaction
+#endregion
+
+#region == Depth ==
+
+public partial class JsonDepthObject
+{
+    [JsonProperty("success")]
+    public long Success
+    {
+        get; set;
+    }
+
+    [JsonProperty("data")]
+    public JsonDepthData? Data
+    {
+        get; set;
+    }
+}
+
+public partial class JsonDepthData
+{
+    [JsonProperty("asks")]
+    public List<List<string>>? Asks
+    {
+        get; set;
+    }
+
+    [JsonProperty("bids")]
+    public List<List<string>>? Bids
+    {
+        get; set;
+    }
+
+    [JsonProperty("timestamp")]
+    public long Timestamp
+    {
+        get; set;
+    }
+}
+
+#endregion
+
+#region == Transaction ==
+
 public partial class JsonTransactions
 {
     [JsonProperty("success")]
@@ -167,8 +177,10 @@ public partial class JsonTransaction
     }
 }
 
+#endregion
 
-// Candlestick
+#region == Candlestick ==
+
 public partial class JsonCandlestick
 {
     [JsonProperty("success")]
@@ -222,7 +234,6 @@ public partial struct JsonOhlcv
     public static implicit operator JsonOhlcv(long Long) => new() { Long = Long };
     public static implicit operator JsonOhlcv(string String) => new() { String = String };
 }
-
 
 #endregion
 

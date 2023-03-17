@@ -1,12 +1,12 @@
 ﻿using BitDesk.Contracts.Services;
-using BitWares.Core.Helpers;
+using BitApps.Core.Helpers;
 using BitDesk.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Windows.System;
-using BitWares.Core.Models;
+using BitApps.Core.Models;
 using Microsoft.UI.Xaml.Media.Animation;
 using System.Diagnostics;
 using System.Xml.Linq;
@@ -70,7 +70,6 @@ public sealed partial class ShellPage : Page
         if (System.IO.File.Exists(App.AppConfigFilePath))
         {
             var xdoc = XDocument.Load(App.AppConfigFilePath);
-
             //Debug.WriteLine(xdoc.ToString());
 
             // Main window
@@ -363,6 +362,10 @@ public sealed partial class ShellPage : Page
                 }
             }
         }
+        else
+        {
+
+        }
 
         var app = App.Current as App;
         if (app is not null)
@@ -566,6 +569,7 @@ public sealed partial class ShellPage : Page
 
     private void NavigationViewControl_DisplayModeChanged(NavigationView sender, NavigationViewDisplayModeChangedEventArgs args)
     {
+        /*
         AppTitleBar.Margin = new Thickness()
         {
             Left = sender.CompactPaneLength * (sender.DisplayMode == NavigationViewDisplayMode.Minimal ? 2 : 1),
@@ -573,6 +577,7 @@ public sealed partial class ShellPage : Page
             Right = AppTitleBar.Margin.Right,
             Bottom = AppTitleBar.Margin.Bottom
         };
+        */
     }
 
     private static KeyboardAccelerator BuildKeyboardAccelerator(VirtualKey key, VirtualKeyModifiers? modifiers = null)

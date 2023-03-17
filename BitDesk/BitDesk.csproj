@@ -90,7 +90,7 @@
   </ItemGroup>
 
   <ItemGroup>
-	  <ProjectReference Include="..\BitWares.Core\BitWares.Core.csproj" />
+	  <ProjectReference Include="..\BitApps.Core\BitApps.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
@@ -98,7 +98,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
     <Folder Include="Views\ChartPages\" />
   </ItemGroup>
 

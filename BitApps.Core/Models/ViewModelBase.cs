@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Diagnostics;
 
-namespace BitWares.Core.Models;
+namespace BitApps.Core.Models;
 
 public abstract class ViewModelBase : INotifyPropertyChanged, IDataErrorInfo
 {

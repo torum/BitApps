@@ -2,7 +2,7 @@
 using Microsoft.UI.Xaml.Data;
 using WinUIEx;
 
-namespace BitWares.Core.Helpers;
+namespace BitApps.Core.Helpers;
 
 public class ElementThemeEnumToBooleanConverter : IValueConverter
 {
