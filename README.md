@@ -1,6 +1,6 @@
 # BitApps
 
-A collection of [BitBank](https://bitbank.cc/)'s client apps. BitWallpaper is a charting app and BitDesk is a trading app. Both app share the same core code base. This is a source code only repo.
+A collection of [BitBank](https://bitbank.cc/)'s client apps. [BitWallpaper](https://github.com/torum/BitWallpaper) is a charting app and [BitDesk](https://github.com/torum/BitDesk) is a trading app. Both app share the same core code base. This is a source code only repo.
 
 ## [BitWallpaper](https://github.com/torum/BitWallpaper)
 Cryptocurrency charting app. 
