@@ -1190,7 +1190,7 @@ public class PairViewModel : ObservableRecipient
             ScalesYAt = 1,
             Stroke = new SolidColorPaint
             {
-                Color = SKColors.Silver,
+                Color = SKColors.Silver.WithAlpha(80),
                 StrokeThickness = 1,
                 //PathEffect = new DashEffect(new float[] { 6, 6 })
             }
@@ -1201,15 +1201,16 @@ public class PairViewModel : ObservableRecipient
     {
         new Axis()
         {
+            TextSize = 12.5,
             LabelsRotation = -13,
-            LabelsPaint = new SolidColorPaint(SKColors.Gray),
+            LabelsPaint = new SolidColorPaint(SKColors.Gray.WithAlpha(80)),
             Labeler = value => new DateTime((long) value).ToString("M/d"), //TODO: localize aware
             //UnitWidth = TimeSpan.FromHours(0.5).Ticks,
             UnitWidth = TimeSpan.FromDays(1).Ticks,
             MinStep = TimeSpan.FromDays(1).Ticks,
             MaxLimit = null,
             MinLimit= DateTime.Now.Ticks - TimeSpan.FromDays(2.8).Ticks,
-            SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray) { StrokeThickness = 1,PathEffect = new DashEffect(new float[] { 3, 3 }) }
+            SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray.WithAlpha(80)) { StrokeThickness = 1,PathEffect = new DashEffect(new float[] { 3, 3 }) }
         }
     };
 
@@ -1230,10 +1231,11 @@ public class PairViewModel : ObservableRecipient
             },
         new Axis()
             {
+                TextSize = 12.5,
                 LabelsRotation = 0,
-                LabelsPaint = new SolidColorPaint(SKColors.Gray),
+                LabelsPaint = new SolidColorPaint(SKColors.Gray.WithAlpha(80)),
                 Position = LiveChartsCore.Measure.AxisPosition.End,
-                SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray)
+                SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray.WithAlpha(80))
                             {
                                 StrokeThickness = 1,
                                 PathEffect = new DashEffect(new float[] { 3, 3 })
@@ -1251,7 +1253,7 @@ public class PairViewModel : ObservableRecipient
             Name = "Depth",
             ScalesYAt = 0,
             //Stroke = new SolidColorPaint((new SKColor(198, 167, 0)), 0),
-            Fill =  new SolidColorPaint(new SKColor(127, 127, 127), 1),
+            Fill =  new SolidColorPaint(new SKColor(127, 127, 127).WithAlpha(80), 1),
             TooltipLabelFormatter = (chartPoint) =>
                 $"Depth, {new DateTime((long) chartPoint.SecondaryValue):yyy/MM/dd HH}: {chartPoint.PrimaryValue}",
             Values = new ObservableCollection<DateTimePoint>
@@ -1711,7 +1713,6 @@ public class PairViewModel : ObservableRecipient
             XAxes[0].UnitWidth = TimeSpan.FromDays(2).Ticks;
             XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(300).Ticks;
-
         }
         else if (ct == CandleTypes.OneMonth)
         {
