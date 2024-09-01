@@ -290,7 +290,7 @@ public class PairViewModel : ViewModelBase
     }
     public string TickTimeStampString => _tickTimeStamp.ToLocalTime().ToString("G", System.Globalization.CultureInfo.CurrentUICulture);//"yyyy/MM/dd HH:mm:ss"
 
-    private readonly ObservableCollection<TickHistory> _tickHistory = new();
+    private readonly ObservableCollection<TickHistory> _tickHistory = [];
     public ObservableCollection<TickHistory> TickHistories => _tickHistory;
 
     #endregion
@@ -1008,7 +1008,7 @@ public class PairViewModel : ViewModelBase
 
     #region == Depth and Transaction ==
 
-    private ObservableCollection<Transaction> _transactions = new();
+    private ObservableCollection<Transaction> _transactions = [];
     public ObservableCollection<Transaction> Transactions
     {
         get => _transactions;
@@ -1024,7 +1024,7 @@ public class PairViewModel : ViewModelBase
         }
     }
 
-    private ObservableCollection<Depth> _depth = new();
+    private ObservableCollection<Depth> _depth = [];
     public ObservableCollection<Depth> Depth
     {
         get => _depth;
@@ -1253,12 +1253,15 @@ public class PairViewModel : ViewModelBase
             ScalesYAt = 0,
             //Stroke = new SolidColorPaint((new SKColor(198, 167, 0)), 0),
             Fill =  new SolidColorPaint(new SKColor(127, 127, 127).WithAlpha(80), 1),
+            /*
+             * CS0618	'Series<DateTimePoint, RoundedRectangleGeometry, LabelGeometry, SkiaSharpDrawingContext>.TooltipLabelFormatter' is deprecated ('You must now use XToolTipLabelFormatter or YToolTipLabelFormatter instead.')
             TooltipLabelFormatter = (chartPoint) =>
                 $"Depth, {new DateTime((long) chartPoint.SecondaryValue):yyy/MM/dd HH}: {chartPoint.PrimaryValue}",
             Values = new ObservableCollection<DateTimePoint>
             {
                 //new DateTimePoint(DateTime.Now, 1)
             }
+            */
         },
         new CandlesticksSeries<FinancialPoint>
         {
@@ -1649,6 +1652,7 @@ public class PairViewModel : ViewModelBase
             XAxes[0].UnitWidth = TimeSpan.FromMinutes(0.4).Ticks;
             XAxes[0].MinStep = TimeSpan.FromMinutes(10).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromMinutes(60).Ticks;
+            XAxes[0].MaxLimit = null;
         }
         else if (ct == CandleTypes.FiveMin)
         {
@@ -1656,6 +1660,7 @@ public class PairViewModel : ViewModelBase
             XAxes[0].UnitWidth = TimeSpan.FromMinutes(2.5).Ticks;
             XAxes[0].MinStep = TimeSpan.FromMinutes(10).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromMinutes(300).Ticks;
+            XAxes[0].MaxLimit = null;
         }
         else if (ct == CandleTypes.FifteenMin)
         {
@@ -1663,6 +1668,7 @@ public class PairViewModel : ViewModelBase
             XAxes[0].UnitWidth = TimeSpan.FromMinutes(7).Ticks;
             XAxes[0].MinStep = TimeSpan.FromMinutes(15).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromMinutes(750).Ticks;
+            XAxes[0].MaxLimit = null;
         }
         else if (ct == CandleTypes.ThirtyMin)
         {
@@ -1670,13 +1676,16 @@ public class PairViewModel : ViewModelBase
             XAxes[0].UnitWidth = TimeSpan.FromMinutes(15).Ticks;
             XAxes[0].MinStep = TimeSpan.FromMinutes(30).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromMinutes(1500).Ticks;
+            XAxes[0].MaxLimit = null;
         }
         else if (ct == CandleTypes.OneHour)
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("M/d H:mm");
+            //XAxes[0].Labeler = value => new DateTime((long)value).ToString("yyyy MMM dd");
             XAxes[0].UnitWidth = TimeSpan.FromHours(0.5).Ticks;
             XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(3).Ticks;
+            XAxes[0].MaxLimit = null;
         }
         else if (ct == CandleTypes.FourHour)
         {
@@ -1684,6 +1693,7 @@ public class PairViewModel : ViewModelBase
             XAxes[0].UnitWidth = TimeSpan.FromHours(2).Ticks;
             XAxes[0].MinStep = TimeSpan.FromHours(4).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(6).Ticks;
+            XAxes[0].MaxLimit = null;
         }
         else if (ct == CandleTypes.EightHour)
         {
@@ -1691,6 +1701,7 @@ public class PairViewModel : ViewModelBase
             XAxes[0].UnitWidth = TimeSpan.FromHours(4).Ticks;
             XAxes[0].MinStep = TimeSpan.FromHours(8).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(12).Ticks;
+            XAxes[0].MaxLimit = null;
         }
         else if (ct == CandleTypes.TwelveHour)
         {
@@ -1698,6 +1709,7 @@ public class PairViewModel : ViewModelBase
             XAxes[0].UnitWidth = TimeSpan.FromHours(6).Ticks;
             XAxes[0].MinStep = TimeSpan.FromDays(0.5).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(24).Ticks;
+            XAxes[0].MaxLimit = null;
         }
         else if (ct == CandleTypes.OneDay)
         {
@@ -1705,6 +1717,7 @@ public class PairViewModel : ViewModelBase
             XAxes[0].UnitWidth = TimeSpan.FromDays(0.4).Ticks;
             XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(90).Ticks;
+            XAxes[0].MaxLimit = null;
         }
         else if (ct == CandleTypes.OneWeek)
         {
@@ -1712,6 +1725,7 @@ public class PairViewModel : ViewModelBase
             XAxes[0].UnitWidth = TimeSpan.FromDays(2).Ticks;
             XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(300).Ticks;
+            XAxes[0].MaxLimit = null;
         }
         else if (ct == CandleTypes.OneMonth)
         {
@@ -1719,6 +1733,7 @@ public class PairViewModel : ViewModelBase
             XAxes[0].UnitWidth = TimeSpan.FromDays(21).Ticks;
             XAxes[0].MinStep = TimeSpan.FromDays(30).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(360 * 3).Ticks;
+            XAxes[0].MaxLimit = null;
         }
 
         var ohlcs = new ObservableCollection<FinancialPoint>();
@@ -1741,7 +1756,7 @@ public class PairViewModel : ViewModelBase
 
     private async Task<List<Ohlcv>?> GetCandlesticks(PairCodes pair, CandleTypes ct)
     {
-        List<Ohlcv>? OhlcvList =  new();
+        List<Ohlcv>? OhlcvList =  [];
 
         //Debug.WriteLine("チャートデータを取得中.... " + pair.ToString());
 

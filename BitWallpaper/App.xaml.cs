@@ -14,6 +14,8 @@ using Microsoft.Windows.AppNotifications;
 using Microsoft.Windows.AppNotifications.Builder;
 using Windows.Storage;
 using WinUIEx;
+using Microsoft.UI.Composition.SystemBackdrops;
+using Microsoft.UI.Xaml.Media;
 
 namespace BitWallpaper;
 
@@ -50,6 +52,12 @@ public partial class App : Application
     public const string BackdropSettingsKey = "AppSystemBackdropOption";
     public const string ThemeSettingsKey = "AppBackgroundRequestedTheme";
 
+    /*
+    public Microsoft.UI.Xaml.Media.SystemBackdrop? SystemBackdrop
+    {
+        get; set;
+    }
+    */
 
     public App()
     {
@@ -68,15 +76,17 @@ public partial class App : Application
         catch (XamlParseException parseException)
         {
             Debug.WriteLine($"Unhandled XamlParseException in App: {parseException.Message}");
+            /*
             foreach (var key in parseException.Data.Keys)
             {
                 Debug.WriteLine("{Key}:{Value}", key.ToString(), parseException.Data[key]?.ToString());
             }
             throw;
+            */
         }
         catch(Exception ex) 
         {
-            Debug.WriteLine("Exception at App(): ", ex);
+            Debug.WriteLine($"Exception at App(): {ex}");
 
             AppendErrorLog($"Exception at App()", ex.Message);
             SaveErrorLog();
@@ -148,6 +158,7 @@ public partial class App : Application
         manager.Backdrop = new WinUIEx.MicaSystemBackdrop();
         */
 
+
         var manager = WinUIEx.WindowManager.Get(_window);
 
         // SystemBackdrop
@@ -162,31 +173,41 @@ public partial class App : Application
                     var s = (string)obj;
                     if (s == SystemBackdropOption.Acrylic.ToString())
                     {
-                        manager.Backdrop = new WinUIEx.AcrylicSystemBackdrop();
+                        //SystemBackdrop = new DesktopAcrylicBackdrop();
+                        //manager.Backdrop = new WinUIEx.AcrylicSystemBackdrop();
                         _viewModel.Material = SystemBackdropOption.Acrylic;
                     }
                     else if (s == SystemBackdropOption.Mica.ToString())
                     {
-                        manager.Backdrop = new WinUIEx.MicaSystemBackdrop();
+                        /*
+                        SystemBackdrop = new MicaBackdrop()
+                        {
+                            Kind = MicaKind.Base
+                        };
+                        */
+                        //manager.Backdrop = new WinUIEx.MicaSystemBackdrop();
                         _viewModel.Material = SystemBackdropOption.Mica;
                     }
                     else
                     {
-                        manager.Backdrop = new WinUIEx.AcrylicSystemBackdrop();
+                        //SystemBackdrop = new DesktopAcrylicBackdrop();
+                        //manager.Backdrop = new WinUIEx.AcrylicSystemBackdrop();
                         _viewModel.Material = SystemBackdropOption.Acrylic;
                     }
                 }
                 else
                 {
                     // default acrylic.
-                    manager.Backdrop = new WinUIEx.AcrylicSystemBackdrop();
+                    //SystemBackdrop = new DesktopAcrylicBackdrop();
+                    //manager.Backdrop = new WinUIEx.AcrylicSystemBackdrop();
                     _viewModel.Material = SystemBackdropOption.Acrylic;
                 }
             }
             else
             {
                 // just for me.
-                manager.Backdrop = new WinUIEx.AcrylicSystemBackdrop();
+                //SystemBackdrop = new DesktopAcrylicBackdrop();
+                //manager.Backdrop = new WinUIEx.AcrylicSystemBackdrop();
                 _viewModel.Material = SystemBackdropOption.Acrylic;
             }
 
@@ -194,14 +215,19 @@ public partial class App : Application
         }
         else if (Microsoft.UI.Composition.SystemBackdrops.MicaController.IsSupported())
         {
-            manager.Backdrop = new WinUIEx.MicaSystemBackdrop();
+            //manager.Backdrop = new WinUIEx.MicaSystemBackdrop();
+            /*
+            SystemBackdrop = new MicaBackdrop()
+            {
+                Kind = MicaKind.Base
+            };
+            */
             _viewModel.Material = SystemBackdropOption.Mica;
         }
         else
         {
             // Memo: Without Backdrop, theme setting's theme is not gonna have any effect( "system default" will be used). So the setting is disabled.
         }
-        //manager.Backdrop = new WinUIEx.MicaSystemBackdrop();
 
         _viewModel.ElementTheme = ElementTheme.Default;
         if (RuntimeHelper.IsMSIX)
@@ -348,9 +374,10 @@ public partial class App : Application
             return;
         }
 
-        Errortxt.AppendLine("");
+        //Errortxt.AppendLine("");
         var dt = DateTime.Now;
         Errortxt.AppendLine($"Saved at {dt.ToString("yyyy/MM/dd HH:mm:ss")}");
+        Errortxt.AppendLine("");
 
         var s = Errortxt.ToString();
         if (!string.IsNullOrEmpty(s))
@@ -371,7 +398,7 @@ public partial class App : Application
 
     private class FilePersistence : IDictionary<string, object>
     {
-        private readonly Dictionary<string, object> _data = new();
+        private readonly Dictionary<string, object> _data = [];
         private readonly string _file;
 
         public FilePersistence(string filename)

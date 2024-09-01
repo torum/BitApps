@@ -468,7 +468,7 @@ public sealed partial class MainShell : Page
                 attrs.Value = (sender as Window).Width.ToString();
             }
             */
-            attrs.Value = App.MainWindow.GetAppWindow().Size.Width.ToString();
+            attrs.Value = App.MainWindow.AppWindow.Size.Width.ToString();
             mainWindow.SetAttributeNode(attrs);
 
             attrs = doc.CreateAttribute("height");
@@ -482,7 +482,7 @@ public sealed partial class MainShell : Page
                 attrs.Value = (sender as Window).Height.ToString();
             }
             */
-            attrs.Value = App.MainWindow.GetAppWindow().Size.Height.ToString();
+            attrs.Value = App.MainWindow.AppWindow.Size.Height.ToString();
             mainWindow.SetAttributeNode(attrs);
 
             /*

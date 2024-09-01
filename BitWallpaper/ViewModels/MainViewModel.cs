@@ -5,7 +5,9 @@ using System.Windows.Input;
 using BitApps.Core.Helpers;
 using BitApps.Core.Models;
 using BitApps.Core.Models.APIClients;
+using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
 using Windows.ApplicationModel;
 using Windows.Storage;
 
@@ -80,7 +82,8 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    public string VersionText {
+    public string VersionText 
+    {
         get
         {
             Version version;
@@ -146,8 +149,8 @@ public partial class MainViewModel : ViewModelBase
             {"sand_jpy", PairCodes.sand_jpy},
         };
 
-    private ObservableCollection<PairViewModel> _pairs = new() 
-    {
+    private ObservableCollection<PairViewModel> _pairs =
+    [
         new PairViewModel(PairCodes.btc_jpy, 24, "{0:#,0}", "C", 100M, 1000M),
         new PairViewModel(PairCodes.xrp_jpy, 24, "{0:#,0.000}", "C3", 0.1M, 0.01M),
         new PairViewModel(PairCodes.eth_jpy, 24, "{0:#,0}", "C", 100M, 1000M),
@@ -172,7 +175,7 @@ public partial class MainViewModel : ViewModelBase
         new PairViewModel(PairCodes.axs_jpy, 24, "{0:#,0.000}", "C3", 100M, 1000M),
         new PairViewModel(PairCodes.flr_jpy, 24, "{0:#,0.000}", "C3", 0.1M, 0.01M),
         new PairViewModel(PairCodes.sand_jpy, 24, "{0:#,0.000}", "C3", 0.1M, 0.01M),
-    };
+    ];
     public ObservableCollection<PairViewModel> Pairs
     {
         get => _pairs;
@@ -1224,6 +1227,7 @@ public partial class MainViewModel : ViewModelBase
         _dispatcherTimerTickAllPairs.Interval = new TimeSpan(0, 0, 2);
         _dispatcherTimerTickAllPairs.Start();
 
+        /*
         if (App.MainWindow is not null)
         {
             var manager = WinUIEx.WindowManager.Get(App.MainWindow);
@@ -1254,6 +1258,7 @@ public partial class MainViewModel : ViewModelBase
                 }
             }
         }
+        */
 
         SwitchThemeCommand = new GenericRelayCommand<ElementTheme>(param => OnSwitchTheme(param), param => CanSwitchThemeExecute());
         SwitchSystemBackdropCommand = new GenericRelayCommand<string>(param => OnSwitchSystemBackdrop(param), param => CanSwitchSystemBackdropExecute());
@@ -1823,14 +1828,17 @@ public partial class MainViewModel : ViewModelBase
         {
             if (App.MainWindow is not null)
             {
-                var manager = WinUIEx.WindowManager.Get(App.MainWindow);
+                //var manager = WinUIEx.WindowManager.Get(App.MainWindow);
 
                 if (backdrop == "Mica")
                 {
-                    // Win10 says not supported but works. So if Acrylic is supported, we assume it's ok.
                     if (Microsoft.UI.Composition.SystemBackdrops.MicaController.IsSupported() || Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController.IsSupported())
                     {
-                        manager.Backdrop = new WinUIEx.MicaSystemBackdrop();
+                        //manager.Backdrop = new WinUIEx.MicaSystemBackdrop();
+                        App.MainWindow.SystemBackdrop = new MicaBackdrop()
+                        {
+                            Kind = MicaKind.Base
+                        };
                         if (RuntimeHelper.IsMSIX)
                         {
                             ApplicationData.Current.LocalSettings.Values[App.BackdropSettingsKey] = SystemBackdropOption.Mica.ToString();
@@ -1842,7 +1850,8 @@ public partial class MainViewModel : ViewModelBase
                 {
                     if (Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController.IsSupported())
                     {
-                        manager.Backdrop = new WinUIEx.AcrylicSystemBackdrop();
+                        //manager.Backdrop = new WinUIEx.AcrylicSystemBackdrop();
+                        App.MainWindow.SystemBackdrop = new DesktopAcrylicBackdrop();
                         if (RuntimeHelper.IsMSIX)
                         {
                             ApplicationData.Current.LocalSettings.Values[App.BackdropSettingsKey] = SystemBackdropOption.Acrylic.ToString();
