@@ -1,15 +1,15 @@
-﻿using BitApps.Core.Helpers;
-using BitApps.Core.Models.APIClients;
-using BitApps.Core.Models;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows.Input;
+using BitApps.Core.Helpers;
+using BitApps.Core.Models;
+using BitApps.Core.Models.APIClients;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Media;
 using Windows.ApplicationModel;
 using Windows.Storage;
-using BitApps.Core.Helpers;
 
 namespace BitDesk.ViewModels;
 
@@ -1229,6 +1229,78 @@ public class MainViewModel : ObservableRecipient
         _dispatcherTimerTickAllPairs.Interval = new TimeSpan(0, 0, 2);
         _dispatcherTimerTickAllPairs.Start();
 
+        // SystemBackdrop
+        if (Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController.IsSupported())
+        {
+            //manager.Backdrop = new WinUIEx.AcrylicSystemBackdrop();
+            if (RuntimeHelper.IsMSIX)
+            {
+                // Load preference from localsetting.
+                if (ApplicationData.Current.LocalSettings.Values.TryGetValue(App.BackdropSettingsKey, out var obj))
+                {
+                    var s = (string)obj;
+                    if (s == SystemBackdropOption.Acrylic.ToString())
+                    {
+                        //SystemBackdrop = new DesktopAcrylicBackdrop();
+                        //manager.Backdrop = new WinUIEx.AcrylicSystemBackdrop();
+                        Material = SystemBackdropOption.Acrylic;
+                    }
+                    else if (s == SystemBackdropOption.Mica.ToString())
+                    {
+                        /*
+                        SystemBackdrop = new MicaBackdrop()
+                        {
+                            Kind = MicaKind.Base
+                        };
+                        */
+                        //manager.Backdrop = new WinUIEx.MicaSystemBackdrop();
+                        Material = SystemBackdropOption.Mica;
+                    }
+                    else
+                    {
+                        //SystemBackdrop = new DesktopAcrylicBackdrop();
+                        //manager.Backdrop = new WinUIEx.AcrylicSystemBackdrop();
+                        Material = SystemBackdropOption.Acrylic;
+                    }
+                }
+                else
+                {
+                    // default acrylic.
+                    //SystemBackdrop = new DesktopAcrylicBackdrop();
+                    //manager.Backdrop = new WinUIEx.AcrylicSystemBackdrop();
+                    Material = SystemBackdropOption.Acrylic;
+                }
+            }
+            else
+            {
+                // just for me.
+                //SystemBackdrop = new DesktopAcrylicBackdrop();
+                //manager.Backdrop = new WinUIEx.AcrylicSystemBackdrop();
+                Material = SystemBackdropOption.Acrylic;
+            }
+
+            IsAcrylicSupported = true;
+            IsSystemBackdropSupported = true;
+        }
+        else if (Microsoft.UI.Composition.SystemBackdrops.MicaController.IsSupported())
+        {
+            //manager.Backdrop = new WinUIEx.MicaSystemBackdrop();
+            /*
+            SystemBackdrop = new MicaBackdrop()
+            {
+                Kind = MicaKind.Base
+            };
+            */
+            Material = SystemBackdropOption.Mica;
+
+            IsSystemBackdropSupported = true;
+        }
+        else
+        {
+            IsSystemBackdropSupported = false;
+            // Memo: Without Backdrop, theme setting's theme is not gonna have any effect( "system default" will be used). So the setting is disabled.
+        }
+        /*
         if (App.MainWindow is not null)
         {
             var manager = WinUIEx.WindowManager.Get(App.MainWindow);
@@ -1259,6 +1331,8 @@ public class MainViewModel : ObservableRecipient
                 }
             }
         }
+
+        */
 
         SwitchThemeCommand = new GenericRelayCommand<ElementTheme>(param => OnSwitchTheme(param), param => CanSwitchThemeExecute());
         SwitchSystemBackdropCommand = new GenericRelayCommand<string>(param => OnSwitchSystemBackdrop(param), param => CanSwitchSystemBackdropExecute());
@@ -1828,14 +1902,15 @@ public class MainViewModel : ObservableRecipient
         {
             if (App.MainWindow is not null)
             {
-                var manager = WinUIEx.WindowManager.Get(App.MainWindow);
+                //var manager = WinUIEx.WindowManager.Get(App.MainWindow);
 
                 if (backdrop == "Mica")
                 {
                     // Win10 says not supported but works. So if Acrylic is supported, we assume it's ok.
                     if (Microsoft.UI.Composition.SystemBackdrops.MicaController.IsSupported() || Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController.IsSupported())
                     {
-                        manager.Backdrop = new WinUIEx.MicaSystemBackdrop();
+                        //manager.Backdrop = new WinUIEx.MicaSystemBackdrop();
+                        App.MainWindow.SystemBackdrop = new MicaBackdrop();
                         if (RuntimeHelper.IsMSIX)
                         {
                             ApplicationData.Current.LocalSettings.Values[App.BackdropSettingsKey] = SystemBackdropOption.Mica.ToString();
@@ -1847,7 +1922,8 @@ public class MainViewModel : ObservableRecipient
                 {
                     if (Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController.IsSupported())
                     {
-                        manager.Backdrop = new WinUIEx.AcrylicSystemBackdrop();
+                        //manager.Backdrop = new WinUIEx.AcrylicSystemBackdrop();
+                        App.MainWindow.SystemBackdrop = new DesktopAcrylicBackdrop();
                         if (RuntimeHelper.IsMSIX)
                         {
                             ApplicationData.Current.LocalSettings.Values[App.BackdropSettingsKey] = SystemBackdropOption.Acrylic.ToString();

@@ -1,4 +1,8 @@
+using System.Diagnostics;
+using System.Xml;
+using System.Xml.Linq;
 using BitApps.Core.Helpers;
+using BitApps.Core.Models;
 using BitWallpaper.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -6,11 +10,6 @@ using Microsoft.UI.Xaml.Markup;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
-using System.Diagnostics;
-using System.Xml;
-using System.Xml.Linq;
-using WinUIEx;
-using BitApps.Core.Models;
 
 namespace BitWallpaper.Views;
 

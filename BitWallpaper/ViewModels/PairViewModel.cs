@@ -290,7 +290,7 @@ public class PairViewModel : ViewModelBase
     }
     public string TickTimeStampString => _tickTimeStamp.ToLocalTime().ToString("G", System.Globalization.CultureInfo.CurrentUICulture);//"yyyy/MM/dd HH:mm:ss"
 
-    private readonly ObservableCollection<TickHistory> _tickHistory = [];
+    private readonly ObservableCollection<TickHistory> _tickHistory = new();
     public ObservableCollection<TickHistory> TickHistories => _tickHistory;
 
     #endregion
@@ -1008,7 +1008,7 @@ public class PairViewModel : ViewModelBase
 
     #region == Depth and Transaction ==
 
-    private ObservableCollection<Transaction> _transactions = [];
+    private ObservableCollection<Transaction> _transactions = new();
     public ObservableCollection<Transaction> Transactions
     {
         get => _transactions;
@@ -1024,7 +1024,7 @@ public class PairViewModel : ViewModelBase
         }
     }
 
-    private ObservableCollection<Depth> _depth = [];
+    private ObservableCollection<Depth> _depth = new();
     public ObservableCollection<Depth> Depth
     {
         get => _depth;
@@ -1209,7 +1209,7 @@ public class PairViewModel : ViewModelBase
             MinStep = TimeSpan.FromDays(1).Ticks,
             MaxLimit = null,
             MinLimit= DateTime.Now.Ticks - TimeSpan.FromDays(2.8).Ticks,
-            SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray) { StrokeThickness = 1,PathEffect = new DashEffect(new float[] { 3, 3 }) }
+            SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray.WithAlpha(80)) { StrokeThickness = 1,PathEffect = new DashEffect(new float[] { 3, 3 }) }
         }
     };
 
@@ -1464,9 +1464,9 @@ public class PairViewModel : ViewModelBase
         _dispatcherTimerDepth.Start();
 
         // Transaction update timer
-        _dispatcherTimerTransaction.Tick += TickerTimerTransaction;
-        _dispatcherTimerTransaction.Interval = new TimeSpan(0, 0, 3);
-        _dispatcherTimerTransaction.Start();
+        //_dispatcherTimerTransaction.Tick += TickerTimerTransaction;
+        //_dispatcherTimerTransaction.Interval = new TimeSpan(0, 0, 3);
+        //_dispatcherTimerTransaction.Start();
 
         // Chart update timer
         _dispatcherTimerChart.Tick += TickerTimerChart;
@@ -1756,7 +1756,7 @@ public class PairViewModel : ViewModelBase
 
     private async Task<List<Ohlcv>?> GetCandlesticks(PairCodes pair, CandleTypes ct)
     {
-        List<Ohlcv>? OhlcvList =  [];
+        List<Ohlcv>? OhlcvList = new();
 
         //Debug.WriteLine("チャートデータを取得中.... " + pair.ToString());
 

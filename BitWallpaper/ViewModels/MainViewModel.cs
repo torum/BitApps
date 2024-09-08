@@ -82,7 +82,7 @@ public partial class MainViewModel : ViewModelBase
         }
     }
 
-    public string VersionText 
+    public string VersionText
     {
         get
         {
@@ -149,8 +149,8 @@ public partial class MainViewModel : ViewModelBase
             {"sand_jpy", PairCodes.sand_jpy},
         };
 
-    private ObservableCollection<PairViewModel> _pairs =
-    [
+    private ObservableCollection<PairViewModel> _pairs = new()
+    { 
         new PairViewModel(PairCodes.btc_jpy, 24, "{0:#,0}", "C", 100M, 1000M),
         new PairViewModel(PairCodes.xrp_jpy, 24, "{0:#,0.000}", "C3", 0.1M, 0.01M),
         new PairViewModel(PairCodes.eth_jpy, 24, "{0:#,0}", "C", 100M, 1000M),
@@ -175,7 +175,7 @@ public partial class MainViewModel : ViewModelBase
         new PairViewModel(PairCodes.axs_jpy, 24, "{0:#,0.000}", "C3", 100M, 1000M),
         new PairViewModel(PairCodes.flr_jpy, 24, "{0:#,0.000}", "C3", 0.1M, 0.01M),
         new PairViewModel(PairCodes.sand_jpy, 24, "{0:#,0.000}", "C3", 0.1M, 0.01M),
-    ];
+    };
     public ObservableCollection<PairViewModel> Pairs
     {
         get => _pairs;

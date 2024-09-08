@@ -45,16 +45,17 @@
               Height="{Binding ElementName=NavigationViewControl, Path=CompactPaneLength}"
               IsHitTestVisible="True"
               VerticalAlignment="Top"
-              Margin="50,0,0,0">
+              Margin="48,0,0,0">
             <Image Source="/Assets/App.ico"
                    HorizontalAlignment="Left"
                    Width="16"
-                   Height="16" />
+                   Height="16"
+                   Margin="8,0,0,0" />
             <TextBlock x:Name="AppTitleBarText"
                        VerticalAlignment="Center"
                        TextWrapping="NoWrap"
                        Style="{StaticResource CaptionTextBlockStyle}"
-                       Margin="28,0,0,0"
+                       Margin="32,0,0,0"
                        Text="BitDesk"/>
         </Grid>
         <NavigationView

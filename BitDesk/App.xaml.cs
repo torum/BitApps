@@ -12,6 +12,7 @@ using BitApps.Core.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
+using Windows.Storage;
 
 namespace BitDesk;
 

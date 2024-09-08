@@ -159,7 +159,7 @@ public partial class App : Application
         */
 
 
-        var manager = WinUIEx.WindowManager.Get(_window);
+        //var manager = WinUIEx.WindowManager.Get(_window);
 
         // SystemBackdrop
         if (Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController.IsSupported())
@@ -212,6 +212,7 @@ public partial class App : Application
             }
 
             _viewModel.IsAcrylicSupported = true;
+            _viewModel.IsSystemBackdropSupported = true;
         }
         else if (Microsoft.UI.Composition.SystemBackdrops.MicaController.IsSupported())
         {
@@ -223,9 +224,12 @@ public partial class App : Application
             };
             */
             _viewModel.Material = SystemBackdropOption.Mica;
+
+            _viewModel.IsSystemBackdropSupported = true;
         }
         else
         {
+            _viewModel.IsSystemBackdropSupported = false;
             // Memo: Without Backdrop, theme setting's theme is not gonna have any effect( "system default" will be used). So the setting is disabled.
         }
 
@@ -398,7 +402,7 @@ public partial class App : Application
 
     private class FilePersistence : IDictionary<string, object>
     {
-        private readonly Dictionary<string, object> _data = [];
+        private readonly Dictionary<string, object> _data = new();
         private readonly string _file;
 
         public FilePersistence(string filename)

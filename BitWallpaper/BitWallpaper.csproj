@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+		<TargetFramework>net7.0-windows10.0.26100.0</TargetFramework>
+		<!--<WindowsSdkPackageVersion>10.0.26100.38</WindowsSdkPackageVersion>-->
 		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-		<ApplicationManifest>app.manifest</ApplicationManifest>
-		<!--
-		<WindowsSdkPackageVersion>10.0.22621.38</WindowsSdkPackageVersion>
-		-->
+		<SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+
 		<RootNamespace>BitWallpaper</RootNamespace>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<Platforms>x86;x64;ARM64</Platforms>
 
 		<RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &gt;= 8">win-x86;win-x64;win-arm64</RuntimeIdentifiers>
@@ -15,14 +15,14 @@
 		<!--<RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
 		-->
 		<PublishProfile>Properties\PublishProfiles\win10-$(Platform).pubxml</PublishProfile>
+
+		<EnableMsixTooling>true</EnableMsixTooling>
 		<UseWinUI>true</UseWinUI>
 		<!--
 		<WindowsPackageType>None</WindowsPackageType>
 		-->
-
-		<EnableMsixTooling>true</EnableMsixTooling>
+		<WindowsPackageType>None</WindowsPackageType>
 		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
-
 
 		<NeutralLanguage>en</NeutralLanguage>
 		<DefaultLanguage>en-US</DefaultLanguage>
@@ -109,6 +109,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
 		<PackageReference Include="LiveChartsCore.SkiaSharpView.WinUI" Version="2.0.0-rc2.1" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240802000">
 		</PackageReference>
@@ -118,7 +119,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\BitApps.Core\BitApps.Core.csproj" />
+		<ProjectReference Include="..\BitApps.Core\BitApps.Core.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -440,7 +441,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Views\ChartPages\" />
+		<Folder Include="Views\ChartPages\" />
 	</ItemGroup>
 
 	<!-- https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/self-contained-deploy/deploy-self-contained-apps  -->
