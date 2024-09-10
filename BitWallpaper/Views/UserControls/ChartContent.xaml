@@ -43,7 +43,7 @@
                     <ColumnDefinition Width="80" />
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" x:Name="DepthAskBest" Text="{x:Bind Path=DepthAskFormatted, Mode=OneWay}" Foreground="{ThemeResource PriceUpColorBrush}" Margin="0" Padding="0 0 0 0" HorizontalAlignment="Right">
+                <TextBlock Grid.Column="0" x:Name="DepthAskBest" Text="{x:Bind Path=DepthAskFormatted, Mode=OneWay}" Foreground="{ThemeResource PriceDownColorBrush}" Margin="0" Padding="0 0 0 0" HorizontalAlignment="Right">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
                         </Style>
@@ -55,7 +55,7 @@
                         </Style>
                     </TextBlock.Style>
                 </TextBlock>
-                <TextBlock Grid.Column="2" x:Name="DepthBidBest" Text="{x:Bind Path=DepthBidFormatted, Mode=OneWay}" Foreground="{ThemeResource PriceDownColorBrush}" Margin="0" Padding="0 0 0 0" HorizontalAlignment="Right">
+                <TextBlock Grid.Column="2" x:Name="DepthBidBest" Text="{x:Bind Path=DepthBidFormatted, Mode=OneWay}" Foreground="{ThemeResource PriceUpColorBrush}" Margin="0" Padding="0 0 0 0" HorizontalAlignment="Right">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
                         </Style>

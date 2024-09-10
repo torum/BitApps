@@ -6,69 +6,110 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:model="using:BitApps.Core.Models"
     xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:ui="using:CommunityToolkit.WinUI"
+    xmlns:animations="using:CommunityToolkit.WinUI.Animations"
     mc:Ignorable="d">
-
     <UserControl.Resources>
+        <ResourceDictionary>
+            
+            <DataTemplate x:Key="LtpTemplate" x:DataType="model:Depth">
+                <Grid Margin="0" HorizontalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80" />
+                        <ColumnDefinition Width="90" />
+                        <ColumnDefinition Width="80" />
+                    </Grid.ColumnDefinitions>
 
-        <DataTemplate x:Key="LtpTemplate" x:DataType="model:Depth">
-            <Grid Margin="0" HorizontalAlignment="Stretch">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="80" />
-                    <ColumnDefinition Width="90" />
-                    <ColumnDefinition Width="80" />
-                </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" x:Name="DepthAskBest" Margin="0" Padding="0 0 0 0">
 
-                <TextBlock Grid.Column="0" x:Name="DepthAskBest" Margin="0" Padding="0 0 0 0">
+                    </TextBlock>
+                    <TextBlock Grid.Column="1" x:Name="DepthPrice" FontWeight="ExtraBold" FontSize="13" Opacity="0.8" Foreground="{ThemeResource LtpColorBrush}" Text="{x:Bind Path=DepthPriceFormatted, Mode=OneWay}" Margin="0 0 3 0" Padding="3 1 3 1" HorizontalAlignment="Right">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Grid.Column="2" x:Name="DepthBidBest" Margin="0" Padding="0 0 0 0">
 
-                </TextBlock>
-                <TextBlock Grid.Column="1" x:Name="DepthPrice" FontWeight="ExtraBold" FontSize="13" Opacity="0.8" Foreground="{ThemeResource LtpColorBrush}" Text="{x:Bind Path=DepthPriceFormatted, Mode=OneWay}" Margin="0 0 3 0" Padding="3 1 3 1" HorizontalAlignment="Right">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-                <TextBlock Grid.Column="2" x:Name="DepthBidBest" Margin="0" Padding="0 0 0 0">
+                    </TextBlock>
+                </Grid>
+            </DataTemplate>
 
-                </TextBlock>
-            </Grid>
-        </DataTemplate>
+            <DataTemplate x:Key="BidOrAskTemplate" x:DataType="model:Depth">
+                <Grid Margin="0" HorizontalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="80" />
+                        <ColumnDefinition Width="90" />
+                        <ColumnDefinition Width="80" />
+                    </Grid.ColumnDefinitions>
 
-        <DataTemplate x:Key="BidOrAskTemplate" x:DataType="model:Depth">
-            <Grid Margin="0" HorizontalAlignment="Stretch">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="80" />
-                    <ColumnDefinition Width="90" />
-                    <ColumnDefinition Width="80" />
-                </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" x:Name="DepthAskBest" Text="{x:Bind Path=DepthAskFormatted, Mode=OneWay}" Foreground="{ThemeResource PriceDownColorBrush}" Margin="0" Padding="0 0 0 0" HorizontalAlignment="Right">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Grid.Column="1" x:Name="DepthPrice" Text="{x:Bind Path=DepthPriceFormatted, Mode=OneWay}" Margin="3 0 3 0" Padding="3 0 3 0" HorizontalAlignment="Right">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBlock Grid.Column="2" x:Name="DepthBidBest" Text="{x:Bind Path=DepthBidFormatted, Mode=OneWay}" Foreground="{ThemeResource PriceUpColorBrush}" Margin="0" Padding="0 0 0 0" HorizontalAlignment="Right">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
+            </DataTemplate>
 
-                <TextBlock Grid.Column="0" x:Name="DepthAskBest" Text="{x:Bind Path=DepthAskFormatted, Mode=OneWay}" Foreground="{ThemeResource PriceUpColorBrush}" Margin="0" Padding="0 0 0 0" HorizontalAlignment="Right">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-                <TextBlock Grid.Column="1" x:Name="DepthPrice" Text="{x:Bind Path=DepthPriceFormatted, Mode=OneWay}" Margin="3 0 3 0" Padding="3 0 3 0" HorizontalAlignment="Right">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-                <TextBlock Grid.Column="2" x:Name="DepthBidBest" Text="{x:Bind Path=DepthBidFormatted, Mode=OneWay}" Foreground="{ThemeResource PriceDownColorBrush}" Margin="0" Padding="0 0 0 0" HorizontalAlignment="Right">
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
-            </Grid>
-        </DataTemplate>
+            <model:DepthListItemTemplateSelector x:Key="DepthListItemTemplateSelector" LtpTemplate="{StaticResource LtpTemplate}" BidOrAskTemplate="{StaticResource BidOrAskTemplate}" />
 
-        <model:DepthListItemTemplateSelector x:Key="DepthListItemTemplateSelector" LtpTemplate="{StaticResource LtpTemplate}" BidOrAskTemplate="{StaticResource BidOrAskTemplate}" />
+            <Style x:Key="SegmentedPanelBottomStyle" TargetType="StackPanel">
+                <Setter Property="CornerRadius" Value="2" />
+                <Setter Property="Padding" Value="4" />
+                <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
+                <Setter Property="Orientation" Value="Horizontal" />
+                <Setter Property="Spacing" Value="4" />
+                <Setter Property="animations:Implicit.HideAnimations" Value="{StaticResource ShowTransitions}" />
+            </Style>
+            
+            <animations:ImplicitAnimationSet x:Name="ShowTransitions">
+                <animations:OffsetAnimation EasingMode="EaseOut"
+                                        From="0,24,0"
+                                        To="0"
+                                        Duration="0:0:0.4" />
+                <animations:OpacityAnimation EasingMode="EaseOut"
+                                         From="0"
+                                         To="1"
+                                         Duration="0:0:0.2" />
+            </animations:ImplicitAnimationSet>
+            <animations:ImplicitAnimationSet x:Name="HideTransitions">
+                <animations:OffsetAnimation EasingMode="EaseOut"
+                                        From="0"
+                                        To="0,24,0"
+                                        Duration="0:0:0.2" />
+                <animations:OpacityAnimation EasingMode="EaseOut"
+                                         From="1"
+                                         To="0"
+                                         Duration="0:0:0.1" />
+            </animations:ImplicitAnimationSet>
 
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="ms-appx:///CommunityToolkit.WinUI.Controls.Segmented/Segmented/Segmented.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+        </ResourceDictionary>
     </UserControl.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="7*"/>
-            <RowDefinition Height="3*"/>
+            <RowDefinition Height="6*" MinHeight="100"/>
+            <RowDefinition Height="4*"/>
         </Grid.RowDefinitions>
         
         <VisualStateManager.VisualStateGroups>
@@ -105,22 +146,31 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
-        <SplitView x:Name="SplitViewControl" Grid.Row="0" Grid.Column="0" Margin="0" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}" PaneBackground="Transparent" IsPaneOpen="{x:Bind Path=PairViewModel.IsPaneVisible, Mode=TwoWay}" PanePlacement="Right" OpenPaneLength="280" CompactPaneLength="0" DisplayMode="CompactInline">
+        <SplitView x:Name="SplitViewControl" Grid.Row="0" Grid.Column="0" Margin="0" BorderThickness="1,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}" PaneBackground="Transparent" IsPaneOpen="{x:Bind Path=PairViewModel.IsPaneVisible, Mode=TwoWay}" PanePlacement="Right" OpenPaneLength="280" CompactPaneLength="0" DisplayMode="CompactInline">
             <SplitView.Pane>
-                <Grid Margin="12,6,0,0">
+                <Grid Margin="6,6,0,0">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="0"/>
                         <RowDefinition Height="*"/>
+                        <RowDefinition Height="0"/>
                     </Grid.RowDefinitions>
 
-                    <Grid Grid.Row="0"></Grid>
+                    <Grid Grid.Row="0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-                    <TabView Grid.Row="1" TabWidthMode="Equal" IsAddTabButtonVisible="False" Background="Transparent">
-                        <TabView.TabItems>
-
-                            <TabViewItem x:Uid="TabHeader_Orders" IsClosable="False" Opacity="0.7" Background="Transparent">
-
-                                <ListBox x:Name="DepthListBox" BorderThickness="1,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}" ItemTemplateSelector="{StaticResource DepthListItemTemplateSelector}" ItemsSource="{x:Bind Path=PairViewModel.Depth, Mode=OneWay}" SizeChanged="ListBoxDepth_SizeChanged" IsDoubleTapEnabled="True" DoubleTapped="DepthListBox_DoubleTapped" Background="Transparent" Margin="0,0,0,0" Padding="0,12,0,12" HorizontalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                        <controls:Segmented Grid.Row="0" x:Name="SegmentedControlSide"
+                            HorizontalAlignment="Stretch"
+                            SelectedIndex="0" Margin="8">
+                            <controls:SegmentedItem x:Uid="TabHeader_Orders"
+                                    Tag="square" />
+                            <controls:SegmentedItem x:Uid="TabHeader_History"
+                                    Tag="circle" />
+                        </controls:Segmented>
+                        <controls:SwitchPresenter Grid.Row="1" Value="{Binding SelectedItem.Tag, ElementName=SegmentedControlSide}">
+                            <controls:Case Value="square">
+                                <ListBox x:Name="DepthListBox" animations:Implicit.HideAnimations="{StaticResource HideTransitions}" animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}" BorderThickness="0,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}" ItemTemplateSelector="{StaticResource DepthListItemTemplateSelector}" ItemsSource="{x:Bind Path=PairViewModel.Depth, Mode=OneWay}" SizeChanged="ListBoxDepth_SizeChanged" IsDoubleTapEnabled="True" DoubleTapped="DepthListBox_DoubleTapped" Background="Transparent" Margin="0,0,0,0" Padding="0,12,0,12" HorizontalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
                                     <!--  VerticalAlignment="Stretch" removed so that SizeChagen gets invoked. -->
                                     <ListBox.ItemContainerStyle>
                                         <Style TargetType="ListBoxItem" BasedOn="{StaticResource DefaultListBoxItemStyle}">
@@ -130,134 +180,10 @@
                                             <Setter Property="HorizontalAlignment" Value="Stretch" />
                                         </Style>
                                     </ListBox.ItemContainerStyle>
-                                    <!--<ListBox.ItemTemplate>
-                                            <DataTemplate x:DataType="model:Depth">-->
-                                    <!--
-                                            <DataTemplate.Triggers>
-                                                <DataTrigger Binding="{Binding IsLTP}" Value="true">
-                                                    <Setter Property="TextBlock.FontWeight" TargetName="DepthPrice" Value="Bold"/>
-                                                    <Setter Property="TextBlock.FontSize" TargetName="DepthPrice" Value="13"/>
-                                                    <Setter Property="TextBlock.Foreground" TargetName="DepthPrice" Value="{DynamicResource ControlLightColorBrush}"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsAskBest}" Value="true">
-                                                    <Setter Property="TextBlock.FontWeight" TargetName="DepthAskBest" Value="Bold"/>
-                                                    <Setter Property="TextBlock.Foreground" TargetName="DepthAskBest" Value="{DynamicResource PriceUpColorBrush}"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsBidBest}" Value="true">
-                                                    <Setter Property="TextBlock.FontWeight" TargetName="DepthBidBest" Value="Bold"/>
-                                                    <Setter Property="TextBlock.Foreground" TargetName="DepthBidBest" Value="{DynamicResource PriceDownColorBrush}"/>
-                                                </DataTrigger>
-
-                                                <DataTrigger Binding="{Binding DepthBid}" Value="0">
-                                                    <Setter Property="TextBlock.Text" TargetName="DepthBidBest" Value=""/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding DepthPrice}" Value="0">
-                                                    <Setter Property="TextBlock.Text" TargetName="DepthPrice" Value=""/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding DepthAsk}" Value="0">
-                                                    <Setter Property="TextBlock.Text" TargetName="DepthAskBest" Value=""/>
-                                                </DataTrigger>
-                                            </DataTemplate.Triggers>
-                                            -->
-                                    <!--
-                                                <Grid Margin="0" HorizontalAlignment="Stretch">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="80" />
-                                                        <ColumnDefinition Width="90" />
-                                                        <ColumnDefinition Width="80" />
-                                                    </Grid.ColumnDefinitions>
-
-                                                    <TextBlock Grid.Column="0" x:Name="DepthAskBest" Text="{x:Bind DepthAskFormatted, Mode=OneWay}" Foreground="{ThemeResource PriceUpColorBrush}" Margin="0" Padding="0 0 0 0" HorizontalAlignment="Right">
-                                                        <TextBlock.Style>
-                                                            <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
-                                                            </Style>
-                                                        </TextBlock.Style>
-                                                    </TextBlock>
-                                                    <TextBlock Grid.Column="1" x:Name="DepthPrice" Text="{x:Bind DepthPriceFormatted, Mode=OneWay}" Margin="3 0 3 0" Padding="3 0 3 0" HorizontalAlignment="Right">
-                                                        <TextBlock.Style>
-                                                            <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
-                                                            </Style>
-                                                        </TextBlock.Style>
-                                                    </TextBlock>
-                                                    <TextBlock Grid.Column="2" x:Name="DepthBidBest" Text="{x:Bind DepthBidFormatted, Mode=OneWay}" Foreground="{ThemeResource PriceDownColorBrush}" Margin="0" Padding="0 0 0 0" HorizontalAlignment="Right">
-                                                        <TextBlock.Style>
-                                                            <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
-                                                            </Style>
-                                                        </TextBlock.Style>
-                                                    </TextBlock>
-                                                </Grid>
-
-                                            </DataTemplate>
-
-                                        </ListBox.ItemTemplate>
--->
                                 </ListBox>
-                                <!--
-                                <ListBox x:Name="DepthListBox" Margin="3 6 3 6" Padding="0 0 3 0" ItemsSource="{Binding Depths}" Style="{StaticResource DepthListBoxStyle}" AlternationCount="2" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Visible" SizeChanged="DepthListBox_SizeChanged" MouseDoubleClick="DepthListBox_MouseDoubleClick">
-                                    <ListBox.ContextMenu>
-                                        <ContextMenu>
-                                            <MenuItem Header="グルーピング表示">
-                                                <MenuItem Header="OFF" Command="{Binding DepthGroupingCommand}" CommandParameter="0" IsChecked="{Binding ActivePair.IsDepthGroupingOff, Mode=OneWay}"/>
-                                                <MenuItem Header="{Binding ActivePair.DepthGrouping100, Mode=OneWay}" Command="{Binding DepthGroupingCommand}" CommandParameter="{Binding ActivePair.DepthGrouping100, Mode=OneWay}" IsChecked="{Binding ActivePair.IsDepthGrouping100, Mode=OneWay}"/>
-                                                <MenuItem Header="{Binding ActivePair.DepthGrouping1000, Mode=OneWay}" Command="{Binding DepthGroupingCommand}" CommandParameter="{Binding ActivePair.DepthGrouping1000, Mode=OneWay}" IsChecked="{Binding ActivePair.IsDepthGrouping1000, Mode=OneWay}"/>
-                                            </MenuItem>
-                                            <MenuItem Header="中央に戻る" x:Name="DepthListBoxCenter" Click="DepthListBoxCenter_Click"></MenuItem>
-                                        </ContextMenu>
-                                    </ListBox.ContextMenu>
-                                    <ListBox.ItemContainerStyle>
-                                        <Style TargetType="{x:Type ListBoxItem}">
-                                            <Setter Property="Focusable" Value="true"/>
-                                            <Setter Property="IsEnabled" Value="False"/>
-                                        </Style>
-                                    </ListBox.ItemContainerStyle>
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid Margin="0" HorizontalAlignment="Center">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="66" />
-                                                    <ColumnDefinition Width="80" />
-                                                    <ColumnDefinition Width="66" />
-                                                </Grid.ColumnDefinitions>
-                                                
-                                                <TextBlock Grid.Column="0" x:Name="DepthAskBest" Text="{Binding Path=DepthAsk, Mode=OneWay}" Margin="0" Padding="0 0 0 0" Foreground="{DynamicResource PriceUpColorBrush}" HorizontalAlignment="Right"/>
-                                                <TextBlock Grid.Column="1" x:Name="DepthPrice" Text="{Binding Path=DepthPrice, Mode=OneWay}" Margin="3 0 3 0" Padding="3 0 3 0" Foreground="{DynamicResource ControlMediumColorBrush}" HorizontalAlignment="Right"/>
-                                                <TextBlock Grid.Column="2" x:Name="DepthBidBest" Text="{Binding Path=DepthBid, Mode=OneWay}" Margin="0" Padding="0 0 3 0" Foreground="{DynamicResource PriceDownColorBrush}"  HorizontalAlignment="Right"/>
-                                            </Grid>
-                                            <DataTemplate.Triggers>
-                                                <DataTrigger Binding="{Binding IsLTP}" Value="true">
-                                                    <Setter Property="TextBlock.FontWeight" TargetName="DepthPrice" Value="Bold"/>
-                                                    <Setter Property="TextBlock.FontSize" TargetName="DepthPrice" Value="13"/>
-                                                    <Setter Property="TextBlock.Foreground" TargetName="DepthPrice" Value="{DynamicResource ControlLightColorBrush}"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsAskBest}" Value="true">
-                                                    <Setter Property="TextBlock.FontWeight" TargetName="DepthAskBest" Value="Bold"/>
-                                                    <Setter Property="TextBlock.Foreground" TargetName="DepthAskBest" Value="{DynamicResource PriceUpColorBrush}"/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding IsBidBest}" Value="true">
-                                                    <Setter Property="TextBlock.FontWeight" TargetName="DepthBidBest" Value="Bold"/>
-                                                    <Setter Property="TextBlock.Foreground" TargetName="DepthBidBest" Value="{DynamicResource PriceDownColorBrush}"/>
-                                                </DataTrigger>
-
-                                                <DataTrigger Binding="{Binding DepthBid}" Value="0">
-                                                    <Setter Property="TextBlock.Text" TargetName="DepthBidBest" Value=""/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding DepthPrice}" Value="0">
-                                                    <Setter Property="TextBlock.Text" TargetName="DepthPrice" Value=""/>
-                                                </DataTrigger>
-                                                <DataTrigger Binding="{Binding DepthAsk}" Value="0">
-                                                    <Setter Property="TextBlock.Text" TargetName="DepthAskBest" Value=""/>
-                                                </DataTrigger>
-                                            </DataTemplate.Triggers>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
--->
-                            
-                            </TabViewItem>
-
-                            <TabViewItem x:Uid="TabHeader_History" IsClosable="False" Opacity="0.7" Background="Transparent">
-                                
-                                <ListBox BorderThickness="1,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}" ItemsSource="{x:Bind Path=PairViewModel.Transactions, Mode=OneWay}" Background="Transparent" Margin="0" HorizontalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible">
+                            </controls:Case>
+                            <controls:Case Value="circle">
+                                <ListBox animations:Implicit.HideAnimations="{StaticResource HideTransitions}" animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}" BorderThickness="0,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}" ItemsSource="{x:Bind Path=PairViewModel.Transactions, Mode=OneWay}" Background="Transparent" Margin="0" HorizontalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Visible">
                                     <ListBox.ItemContainerStyle>
                                         <Style TargetType="ListBoxItem" BasedOn="{StaticResource DefaultListBoxItemStyle}">
                                             <Setter Property="Padding" Value="3"/>
@@ -293,11 +219,11 @@
                                         </DataTemplate>
                                     </ListBox.ItemTemplate>
                                 </ListBox>
-                            
-                            </TabViewItem>
 
-                        </TabView.TabItems>
-                    </TabView>
+                            </controls:Case>
+                        </controls:SwitchPresenter>
+
+                    </Grid>
 
                 </Grid>
             </SplitView.Pane>
@@ -385,30 +311,7 @@
                         </AppBarButton>
 
                     </StackPanel>
-                    <!--
-                    <CommandBar Background="Transparent" IsOpen="False" DefaultLabelPosition="Right" Margin="0,0,9,6" Opacity="0.4">
 
-
-
-
-                        
-                        <CommandBar.SecondaryCommands>
-
-                        </CommandBar.SecondaryCommands>
-                        
-                    </CommandBar>
-                     -->
-                    <!--
-                    <DropDownButton Content="Email" VerticalAlignment="Bottom" Margin="0,0,9,6" Opacity="0.4">
-                        <DropDownButton.Flyout>
-                            <MenuFlyout Placement="Bottom">
-                                <MenuFlyoutItem Text="Send"/>
-                                <MenuFlyoutItem Text="Reply"/>
-                                <MenuFlyoutItem Text="Reply All"/>
-                            </MenuFlyout>
-                        </DropDownButton.Flyout>
-                    </DropDownButton>
-                    -->
                 </StackPanel>
 
                 <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
@@ -428,8 +331,109 @@
 
         </SplitView>
 
-        <Grid Grid.Row="1" Grid.Column="0">
+        <!--  Row Grid Splitter  -->
+        <controls:GridSplitter Grid.Row="1"
+                               Height="12"
+                               VerticalAlignment="Top">
+            <controls:GridSplitter.RenderTransform>
+                <TranslateTransform Y="-7" />
+            </controls:GridSplitter.RenderTransform>
+        </controls:GridSplitter>
 
+        <Grid Grid.Row="1" Grid.Column="0">
+            <Grid Grid.Row="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <controls:Segmented Grid.Row="0" x:Name="SegmentedControlBottom" Style="{StaticResource PivotSegmentedStyle}"
+                            HorizontalAlignment="Stretch"
+                            SelectedIndex="0" Margin="4">
+                    <controls:SegmentedItem x:Uid="TabHeader_Orders"
+                                    Tag="unfulfilled" />
+                    <controls:SegmentedItem x:Uid="TabHeader_History"
+                                    Tag="fulfilled" />
+                </controls:Segmented>
+                <controls:SwitchPresenter Grid.Row="1" Value="{Binding SelectedItem.Tag, ElementName=SegmentedControlBottom}" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+                    <controls:Case Value="unfulfilled">
+
+                        <StackPanel animations:Implicit.HideAnimations="{StaticResource HideTransitions}"
+                            animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}"
+                            Style="{StaticResource SegmentedPanelBottomStyle}">
+
+                            <ListView VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
+                                <!--  ItemsSource="{x:Bind InventoryItems}" -->
+                                <ListView.Header>
+                                    <Grid Padding="16,12" ColumnSpacing="16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="80" />
+                                            <ColumnDefinition Width="80" />
+                                            <ColumnDefinition Width="80" />
+                                            <ColumnDefinition Width="80" />
+                                            <ColumnDefinition Width="80" />
+                                            <ColumnDefinition Width="80" />
+                                            <ColumnDefinition Width="80" />
+                                            <ColumnDefinition Width="80" />
+                                            <ColumnDefinition Width="80" />
+                                            <ColumnDefinition Width="80" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Order Id" />
+                                        <TextBlock Grid.Column="1" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="DateTime" />
+                                        <TextBlock Grid.Column="2" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Kind" />
+                                        <TextBlock Grid.Column="3" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Type" />
+                                        <TextBlock Grid.Column="4" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Quantity" />
+                                        <TextBlock Grid.Column="5" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Price" />
+                                        <TextBlock Grid.Column="6" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Diff" />
+                                        <TextBlock Grid.Column="7" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="filled" />
+                                        <TextBlock Grid.Column="8" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="pending" />
+                                        <TextBlock Grid.Column="9" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="price" />
+                                        <TextBlock Grid.Column="10" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="status" />
+                                    </Grid>
+                                </ListView.Header>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <!--  x:DataType="local:InventoryItem" -->
+                                        <Grid ColumnSpacing="16">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="80" />
+                                                <ColumnDefinition Width="120" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="100" />
+                                            </Grid.ColumnDefinitions>
+                                            <!--
+                                        
+                                        <TextBlock Text="{x:Bind Id}" />
+                                        <TextBlock Grid.Column="1" Text="{x:Bind Name}" />
+                                        <TextBlock Grid.Column="2" Text="{x:Bind Description}" />
+                                        <TextBlock Grid.Column="3" Text="{x:Bind Quantity}" />
+                                        
+                                        -->
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                                <ListView.ItemContainerStyle>
+                                    <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
+                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                    </Style>
+                                </ListView.ItemContainerStyle>
+                            </ListView>
+                        </StackPanel>
+
+                    </controls:Case>
+                    <controls:Case Value="fulfilled">
+                        <StackPanel animations:Implicit.HideAnimations="{StaticResource HideTransitions}"
+                            animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}"
+                            Style="{StaticResource SegmentedPanelBottomStyle}">
+
+                        </StackPanel>
+                        
+                    </controls:Case>
+                </controls:SwitchPresenter>
+
+            </Grid>
         </Grid>
     </Grid>
+    
 </UserControl>

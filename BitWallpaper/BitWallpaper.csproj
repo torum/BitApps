@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net7.0-windows10.0.26100.0</TargetFramework>
+		<TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
 		<!--<WindowsSdkPackageVersion>10.0.26100.38</WindowsSdkPackageVersion>-->
 		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
 		<SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
@@ -21,7 +21,6 @@
 		<!--
 		<WindowsPackageType>None</WindowsPackageType>
 		-->
-		<WindowsPackageType>None</WindowsPackageType>
 		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
 
 		<NeutralLanguage>en</NeutralLanguage>
@@ -29,11 +28,11 @@
 		<GenerateAppInstallerFile>False</GenerateAppInstallerFile>
 		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
 		<AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
-		<GenerateTestArtifacts>True</GenerateTestArtifacts>
+		<GenerateTestArtifacts>False</GenerateTestArtifacts>
 		<AppxBundle>Always</AppxBundle>
 		<AppxBundlePlatforms>x86|x64|arm64</AppxBundlePlatforms>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
-		<AssemblyVersion>2.0.9.0</AssemblyVersion>
+		<AssemblyVersion>2.0.10.0</AssemblyVersion>
 		<FileVersion>$(AssemblyVersion)</FileVersion>
 		<Version>$(AssemblyVersion)</Version>
 		<ImplicitUsings>enable</ImplicitUsings>
@@ -48,6 +47,9 @@
 		<Copyright>torum</Copyright>
 		<Description>Cryptocurrency charting app</Description>
 		<SymbolPackageFormat>symbols.nupkg</SymbolPackageFormat>
+		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+		<PlatformTarget>AnyCPU</PlatformTarget>
+		<AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="Styles\Colors.xaml" />
