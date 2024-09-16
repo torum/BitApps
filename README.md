@@ -27,7 +27,7 @@ Small display, compact mode
 Feel free to open issues and send PRs. 
 
 ### Technologies & Frameworks
-* [.NET 6](https://github.com/dotnet/runtime)  
+* [.NET 8](https://github.com/dotnet/runtime)  
 * [WinUI3 (WindowsAppSDK)](https://github.com/microsoft/WindowsAppSDK)  
 * [LiveCharts2](https://github.com/beto-rodriguez/LiveCharts2)  
 * [WinUIEx](https://github.com/dotMorten/WinUIEx)
