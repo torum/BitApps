@@ -518,15 +518,14 @@
                 </StackPanel>
 
                 <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
-                    <lvc:CartesianChart x:Name="LiveChart"
-                        Margin="0,0,0,0" 
-                                    Series="{x:Bind PairVM.Series, Mode=OneWay}" 
+                    <lvc:CartesianChart x:Name="LiveChart" Margin="0,0,0,0" 
                                     XAxes="{x:Bind PairVM.XAxes, Mode=OneWay}" 
                                     YAxes="{x:Bind PairVM.YAxes, Mode=OneWay}" 
+                                    Series="{x:Bind PairVM.Series, Mode=OneWay}"
                                     Sections="{x:Bind PairVM.Sections, Mode=OneWay}" 
                                     TooltipPosition="{x:Bind PairVM.IsChartTooltipVisibleTemp, Mode=OneWay}"
                                     ZoomMode="X"/>
-                
+
                 </Grid>
 
             </Grid>

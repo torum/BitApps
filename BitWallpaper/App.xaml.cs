@@ -402,7 +402,7 @@ public partial class App : Application
 
     private class FilePersistence : IDictionary<string, object>
     {
-        private readonly Dictionary<string, object> _data = new();
+        private readonly Dictionary<string, object> _data = [];
         private readonly string _file;
 
         public FilePersistence(string filename)

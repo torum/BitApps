@@ -379,19 +379,7 @@ public sealed partial class MainShell : Page
 
         #endregion
 
-        try
-        {
-            InitializeComponent();
-        }
-        catch (XamlParseException parseException)
-        {
-            Debug.WriteLine($"Unhandled XamlParseException in MainPage: {parseException.Message}");
-            foreach (var key in parseException.Data.Keys)
-            {
-                Debug.WriteLine("{Key}:{Value}", key.ToString(), parseException.Data[key]?.ToString());
-            }
-            throw;
-        }
+        InitializeComponent();
 
         //AppTitleBarText.Text = "AppDisplayName".GetLocalized();
 
@@ -626,7 +614,7 @@ public sealed partial class MainShell : Page
     {
 
         await Task.Delay(100);
-
+        
         if (NavigationViewControl.MenuItems.Count > 0)
         {
             // Since we use ItemInvoked, we set selecteditem manually
@@ -639,25 +627,25 @@ public sealed partial class MainShell : Page
 
                 return;
             }
-
+            
             // Pass vm to destination Frame when navigate.
             //var pairViewModel = MainVM.Pairs.FirstOrDefault(x => x.PairCode == PairCodes.btc_jpy);
             //NavigationFrame.Navigate(typeof(BtcJpyPage), pairViewModel, new Microsoft.UI.Xaml.Media.Animation.EntranceNavigationTransitionInfo());
             var pairViewModel = MainVM.Pairs.FirstOrDefault(x => x.IsEnabled == true);
 
-
             if (pairViewModel != null)
             {
                 var item = _pages.FirstOrDefault(p => p.Tag.Equals(pairViewModel.PairCode.ToString()));
                 var _page = item.Page;
-
+                
+                
                 if (((NavigationViewItem)NavigationViewControl.SelectedItem).Tag.ToString() == pairViewModel.PairCode.ToString())
                 {
                     NavigationFrame.Navigate(_page, pairViewModel, new Microsoft.UI.Xaml.Media.Animation.EntranceNavigationTransitionInfo());
                 }
             }
         }
-
+        
 
         // Listen to the window directly so the app responds to accelerator keys regardless of which element has focus.
         //Window.Current.CoreWindow.Dispatcher.AcceleratorKeyActivated +=  CoreDispatcher_AcceleratorKeyActivated;
@@ -800,6 +788,7 @@ public sealed partial class MainShell : Page
             }
 
             NavigationFrame.Navigate(_page, vm, new SlideNavigationTransitionInfo() { Effect = SlideNavigationTransitionEffect.FromLeft });
+            
             //NavigationFrame.Navigate(_page, vm, args.RecommendedNavigationTransitionInfo);
             //NavigationFrame.Navigate(_page, vm, new SuppressNavigationTransitionInfo());
         }

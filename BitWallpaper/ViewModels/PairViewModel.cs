@@ -14,6 +14,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Windows.Input;
+using LiveChartsCore.Kernel;
 
 namespace BitWallpaper.ViewModels;
 
@@ -1204,9 +1205,9 @@ public class PairViewModel : ViewModelBase
             TextSize = 12.5,
             LabelsRotation = -15,
             LabelsPaint = new SolidColorPaint(SKColors.Gray.WithAlpha(80)),
-            Labeler = value => new DateTime((long) value).ToString("MM/dd"), //TODO: localize aware
+            Labeler = value => new DateTime((long)value).ToString("MM/dd"), //TODO: localize aware
             UnitWidth = TimeSpan.FromHours(0.5).Ticks,
-            MinStep = TimeSpan.FromDays(1).Ticks,
+            //MinStep = TimeSpan.FromDays(1).Ticks,
             MaxLimit = null,
             MinLimit= DateTime.Now.Ticks - TimeSpan.FromDays(2.8).Ticks,
             SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray.WithAlpha(80)) { StrokeThickness = 1,PathEffect = new DashEffect(new float[] { 3, 3 }) }
@@ -1478,20 +1479,39 @@ public class PairViewModel : ViewModelBase
     }
 
     // Called from MainViewModel.
-    public void InitializeAndLoad()
+    public async void InitializeAndLoad()
     {
         if (IsChartInitAndLoaded) 
         {
             if (lastChartLoadedDateTime.Add(chartUpdateInterval) < DateTime.Now)
             {
-                LoadChart(SelectedCandleType);
+                await LoadChart(SelectedCandleType);
                 _dispatcherTimerChart.Stop();
                 _dispatcherTimerChart.Start();
             }
         }
         else
         {
-            LoadChart(SelectedCandleType);
+            Sections[0].Yi = 0;
+            Sections[0].Yj = 0;
+
+            // Little hack to init. This is required after upgrading Livechart2 to 2.0 rc.
+            // clear chart data.
+            Series[0].Values = new ObservableCollection<DateTimePoint>
+            {
+                new(DateTime.Now, 1)
+            };
+            Series[1].Values = new ObservableCollection<FinancialPoint>
+            {
+                new(DateTime.Now, 100, 0, 0, 0)
+            };
+
+            await Task.Delay(100);
+
+            await LoadChart(SelectedCandleType);
+            
+            //Sections[0].Yi = (double)_ltp;
+            //Sections[0].Yj = (double)_ltp;
         }
 
         /*
@@ -1540,7 +1560,7 @@ public class PairViewModel : ViewModelBase
         UpdateChart();
     }
 
-    private void UpdateChart()
+    private async void UpdateChart()
     {
         if (!IsChartInitAndLoaded)
         {
@@ -1577,10 +1597,10 @@ public class PairViewModel : ViewModelBase
         }
         */
 
-        LoadChart(SelectedCandleType);
+        await LoadChart(SelectedCandleType);
     }
 
-    private void ChangeCandleType(CandleTypes candleType)
+    private async void ChangeCandleType(CandleTypes candleType)
     {
         if (candleType == SelectedCandleType)
         {
@@ -1600,11 +1620,14 @@ public class PairViewModel : ViewModelBase
             //new(DateTime.Now, 100, 0, 0, 0)
         };
 
-        LoadChart(SelectedCandleType);
+        await LoadChart(SelectedCandleType);
     }
 
-    private async void LoadChart(CandleTypes ct)
-    {        
+    private async Task LoadChart(CandleTypes ct)
+    {
+        Sections[0].Yi = (double)_ltp;
+        Sections[0].Yj = (double)_ltp;
+
         // gets new data.
         var res = await GetCandlesticks(PairCode, ct);
 
@@ -1616,16 +1639,11 @@ public class PairViewModel : ViewModelBase
         if (res.Count > 0)
         {
             DoLoadChart(res, ct);
-
-            Sections[0].Yi = (double)_ltp;
-            Sections[0].Yj = (double)_ltp;
         }
     }
 
     private void DoLoadChart(List<Ohlcv> list, CandleTypes ct)
     {
-        //Debug.WriteLine("DoLoadChart: " + this.PairCode + ", " + ct.ToString());
-
         // Need to be here. not static and all.
         if (_currencyFormstString.Equals("C3"))
         {
@@ -1650,7 +1668,7 @@ public class PairViewModel : ViewModelBase
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("H:mm");
             XAxes[0].UnitWidth = TimeSpan.FromMinutes(0.4).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromMinutes(10).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromMinutes(10).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromMinutes(60).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1658,7 +1676,7 @@ public class PairViewModel : ViewModelBase
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("H:mm");
             XAxes[0].UnitWidth = TimeSpan.FromMinutes(2.5).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromMinutes(10).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromMinutes(10).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromMinutes(300).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1666,7 +1684,7 @@ public class PairViewModel : ViewModelBase
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("M/d H:mm");
             XAxes[0].UnitWidth = TimeSpan.FromMinutes(7).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromMinutes(15).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromMinutes(15).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromMinutes(750).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1674,16 +1692,19 @@ public class PairViewModel : ViewModelBase
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("M/d H:mm");
             XAxes[0].UnitWidth = TimeSpan.FromMinutes(15).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromMinutes(30).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromMinutes(30).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromMinutes(1500).Ticks;
             XAxes[0].MaxLimit = null;
         }
         else if (ct == CandleTypes.OneHour)
         {
+            
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("M/d H:mm");
             //XAxes[0].Labeler = value => new DateTime((long)value).ToString("yyyy MMM dd");
             XAxes[0].UnitWidth = TimeSpan.FromHours(0.5).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
+            XAxes[0].MinStep = 0;
+            // Bad:
+            //XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(3).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1691,7 +1712,7 @@ public class PairViewModel : ViewModelBase
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("M/d HH");
             XAxes[0].UnitWidth = TimeSpan.FromHours(2).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromHours(4).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromHours(4).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(6).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1699,7 +1720,7 @@ public class PairViewModel : ViewModelBase
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("M/d HH");
             XAxes[0].UnitWidth = TimeSpan.FromHours(4).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromHours(8).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromHours(8).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(12).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1707,7 +1728,7 @@ public class PairViewModel : ViewModelBase
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("yyyy M/d");
             XAxes[0].UnitWidth = TimeSpan.FromHours(6).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromDays(0.5).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromDays(0.5).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(24).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1715,7 +1736,7 @@ public class PairViewModel : ViewModelBase
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("yyyy M/d");
             XAxes[0].UnitWidth = TimeSpan.FromDays(0.4).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(90).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1723,7 +1744,7 @@ public class PairViewModel : ViewModelBase
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("yyyy M/d");
             XAxes[0].UnitWidth = TimeSpan.FromDays(2).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(300).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1731,7 +1752,7 @@ public class PairViewModel : ViewModelBase
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("yyyy/M");
             XAxes[0].UnitWidth = TimeSpan.FromDays(21).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromDays(30).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromDays(30).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(360 * 3).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1827,7 +1848,7 @@ public class PairViewModel : ViewModelBase
             if (i <= 0)
             {
                 OhlcvList = await GetCandlestick(pair, ct, dtToday);
-
+                
                 if (OhlcvList != null)
                 {
                     OhlcvList.Reverse();
@@ -1841,7 +1862,6 @@ public class PairViewModel : ViewModelBase
             else
             {
                 DateTime dateTarget;
-
                 if (isYearly)
                 {
                     dateTarget = dtToday.AddDays(-(i * 365));
@@ -1852,7 +1872,7 @@ public class PairViewModel : ViewModelBase
                 }
 
                 var responseOhlcvList = await GetCandlestick(pair, ct, dateTarget);
-
+                
                 if (responseOhlcvList != null)
                 {
                     responseOhlcvList.Reverse();

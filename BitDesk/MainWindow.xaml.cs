@@ -2,6 +2,7 @@
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Xaml.Media;
 using Windows.Storage;
+using Windows.UI.ViewManagement;
 
 namespace BitDesk;
 
@@ -14,6 +15,9 @@ public sealed partial class MainWindow : WindowEx
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets/App.ico"));
         Content = null;
         //Title = "AppDisplayName".GetLocalized();
+
+        settings = new UISettings();
+        settings.ColorValuesChanged += Settings_ColorValuesChanged;
 
         // Need to be here in the code bihind.
         //ExtendsContentIntoTitleBar = true;
@@ -36,7 +40,8 @@ public sealed partial class MainWindow : WindowEx
                     {
                         SystemBackdrop = new MicaBackdrop()
                         {
-                            Kind = MicaKind.Base
+                            //Kind = MicaKind.Base
+                            Kind = MicaKind.BaseAlt
                         };
                     }
                     else
@@ -61,7 +66,8 @@ public sealed partial class MainWindow : WindowEx
         {
             SystemBackdrop = new MicaBackdrop()
             {
-                Kind = MicaKind.Base
+                //Kind = MicaKind.Base
+                Kind = MicaKind.BaseAlt
             };
         }
         else
@@ -69,5 +75,20 @@ public sealed partial class MainWindow : WindowEx
             // Memo: Without Backdrop, theme setting's theme is not gonna have any effect( "system default" will be used). So the setting is disabled.
         }
 
+    }
+
+    private readonly UISettings settings;
+
+    // this handles updating the caption button colors correctly when Windows system theme is changed
+    // while the app is open
+    private void Settings_ColorValuesChanged(UISettings sender, object args)
+    {
+        /*
+        // This calls comes off-thread, hence we will need to dispatch it to current app's thread
+        App.CurrentDispatcherQueue.TryEnqueue(() =>
+        {
+            TitleBarHelper.ApplySystemThemeToCaptionButtons();
+        });
+        */
     }
 }

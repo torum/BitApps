@@ -1207,7 +1207,7 @@ public class PairViewModel : ObservableRecipient
             Labeler = value => new DateTime((long) value).ToString("M/d"), //TODO: localize aware
             //UnitWidth = TimeSpan.FromHours(0.5).Ticks,
             UnitWidth = TimeSpan.FromDays(1).Ticks,
-            MinStep = TimeSpan.FromDays(1).Ticks,
+            //MinStep = TimeSpan.FromDays(1).Ticks,
             MaxLimit = null,
             MinLimit= DateTime.Now.Ticks - TimeSpan.FromDays(2.8).Ticks,
             SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray.WithAlpha(80)) { StrokeThickness = 1,PathEffect = new DashEffect(new float[] { 3, 3 }) }
@@ -1490,6 +1490,20 @@ public class PairViewModel : ObservableRecipient
         }
         else
         {
+            Sections[0].Yi = 0;
+            Sections[0].Yj = 0;
+
+            // Little hack to init. This is required after upgrading Livechart2 to 2.0 rc.
+            // clear chart data.
+            Series[0].Values = new ObservableCollection<DateTimePoint>
+            {
+                new(DateTime.Now, 1)
+            };
+            Series[1].Values = new ObservableCollection<FinancialPoint>
+            {
+                new(DateTime.Now, 100, 0, 0, 0)
+            };
+
             LoadChart(SelectedCandleType);
         }
 
@@ -1649,7 +1663,7 @@ public class PairViewModel : ObservableRecipient
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("H:mm");
             XAxes[0].UnitWidth = TimeSpan.FromMinutes(0.4).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromMinutes(10).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromMinutes(10).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromMinutes(60).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1657,7 +1671,7 @@ public class PairViewModel : ObservableRecipient
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("H:mm");
             XAxes[0].UnitWidth = TimeSpan.FromMinutes(2.5).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromMinutes(10).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromMinutes(10).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromMinutes(300).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1665,7 +1679,7 @@ public class PairViewModel : ObservableRecipient
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("M/d H:mm");
             XAxes[0].UnitWidth = TimeSpan.FromMinutes(7).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromMinutes(15).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromMinutes(15).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromMinutes(750).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1673,7 +1687,7 @@ public class PairViewModel : ObservableRecipient
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("M/d H:mm");
             XAxes[0].UnitWidth = TimeSpan.FromMinutes(15).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromMinutes(30).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromMinutes(30).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromMinutes(1500).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1681,7 +1695,7 @@ public class PairViewModel : ObservableRecipient
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("M/d H:mm");
             XAxes[0].UnitWidth = TimeSpan.FromHours(0.5).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(3).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1689,7 +1703,7 @@ public class PairViewModel : ObservableRecipient
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("M/d HH");
             XAxes[0].UnitWidth = TimeSpan.FromHours(2).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromHours(4).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromHours(4).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(6).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1697,7 +1711,7 @@ public class PairViewModel : ObservableRecipient
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("M/d HH");
             XAxes[0].UnitWidth = TimeSpan.FromHours(4).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromHours(8).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromHours(8).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(12).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1705,7 +1719,7 @@ public class PairViewModel : ObservableRecipient
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("yyyy M/d");
             XAxes[0].UnitWidth = TimeSpan.FromHours(6).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromDays(0.5).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromDays(0.5).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(24).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1713,7 +1727,7 @@ public class PairViewModel : ObservableRecipient
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("yyyy M/d");
             XAxes[0].UnitWidth = TimeSpan.FromDays(0.4).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(90).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1721,7 +1735,7 @@ public class PairViewModel : ObservableRecipient
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("yyyy M/d");
             XAxes[0].UnitWidth = TimeSpan.FromDays(2).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(300).Ticks;
             XAxes[0].MaxLimit = null;
         }
@@ -1729,7 +1743,7 @@ public class PairViewModel : ObservableRecipient
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("yyyy/M");
             XAxes[0].UnitWidth = TimeSpan.FromDays(21).Ticks;
-            XAxes[0].MinStep = TimeSpan.FromDays(30).Ticks;
+            //XAxes[0].MinStep = TimeSpan.FromDays(30).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(360*3).Ticks;
             XAxes[0].MaxLimit = null;
         }

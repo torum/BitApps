@@ -412,100 +412,110 @@ public class PublicAPIClient : BaseClient
 
                 var deserialized = JsonConvert.DeserializeObject<JsonCandlestick>(json);
 
-                if (deserialized.Success > 0)
+                if (deserialized != null)
                 {
-                    if (deserialized.Data is not null)
+                    if (deserialized.Success > 0)
                     {
-                        if (deserialized.Data.Candlestick is not null)
+                        if (deserialized.Data is not null)
                         {
-                            CandlestickResult csr = new();
-
-                            if (deserialized.Data.Candlestick.Count > 0)
+                            if (deserialized.Data.Candlestick is not null)
                             {
-                                //Candlestick cs = new Candlestick();
+                                CandlestickResult csr = new();
 
-                                if (deserialized.Data.Candlestick[0].Type == "1min")
+                                if (deserialized.Data.Candlestick.Count > 0)
                                 {
-                                    csr.CandleType = CandleTypes.OneMin;
-                                }
-                                else if (deserialized.Data.Candlestick[0].Type == "5min")
-                                {
-                                    csr.CandleType = CandleTypes.FiveMin;
-                                }
-                                else if (deserialized.Data.Candlestick[0].Type == "15min")
-                                {
-                                    csr.CandleType = CandleTypes.FifteenMin;
-                                }
-                                else if (deserialized.Data.Candlestick[0].Type == "30min")
-                                {
-                                    csr.CandleType = CandleTypes.ThirtyMin;
-                                }
-                                else if (deserialized.Data.Candlestick[0].Type == "1hour")
-                                {
-                                    csr.CandleType = CandleTypes.OneHour;
-                                }
-                                else if (deserialized.Data.Candlestick[0].Type == "4hour")
-                                {
-                                    csr.CandleType = CandleTypes.FourHour;
-                                }
-                                else if (deserialized.Data.Candlestick[0].Type == "8hour")
-                                {
-                                    csr.CandleType = CandleTypes.EightHour;
-                                }
-                                else if (deserialized.Data.Candlestick[0].Type == "12hour")
-                                {
-                                    csr.CandleType = CandleTypes.TwelveHour;
-                                }
-                                else if (deserialized.Data.Candlestick[0].Type == "1day")
-                                {
-                                    csr.CandleType = CandleTypes.OneDay;
-                                }
-                                else if (deserialized.Data.Candlestick[0].Type == "1week")
-                                {
-                                    csr.CandleType = CandleTypes.OneWeek;
-                                }
-                                else if (deserialized.Data.Candlestick[0].Type == "1month")
-                                {
-                                    csr.CandleType = CandleTypes.OneMonth;
-                                }
+                                    //Candlestick cs = new Candlestick();
 
-                                if (deserialized.Data.Candlestick[0].Ohlcv is not null)
-                                {
-                                    if (deserialized.Data.Candlestick[0]?.Ohlcv?.Count > 0)
+                                    if (deserialized.Data.Candlestick[0].Type == "1min")
                                     {
-                                        foreach (var (jcs, oh) in from jcs in deserialized.Data.Candlestick[0].Ohlcv
-                                                                  let oh = new Ohlcv()
-                                                                  select (jcs, oh))
-                                        {
-                                            if (jcs.Count >= 6)
-                                            {
-                                                oh.Open = decimal.Parse(jcs[0].String);
-                                                oh.High = decimal.Parse(jcs[1].String);
-                                                oh.Low = decimal.Parse(jcs[2].String);
-                                                oh.Close = decimal.Parse(jcs[3].String);
-                                                oh.Volume = decimal.Parse(jcs[4].String);
-                                                //oh.TimeStamp = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)).AddMilliseconds((double)jcs[5].Double);
-                                                oh.TimeStamp = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddMilliseconds((double)jcs[5].Long).ToLocalTime();
-                                                //oh.TimeStamp = new DateTime(2022,1,1);
+                                        csr.CandleType = CandleTypes.OneMin;
+                                    }
+                                    else if (deserialized.Data.Candlestick[0].Type == "5min")
+                                    {
+                                        csr.CandleType = CandleTypes.FiveMin;
+                                    }
+                                    else if (deserialized.Data.Candlestick[0].Type == "15min")
+                                    {
+                                        csr.CandleType = CandleTypes.FifteenMin;
+                                    }
+                                    else if (deserialized.Data.Candlestick[0].Type == "30min")
+                                    {
+                                        csr.CandleType = CandleTypes.ThirtyMin;
+                                    }
+                                    else if (deserialized.Data.Candlestick[0].Type == "1hour")
+                                    {
+                                        csr.CandleType = CandleTypes.OneHour;
+                                    }
+                                    else if (deserialized.Data.Candlestick[0].Type == "4hour")
+                                    {
+                                        csr.CandleType = CandleTypes.FourHour;
+                                    }
+                                    else if (deserialized.Data.Candlestick[0].Type == "8hour")
+                                    {
+                                        csr.CandleType = CandleTypes.EightHour;
+                                    }
+                                    else if (deserialized.Data.Candlestick[0].Type == "12hour")
+                                    {
+                                        csr.CandleType = CandleTypes.TwelveHour;
+                                    }
+                                    else if (deserialized.Data.Candlestick[0].Type == "1day")
+                                    {
+                                        csr.CandleType = CandleTypes.OneDay;
+                                    }
+                                    else if (deserialized.Data.Candlestick[0].Type == "1week")
+                                    {
+                                        csr.CandleType = CandleTypes.OneWeek;
+                                    }
+                                    else if (deserialized.Data.Candlestick[0].Type == "1month")
+                                    {
+                                        csr.CandleType = CandleTypes.OneMonth;
+                                    }
 
+                                    if (deserialized.Data.Candlestick[0].Ohlcv is not null)
+                                    {
+                                        if (deserialized.Data.Candlestick[0]?.Ohlcv?.Count > 0)
+                                        {
+                                            foreach (var (jcs, oh) in from jcs in deserialized.Data.Candlestick[0].Ohlcv
+                                                                      let oh = new Ohlcv()
+                                                                      select (jcs, oh))
+                                            {
+                                                if (jcs.Count >= 6)
+                                                {
+                                                    oh.Open = decimal.Parse(jcs[0].String);
+                                                    oh.High = decimal.Parse(jcs[1].String);
+                                                    oh.Low = decimal.Parse(jcs[2].String);
+                                                    oh.Close = decimal.Parse(jcs[3].String);
+                                                    oh.Volume = decimal.Parse(jcs[4].String);
+                                                    //oh.TimeStamp = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)).AddMilliseconds((double)jcs[5].Double);
+                                                    oh.TimeStamp = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddMilliseconds((double)jcs[5].Long).ToLocalTime();
+                                                    //oh.TimeStamp = new DateTime(2022,1,1);
+
+                                                }
+                                                //System.Diagnostics.Debug.WriteLine("GetCandlestick: " + oh.TimeStamp.ToString("dd日 hh:mm:ss"));
+                                                //System.Diagnostics.Debug.WriteLine(jcs[4].String);
+                                                csr.Candlesticks.Add(oh);
                                             }
-                                            //System.Diagnostics.Debug.WriteLine("GetCandlestick: " + oh.TimeStamp.ToString("dd日 hh:mm:ss"));
-                                            //System.Diagnostics.Debug.WriteLine(jcs[4].String);
-                                            csr.Candlesticks.Add(oh);
                                         }
                                     }
                                 }
+
+                                csr.ErrorCode = 0;
+                                csr.IsSuccess = true;
+
+                                return csr;
                             }
+                            else
+                            {
 
-                            csr.ErrorCode = 0;
-                            csr.IsSuccess = true;
+                                System.Diagnostics.Debug.WriteLine("GetCandlestick: API error. deserialized.Data.Candlestick is null.");
 
-                            return csr;
+                                // TODO
+                                return null;
+                            }
                         }
                         else
                         {
-
-                            System.Diagnostics.Debug.WriteLine("GetCandlestick: API error. deserialized.Data.Candlestick is null.");
+                            System.Diagnostics.Debug.WriteLine("GetCandlestick: API error. Data is null.");
 
                             // TODO
                             return null;
@@ -513,7 +523,8 @@ public class PublicAPIClient : BaseClient
                     }
                     else
                     {
-                        System.Diagnostics.Debug.WriteLine("GetCandlestick: API error. Data is null.");
+                        var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                        System.Diagnostics.Debug.WriteLine("GetCandlestick: API error code - " + jsonResult.Data?.Code.ToString());
 
                         // TODO
                         return null;
@@ -521,10 +532,8 @@ public class PublicAPIClient : BaseClient
                 }
                 else
                 {
-                    var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
-                    System.Diagnostics.Debug.WriteLine("GetCandlestick: API error code - " + jsonResult.Data?.Code.ToString());
-
-                    // TODO
+                    System.Diagnostics.Debug.WriteLine("GetCandlestick: API error. deserialized is null.");
+                    //TODO
                     return null;
                 }
             }
@@ -555,6 +564,7 @@ public class PublicAPIClient : BaseClient
             Debug.WriteLine("GetCandlestick: Exception - " + ex.Message);
             return null;
         }
+
     }
 }
 

@@ -3,6 +3,7 @@ using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using Windows.UI;
+using Windows.UI.ViewManagement;
 
 namespace BitApps.Core.Helpers;
 
@@ -86,4 +87,14 @@ public class TitleBarHelper
             }
         }
     }
+    /*
+    public static void ApplySystemThemeToCaptionButtons()
+    {
+        var frame = App.AppTitlebar as FrameworkElement;
+        if (frame != null)
+        {
+            UpdateTitleBar(frame.ActualTheme);
+        }
+    }
+    */
 }
