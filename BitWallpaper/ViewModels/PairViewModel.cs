@@ -2004,6 +2004,16 @@ public class PairViewModel : ViewModelBase
 
     private void TickerTimerDepth(object? source, object e)
     {
+        if (!IsEnabled)
+        {
+            return;
+        }
+
+        if (!IsSelectedActive)
+        {
+            return;
+        }
+
         UpdateDepth();
     }
 
@@ -2269,6 +2279,16 @@ while (true)
 
     private void TickerTimerTransaction(object? source, object e)
     {
+        if (!IsEnabled)
+        {
+            return;
+        }
+
+        if (!IsSelectedActive)
+        {
+            return;
+        }
+
         UpdateTransactions();
     }
 

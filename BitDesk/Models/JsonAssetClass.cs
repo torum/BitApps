@@ -1,19 +1,27 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace BitDesk.Models.APIClients;
+namespace BitDesk.Models;
 
-public partial class JsonAssetObject
+// To parse this JSON data, add NuGet 'Newtonsoft.Json' then do:
+//
+//    using QuickType;
+//
+//    var jsonAsset = JsonAsset.FromJson(jsonString);
+
+public partial class JsonAssetResult
 {
     [JsonProperty("success")]
     public long Success { get; set; }
 
     [JsonProperty("data")]
-    public JsonAssetData? Data { get; set; }
+    public Data? Data { get; set; }
 }
 
-public partial class JsonAssetData
+public partial class Data
 {
     [JsonProperty("assets")]
     public List<JsonAsset>? Assets { get; set; }
@@ -61,19 +69,19 @@ public partial class WithdrawalFeeClass
 public partial struct WithdrawalFeeUnion
 {
     public string String;
-    public WithdrawalFeeClass WithdrawalFeeClass;
+    public WithdrawalFeeClass? WithdrawalFeeClass;
 
-    public bool IsNull => WithdrawalFeeClass == null && String == null;
+    public readonly bool IsNull => WithdrawalFeeClass == null && String == null;
 }
 
-public partial class JsonAssetObject
+public partial class JsonAssetResult
 {
-    public static JsonAssetObject FromJson(string json) => JsonConvert.DeserializeObject<JsonAssetObject>(json, Converter.Settings);
+    public static JsonAssetResult? FromJson(string json) => JsonConvert.DeserializeObject<JsonAssetResult>(json, Converter.Settings);
 }
 
 public static class Serialize
 {
-    public static string ToJson(this JsonAsset self) => JsonConvert.SerializeObject(self, Converter.Settings);
+    public static string ToJson(this JsonAssetResult self) => JsonConvert.SerializeObject(self, Converter.Settings);
 }
 
 internal static class Converter
@@ -93,14 +101,14 @@ internal class WithdrawalFeeUnionConverter : JsonConverter
 {
     public override bool CanConvert(Type t) => t == typeof(WithdrawalFeeUnion) || t == typeof(WithdrawalFeeUnion?);
 
-    public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
+    public override object ReadJson(JsonReader reader, Type t, object? existingValue, JsonSerializer serializer)
     {
         switch (reader.TokenType)
         {
             case JsonToken.String:
             case JsonToken.Date:
                 var stringValue = serializer.Deserialize<string>(reader);
-                return new WithdrawalFeeUnion { String = stringValue };
+                return new WithdrawalFeeUnion { String = stringValue ?? "" };
             case JsonToken.StartObject:
                 var objectValue = serializer.Deserialize<WithdrawalFeeClass>(reader);
                 return new WithdrawalFeeUnion { WithdrawalFeeClass = objectValue };
@@ -108,19 +116,23 @@ internal class WithdrawalFeeUnionConverter : JsonConverter
         throw new Exception("Cannot unmarshal type WithdrawalFeeUnion");
     }
 
-    public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
+    public override void WriteJson(JsonWriter writer, object? untypedValue, JsonSerializer serializer)
     {
-        var value = (WithdrawalFeeUnion)untypedValue;
-        if (value.String != null)
+        if (untypedValue != null)
         {
-            serializer.Serialize(writer, value.String);
-            return;
+            var value = (WithdrawalFeeUnion)untypedValue;
+            if (value.String != null)
+            {
+                serializer.Serialize(writer, value.String);
+                return;
+            }
+            if (value.WithdrawalFeeClass != null)
+            {
+                serializer.Serialize(writer, value.WithdrawalFeeClass);
+                return;
+            }
         }
-        if (value.WithdrawalFeeClass != null)
-        {
-            serializer.Serialize(writer, value.WithdrawalFeeClass);
-            return;
-        }
+
         throw new Exception("Cannot marshal type WithdrawalFeeUnion");
     }
 

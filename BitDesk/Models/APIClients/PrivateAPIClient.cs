@@ -1,15 +1,633 @@
 ﻿using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
+using BitApps.Core.Models;
 using BitApps.Core.Models.APIClients;
-using Newtonsoft.Json;
 using BitDesk.Models;
+using Newtonsoft.Json;
 
 namespace BitDesk.Models.APIClients;
 
+#region == クラス定義 ==
+
+// TODO: 
+public class ResponseBodyWrapper
+{
+    public string BodyText = string.Empty;
+    public ClientError HTTPError = new();
+}
+
+// APIリクエストの結果に含めて返すエラー情報保持クラス
+public partial class ErrorInfo : ViewModelBase
+{
+    private string _errorTitle = string.Empty;
+    public string ErrorTitle
+    {
+        get => _errorTitle;
+        set
+        {
+            if (_errorTitle == value)
+            {
+                return;
+            }
+
+            _errorTitle = value;
+            NotifyPropertyChanged(nameof(ErrorTitle));
+        }
+    }
+
+    private int _errorCode;
+    public int ErrorCode
+    {
+        get => _errorCode;
+        set
+        {
+            if (_errorCode == value)
+            {
+                return;
+            }
+
+            _errorCode = value;
+            NotifyPropertyChanged(nameof(ErrorCode));
+        }
+    }
+
+    private string _errorDescription = string.Empty;
+    public string ErrorDescription
+    {
+        get => _errorDescription;
+        set
+        {
+            if (_errorDescription == value)
+            {
+                return;
+            }
+
+            _errorDescription = value;
+            NotifyPropertyChanged(nameof(ErrorDescription));
+        }
+    }
+
+}
+
+// 取引履歴クラス
+public class Trade
+{
+    public ulong TradeID
+    {
+        get; set;
+    }
+    public required string Pair
+    {
+        get; set;
+    }
+    public ulong OrderID
+    {
+        get; set;
+    }
+    public required string Side
+    {
+        get; set;
+    }
+    public string SideText
+    {
+        get
+        {
+            if (Side == "buy")
+            {
+                return "買";
+            }
+            else if (Side == "sell")
+            {
+                return "売";
+            }
+            else
+            {
+                return "";
+            }
+        }
+    }
+    public required string Type
+    {
+        get; set;
+    }
+    public string TypeText
+    {
+        get
+        {
+            if (Type == "market")
+            {
+                return "成行";
+            }
+            else if (Type == "limit")
+            {
+                return "指値";
+            }
+            else
+            {
+                return "";
+            }
+        }
+    }
+    public decimal Amount
+    {
+        get; set;
+    }
+    public decimal Price
+    {
+        get; set;
+    }
+    public string? MakerTaker
+    {
+        get; set;
+    }
+    public decimal FeeAmountBase
+    {
+        get; set;
+    }
+    public decimal FeeAmountQuote
+    {
+        get; set;
+    }
+    public DateTime ExecutedAt
+    {
+        get; set;
+    }
+}
+
+public class TradeHistory
+{
+    public List<Trade> TradeList
+    {
+        get; set;
+    }
+
+    public TradeHistory()
+    {
+        TradeList = [];
+    }
+}
+
+// 注文情報クラス（JsonOrderClassから）
+public partial class Order : ViewModelBase
+{
+    public ulong OrderID
+    {
+        get; set;
+    }
+    public string? Pair
+    {
+        get; set;
+    } // btc_jpy, xrp_jpy, ltc_btc, eth_btc, mona_jpy, mona_btc, bcc_jpy, bcc_btc
+
+    private string _side = string.Empty;// buy または sell
+    public string Side
+    {
+        get => _side;
+        set
+        {
+            if (_side == value)
+            {
+                return;
+            }
+
+            _side = value;
+            NotifyPropertyChanged(nameof(Side));
+            NotifyPropertyChanged(nameof(SideText));
+        }
+    }
+    public string SideText
+    {
+        get
+        {
+            if (_side == "buy")
+            {
+                return "買";
+            }
+            else if (_side == "sell")
+            {
+                return "売";
+            }
+            else
+            {
+                return "";
+            }
+        }
+    }
+
+    private string _type = string.Empty;// limit または market, 指値注文の場合はlimit、成行注文の場合はmarket
+    public string Type
+    {
+        get => _type;
+        set
+        {
+            if (_type == value)
+            {
+                return;
+            }
+
+            _type = value;
+            NotifyPropertyChanged(nameof(Type));
+            NotifyPropertyChanged(nameof(TypeText));
+        }
+    }
+    public string TypeText
+    {
+        get
+        {
+            if (_type == "market")
+            {
+                return "成行";
+            }
+            else if (_type == "limit")
+            {
+                return "指値";
+            }
+            else
+            {
+                return "";
+            }
+        }
+    }
+
+    public decimal StartAmount
+    {
+        get; set;
+    } // 注文時の数量
+
+    private decimal _remainingAmount;// 未約定の数量
+    public decimal RemainingAmount
+    {
+        get => _remainingAmount;
+        set
+        {
+            if (_remainingAmount == value)
+            {
+                return;
+            }
+
+            _remainingAmount = value;
+            NotifyPropertyChanged(nameof(RemainingAmount));
+        }
+    }
+
+    private decimal _executedAmount;// 約定済み数量
+    public decimal ExecutedAmount
+    {
+        get => _executedAmount;
+        set
+        {
+            if (_executedAmount == value)
+            {
+                return;
+            }
+
+            _executedAmount = value;
+            NotifyPropertyChanged(nameof(ExecutedAmount));
+        }
+    }
+
+    private decimal _price;// 注文価格
+    public decimal Price
+    {
+        get => _price;
+        set
+        {
+            if (_price == value)
+            {
+                return;
+            }
+
+            _price = value;
+            NotifyPropertyChanged(nameof(Price));
+        }
+    }
+
+    private decimal _averagePrice;// 平均約定価格
+    public decimal AveragePrice
+    {
+        get => _averagePrice;
+        set
+        {
+            if (_averagePrice == value)
+            {
+                return;
+            }
+
+            _averagePrice = value;
+            NotifyPropertyChanged(nameof(AveragePrice));
+        }
+    }
+
+    private DateTime _orderedAt;// 注文日時(UnixTimeのミリ秒)
+    public DateTime OrderedAt
+    {
+        get => _orderedAt;
+        set
+        {
+            if (_orderedAt == value)
+            {
+                return;
+            }
+
+            _orderedAt = value;
+            NotifyPropertyChanged(nameof(OrderedAt));
+        }
+    }
+
+    private string _status = string.Empty;// 注文ステータス  -  UNFILLED 注文中, PARTIALLY_FILLED 注文中(一部約定), FULLY_FILLED 約定済み, CANCELED_UNFILLED 取消済, CANCELED_PARTIALLY_FILLED 取消済(一部約定)
+    public string Status
+    {
+        get => _status;
+        set
+        {
+            if (_status == value)
+            {
+                return;
+            }
+
+            _status = value;
+
+            NotifyPropertyChanged(nameof(Status));
+            NotifyPropertyChanged(nameof(StatusText));
+            NotifyPropertyChanged(nameof(IsCancelEnabled));
+            NotifyPropertyChanged(nameof(OrderIsDone));
+        }
+    }
+    public string StatusText
+    {
+        get
+        {
+            if (_status == "UNFILLED")
+            {
+                return "注文中";
+            }
+            else if (_status == "PARTIALLY_FILLED")
+            {
+                return "注文中(一部約定)";
+            }
+            else if (_status == "FULLY_FILLED")
+            {
+                return "約定済み";
+            }
+            else if (_status == "CANCELED_UNFILLED")
+            {
+                return "取消済";
+            }
+            else if (_status == "CANCELED_PARTIALLY_FILLED")
+            {
+                return "取消済(一部約定)";
+            }
+            else
+            {
+                return "";
+            }
+        }
+    }
+
+    // 現在値差額表示
+    private decimal _shushi;
+    public decimal Shushi
+    {
+        get => _shushi;
+        set
+        {
+            if (_shushi == value)
+            {
+                return;
+            }
+
+            _shushi = value;
+            NotifyPropertyChanged(nameof(Shushi));
+        }
+    }
+
+    // 実質価格
+    private decimal _actualPrice;
+    public decimal ActualPrice
+    {
+        get => _actualPrice;
+        set
+        {
+            if (_actualPrice == value)
+            {
+                return;
+            }
+
+            _actualPrice = value;
+            NotifyPropertyChanged(nameof(ActualPrice));
+        }
+    }
+
+    // キャンセルが効くかどうかのフラグ
+    public bool IsCancelEnabled
+    {
+        get
+        {
+            if ((_status == "UNFILLED") || (_status == "PARTIALLY_FILLED"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+    private ErrorInfo _err;
+    public ErrorInfo Err
+    {
+        get => _err;
+        set
+        {
+            if (_err == value)
+            {
+                return;
+            }
+
+            _err = value;
+            NotifyPropertyChanged(nameof(Err));
+        }
+    }
+
+    public bool _hasErrorInfo;
+    public bool HasErrorInfo
+    {
+        get => _hasErrorInfo;
+        set
+        {
+            if (_hasErrorInfo == value)
+            {
+                return;
+            }
+
+            _hasErrorInfo = value;
+            NotifyPropertyChanged(nameof(HasErrorInfo));
+        }
+    }
+
+    public bool OrderIsDone
+    {
+        get
+        {
+            if (_status == "UNFILLED")
+            {
+                return false;
+            }
+            else if (_status == "PARTIALLY_FILLED")
+            {
+                return false;
+            }
+            else if (_status == "FULLY_FILLED")
+            {
+                return true;
+            }
+            else if (_status == "CANCELED_UNFILLED")
+            {
+                return true;
+            }
+            else if (_status == "CANCELED_PARTIALLY_FILLED")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
+
+    public Order()
+    {
+        _err = new ErrorInfo();
+    }
+}
+
+public class Orders
+{
+    public List<Order> OrderList
+    {
+        get; set;
+    }
+
+    public Orders()
+    {
+        OrderList = [];
+    }
+}
+
+public class OrderListResult : Orders
+{
+    public bool IsSuccess
+    {
+        get; set;
+    }
+    public int ApiErrorCode
+    {
+        get; set;
+    }
+
+    public ErrorInfo Err
+    {
+        get; set;
+    }
+
+    public OrderListResult()
+    {
+        Err = new ErrorInfo();
+    }
+}
+
+public partial class OrderResult : Order
+{
+    public bool IsSuccess
+    {
+        get; set;
+    }
+    public int ApiErrorCode
+    {
+        get; set;
+    }
+}
+
+// 発注時クエリパラメーター用クラス Jsonシリアライズ用
+[JsonObject]
+public class OrderParam(string pair, string amount, string price, string side, string type)
+{
+    [JsonProperty("pair")]
+    public string Pair
+    {
+        get; set;
+    } = pair;
+
+    [JsonProperty("amount")]
+    public string Amount
+    {
+        get; set;
+    } = amount;
+
+    [JsonProperty("price")]
+    public string Price
+    {
+        get; set;
+    } = price;
+
+    [JsonProperty("side")]
+    public string Side
+    {
+        get; set;
+    } = side;
+
+    [JsonProperty("type")]
+    public string Type
+    {
+        get; set;
+    } = type;
+}
+
+// パラメーター用クラス Jsonシリアライズ用
+[JsonObject]
+public class PairOrderIdParam(string pair, ulong orderID)
+{
+    [JsonProperty("pair")]
+    public string Pair
+    {
+        get; set;
+    } = pair;
+
+    [JsonProperty("order_id")]
+    public ulong Order_id
+    {
+        get; set;
+    } = orderID;
+}
+
+// パラメーター用クラス Jsonシリアライズ用
+[JsonObject]
+public class PairOrderIdList(string pair, List<ulong> orderIds)
+{
+    [JsonProperty("pair")]
+    public string Pair
+    {
+        get; set;
+    } = pair;
+
+    [JsonProperty("order_ids")]
+    public List<ulong> OrderIds
+    {
+        get; set;
+    } = orderIds;
+}
+
+#endregion
+
 public class PrivateAPIClient : BaseClient
 {
-    public Dictionary<long, string> ApiErrorCodesDictionary = new()
+    #region == 変数宣言 ==
+
+    // プライベートAPI　エラーコード
+    public Dictionary<int, string> ApiErrorCodesDictionary = new()
             {
                 {10000, "URLが存在しません"},
                 {10001, "システムエラーが発生しました。サポートにお問い合わせ下さい"},
@@ -90,77 +708,86 @@ public class PrivateAPIClient : BaseClient
                 {70017, "指定された銘柄は注文停止中のため、リクエストを承ることができません。"},// added 2019-10-18
                 {70018, "指定された銘柄は注文およびキャンセル停止中のため、リクエストを承ることができません。"},// added 2019-10-18
                 {70019, "注文はキャンセル中です。"},
+
             };
 
+    // プライベートAPIのベースURL
     private readonly Uri PrivateAPIUri = new("https://api.bitbank.cc/v1");
 
+    // デリゲート
     public delegate void ClinetErrorEvent(PrivateAPIClient sender, ClientError err);
 
+    // エラーイベント
     public event ClinetErrorEvent? ErrorOccured;
 
+    #endregion
+
+    // コンストラクタ
     public PrivateAPIClient()
     {
-        Client.BaseAddress = PrivateAPIUri;
-
-        Client.DefaultRequestHeaders.Clear();
-        Client.DefaultRequestHeaders.ConnectionClose = false;
-        //Client.DefaultRequestHeaders.ConnectionClose = true;
-        Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        _HTTPConn.Client.BaseAddress = PrivateAPIUri;
     }
 
     #region == メソッド ==
 
     // 資産残高取得メソッド
-    public async Task<Assets?> GetAssetList(string _ApiKey, string _ApiSecret)
+    public async Task<List<Asset>?> GetAssetList(string _ApiKey, string _ApiSecret)
     {
-        if (Client is null)
-        {
-            return null;
-        }
-
-        if (Client.BaseAddress is null)
-        {
-            return null;
-        }
-
         var path = new Uri("/user/assets", UriKind.Relative);
 
-        var json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get);
+        //string json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get);
+        var resbo = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get);
+        if (resbo == null)
+        {
+            System.Diagnostics.Debug.WriteLine("■■■■■ GetAssetList: Send returned NULL.");
+            return null;
+        }
+        var json = resbo.BodyText;
 
         if (!string.IsNullOrEmpty(json))
         {
-            //var deserialized = JsonConvert.DeserializeObject<JsonAssetObject>(json);
-            var deserialized = JsonAssetObject.FromJson(json);
+            var deserialized = JsonAssetResult.FromJson(json);
 
-            if (deserialized.Success > 0)
+            if (deserialized?.Success > 0)
             {
-                var asts = new Assets();
-
-                foreach (var ast in deserialized.Data.Assets)
+                if (deserialized.Data?.Assets != null)
                 {
-                    asts.AssetList.Add(new Asset
+                    List<Asset> asts = [];
+
+                    foreach (var ast in deserialized.Data.Assets)
                     {
-                        Name = ast.AssetAsset,
-                        Amount = decimal.Parse(ast.OnhandAmount),
-                        FreeAmount = decimal.Parse(ast.FreeAmount)
-                    });
+                        asts.Add(new Asset
+                        {
+                            Name = ast.AssetAsset ?? string.Empty,
+                            Amount = decimal.Parse(ast.OnhandAmount ?? string.Empty),
+                            FreeAmount = decimal.Parse(ast.FreeAmount ?? string.Empty)
+                        });
+
+                    }
+
+                    return asts;
+                }
+                else
+                {
+                    return null;
                 }
 
-                return asts;
             }
             else
             {
                 var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
 
-                System.Diagnostics.Debug.WriteLine("■■■■■ GetAssetList: API error code - " + jsonResult.data.code.ToString() + " ■■■■■");
+                System.Diagnostics.Debug.WriteLine("■■■■■ GetAssetList: API error code - " + jsonResult?.Data?.Code.ToString() + " ■■■■■");
 
                 // エラーイベント発火
-                var er = new ClientError();
-                er.ErrType = "API";
-                er.ErrCode = jsonResult.data.code;
-                if (ApiErrorCodesDictionary.ContainsKey(jsonResult.data.code))
+                var er = new ClientError
                 {
-                    er.ErrText = "「" + ApiErrorCodesDictionary[jsonResult.data.code] + "」";
+                    ErrType = "API",
+                    ErrCode = jsonResult?.Data?.Code ?? 0
+                };
+                if (ApiErrorCodesDictionary.ContainsKey(jsonResult?.Data?.Code ?? 0))
+                {
+                    er.ErrText = "「" + ApiErrorCodesDictionary[jsonResult?.Data?.Code ?? 0] + "」";
                 }
                 er.ErrDatetime = DateTime.Now;
                 er.ErrPlace = path.ToString();
@@ -173,13 +800,16 @@ public class PrivateAPIClient : BaseClient
         else
         {
             System.Diagnostics.Debug.WriteLine("■■■■■ GetAssetList: Send returned NULL.");
+
+            // HTTPエラー情報を返しても使わないので、Nullを返す。
+
             return null;
         }
 
     }
 
     // 注文発注メソッド
-    public async Task<OrderResult> MakeOrder(string _ApiKey, string _ApiSecret, string pair, Decimal amount, Decimal price, string side, string type)
+    public async Task<OrderResult?> MakeOrder(string _ApiKey, string _ApiSecret, string pair, decimal amount, decimal price, string side, string type)
     {
         //パラメータ 
         // https://docs.bitbank.cc/#/Order
@@ -222,7 +852,14 @@ public class PrivateAPIClient : BaseClient
 
         try
         {
-            var json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body, null);
+            //string json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body, null);
+            var resbo = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body);
+            if (resbo == null)
+            {
+                System.Diagnostics.Debug.WriteLine("■■■■■ MakeOrder: Send returned NULL.");
+                return null;
+            }
+            var json = resbo.BodyText;
 
             if (!string.IsNullOrEmpty(json))
             {
@@ -232,30 +869,33 @@ public class PrivateAPIClient : BaseClient
 
                 var ord = new OrderResult();
 
-                if (deserialized.success > 0)
+                if (deserialized?.Success > 0)
                 {
-                    ord.OrderID = deserialized.data.order_id;
-                    ord.Pair = deserialized.data.pair;
-                    ord.Side = deserialized.data.side;
-                    ord.Type = deserialized.data.type;
-
-                    ord.StartAmount = decimal.Parse(deserialized.data.start_amount);
-                    ord.RemainingAmount = decimal.Parse(deserialized.data.remaining_amount);
-                    ord.ExecutedAmount = decimal.Parse(deserialized.data.executed_amount);
-                    if (deserialized.data.price != null)
+                    if (deserialized.Data != null)
                     {
-                        ord.Price = decimal.Parse(deserialized.data.price);
+                        ord.OrderID = deserialized.Data.Order_id;
+                        ord.Pair = deserialized.Data.Pair ?? string.Empty;
+                        ord.Side = deserialized.Data.Side ?? string.Empty;
+                        ord.Type = deserialized.Data.Type ?? string.Empty;
+
+                        ord.StartAmount = decimal.Parse(deserialized.Data.Start_amount ?? "0");
+                        ord.RemainingAmount = decimal.Parse(deserialized.Data.Remaining_amount ?? "0");
+                        ord.ExecutedAmount = decimal.Parse(deserialized.Data.Executed_amount ?? "0");
+                        if (deserialized.Data.Price != null)
+                        {
+                            ord.Price = decimal.Parse(deserialized.Data.Price);
+                        }
+                        ord.AveragePrice = decimal.Parse(deserialized.Data.Average_price ?? "0");
+
+                        var start = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                        var date = start.AddMilliseconds(deserialized.Data.Ordered_at).ToLocalTime();
+                        ord.OrderedAt = date;
+
+                        ord.Status = deserialized.Data.Status ?? string.Empty;
+
+                        ord.IsSuccess = true;
+                        ord.HasErrorInfo = false;
                     }
-                    ord.AveragePrice = decimal.Parse(deserialized.data.average_price);
-
-                    var start = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                    var date = start.AddMilliseconds(deserialized.data.ordered_at).ToLocalTime();
-                    ord.OrderedAt = date;
-
-                    ord.Status = deserialized.data.status;
-
-                    ord.IsSuccess = true;
-                    ord.HasErrorInfo = false;
 
                     return ord;
                 }
@@ -264,28 +904,30 @@ public class PrivateAPIClient : BaseClient
                     var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
 
                     ord.IsSuccess = false;
-                    ord.ErrorCode = jsonResult.data.code;
+                    ord.ApiErrorCode = jsonResult?.Data?.Code ?? 0;
 
-                    System.Diagnostics.Debug.WriteLine("■■■■■ MakingOrder: API error code - " + jsonResult.data.code.ToString() + " ■■■■■");
+                    System.Diagnostics.Debug.WriteLine("■■■■■ MakingOrder: API error code - " + jsonResult?.Data?.Code.ToString() + " ■■■■■");
 
                     // ユーザに表示するエラー情報
                     ord.HasErrorInfo = true;
-                    ord.Err.ErrorCode = ord.ErrorCode;
+                    ord.Err.ErrorCode = ord.ApiErrorCode;
                     ord.Err.ErrorTitle = "発注処理でエラーが返りました。";
 
-                    if (ApiErrorCodesDictionary.ContainsKey(ord.ErrorCode))
+                    if (ApiErrorCodesDictionary.TryGetValue(ord.ApiErrorCode, out var value))
                     {
-                        ord.Err.ErrorDescription = ApiErrorCodesDictionary[ord.ErrorCode];
+                        ord.Err.ErrorDescription = value;
                     }
-                    ord.Err.ErrorDescription = ord.Err.ErrorDescription + "(エラーコード：" + ord.ErrorCode.ToString() + ")";
+                    ord.Err.ErrorDescription = ord.Err.ErrorDescription + "(エラーコード：" + ord.ApiErrorCode.ToString() + ")";
 
                     // エラーイベント発火
-                    var er = new ClientError();
-                    er.ErrType = "API";
-                    er.ErrCode = jsonResult.data.code;
-                    if (ApiErrorCodesDictionary.ContainsKey(jsonResult.data.code))
+                    var er = new ClientError
                     {
-                        er.ErrText = "「" + ApiErrorCodesDictionary[jsonResult.data.code] + "」";
+                        ErrType = "API",
+                        ErrCode = jsonResult?.Data?.Code ?? 0
+                    };
+                    if (ApiErrorCodesDictionary.ContainsKey(jsonResult?.Data?.Code ?? 0))
+                    {
+                        er.ErrText = "「" + ApiErrorCodesDictionary[jsonResult?.Data?.Code ?? 0] + "」";
                     }
                     er.ErrDatetime = DateTime.Now;
                     er.ErrPlace = path.ToString();
@@ -297,21 +939,45 @@ public class PrivateAPIClient : BaseClient
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("■■■■■ MakeOrder: Send returned NULL.");
-                return null;
+                System.Diagnostics.Debug.WriteLine("■■■■■ MakeOrder: Send returned Empty String...Could be HTTP error");
+
+                var ord = new OrderResult
+                {
+                    IsSuccess = false,
+                    ApiErrorCode = -1,
+                    HasErrorInfo = true
+                };
+
+                ord.Err.ErrorTitle = "発注処理でHTTPエラーが返りました。";
+                ord.Err.ErrorCode = resbo.HTTPError.ErrCode;
+                ord.Err.ErrorDescription = "/user/spot/order への発注処理で、HTTPエラー（" + resbo.HTTPError.ErrCode.ToString() + "）が返りました。";
+
+                return ord;
             }
         }
         catch (Exception e)
         {
             System.Diagnostics.Debug.WriteLine("■■■■■ MakeOrder Exception: " + e + " ■■■■■");
-            return null;
+
+            // TODO: これはClientErrorの方を発火すべきでは？
+            var ord = new OrderResult
+            {
+                IsSuccess = false,
+                ApiErrorCode = -1,
+                HasErrorInfo = true
+            };
+
+            ord.Err.ErrorTitle = "発注処理で例外処理が発生しました。";
+            ord.Err.ErrorCode = -1;
+            ord.Err.ErrorDescription = "/user/spot/order への発注処理で、Exception（" + e + "）発生しました。";
+
+            return ord;
         }
     }
 
     // 注文情報をIDから取得メソッド
-    public async Task<OrderResult> GetOrderByID(string _ApiKey, string _ApiSecret, string pair, ulong orderID)
+    public async Task<OrderResult?> GetOrderByID(string _ApiKey, string _ApiSecret, string pair, ulong orderID)
     {
-
         var path = new Uri("/user/spot/order", UriKind.Relative);
 
         var param = new Dictionary<string, string>{
@@ -319,7 +985,14 @@ public class PrivateAPIClient : BaseClient
                 { "order_id", orderID.ToString() },
             };
 
-        var json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get, "", param);
+        //string json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get, "", param);
+        var resbo = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get, "", param);
+        if (resbo == null)
+        {
+            System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderByID: Send returned NULL.");
+            return null;
+        }
+        var json = resbo.BodyText;
 
         if (!string.IsNullOrEmpty(json))
         {
@@ -327,30 +1000,35 @@ public class PrivateAPIClient : BaseClient
 
             var deserialized = JsonConvert.DeserializeObject<JsonOrderObject>(json);
 
-            if (deserialized.success > 0)
+            if (deserialized?.Success > 0)
             {
-                var ord = new OrderResult();
-                ord.IsSuccess = true;
-
-                ord.OrderID = deserialized.data.order_id;
-                ord.Pair = deserialized.data.pair;
-                ord.Side = deserialized.data.side;
-                ord.Type = deserialized.data.type;
-
-                ord.StartAmount = decimal.Parse(deserialized.data.start_amount);
-                ord.RemainingAmount = decimal.Parse(deserialized.data.remaining_amount);
-                ord.ExecutedAmount = decimal.Parse(deserialized.data.executed_amount);
-                if (deserialized.data.price != null)
+                var ord = new OrderResult
                 {
-                    ord.Price = decimal.Parse(deserialized.data.price);
+                    IsSuccess = true
+                };
+
+                if (deserialized.Data != null)
+                {
+                    ord.OrderID = deserialized.Data.Order_id;
+                    ord.Pair = deserialized.Data.Pair;
+                    ord.Side = deserialized.Data.Status ?? string.Empty;
+                    ord.Type = deserialized.Data.Status ?? string.Empty;
+
+                    ord.StartAmount = decimal.Parse(deserialized.Data.Start_amount ?? "0");
+                    ord.RemainingAmount = decimal.Parse(deserialized.Data.Remaining_amount ?? "0");
+                    ord.ExecutedAmount = decimal.Parse(deserialized.Data.Executed_amount ?? "0");
+                    if (deserialized.Data.Price != null)
+                    {
+                        ord.Price = decimal.Parse(deserialized.Data.Price);
+                    }
+                    ord.AveragePrice = decimal.Parse(deserialized.Data.Average_price ?? "0");
+
+                    var start = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                    var date = start.AddMilliseconds(deserialized.Data.Ordered_at).ToLocalTime();
+                    ord.OrderedAt = date;
+
+                    ord.Status = deserialized.Data.Status ?? string.Empty;
                 }
-                ord.AveragePrice = decimal.Parse(deserialized.data.average_price);
-
-                var start = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                var date = start.AddMilliseconds(deserialized.data.ordered_at).ToLocalTime();
-                ord.OrderedAt = date;
-
-                ord.Status = deserialized.data.status;
 
                 return ord;
             }
@@ -361,28 +1039,30 @@ public class PrivateAPIClient : BaseClient
                 var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
 
                 ord.IsSuccess = false;
-                ord.ErrorCode = jsonResult.data.code;
+                ord.ApiErrorCode = jsonResult?.Data?.Code ?? 0;
 
-                System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderByID: API error code - " + jsonResult.data.code.ToString() + " ■■■■■");
+                System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderByID: API error code - " + jsonResult?.Data?.Code.ToString() + " ■■■■■");
 
                 // ユーザに表示するエラー情報
                 ord.HasErrorInfo = true;
-                ord.Err.ErrorCode = ord.ErrorCode;
+                ord.Err.ErrorCode = ord.ApiErrorCode;
                 ord.Err.ErrorTitle = "注文情報を取得中にエラーが返りました。";
 
-                if (ApiErrorCodesDictionary.ContainsKey(ord.ErrorCode))
+                if (ApiErrorCodesDictionary.TryGetValue(ord.ApiErrorCode, out var value))
                 {
-                    ord.Err.ErrorDescription = ApiErrorCodesDictionary[ord.ErrorCode];
+                    ord.Err.ErrorDescription = value;
                 }
-                ord.Err.ErrorDescription = ord.Err.ErrorDescription + "(エラーコード：" + ord.ErrorCode.ToString() + ")";
+                ord.Err.ErrorDescription = ord.Err.ErrorDescription + "(エラーコード：" + ord.ApiErrorCode.ToString() + ")";
 
                 // エラーイベント発火
-                var er = new ClientError();
-                er.ErrType = "API";
-                er.ErrCode = jsonResult.data.code;
-                if (ApiErrorCodesDictionary.ContainsKey(jsonResult.data.code))
+                var er = new ClientError
                 {
-                    er.ErrText = "「" + ApiErrorCodesDictionary[jsonResult.data.code] + "」";
+                    ErrType = "API",
+                    ErrCode = jsonResult?.Data?.Code ?? 0
+                };
+                if (ApiErrorCodesDictionary.ContainsKey(jsonResult?.Data?.Code ?? 0))
+                {
+                    er.ErrText = "「" + ApiErrorCodesDictionary[jsonResult?.Data?.Code ?? 0] + "」";
                 }
                 er.ErrDatetime = DateTime.Now;
                 er.ErrPlace = path.ToString();
@@ -394,23 +1074,39 @@ public class PrivateAPIClient : BaseClient
         }
         else
         {
-            System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderByID: Send returned NULL.");
-            return null;
+            System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderByID: Send returned empty string. Could be a HTTP error.");
+
+            var ord = new OrderResult
+            {
+                IsSuccess = false,
+                ApiErrorCode = -1,
+                HasErrorInfo = true
+            };
+
+            ord.Err.ErrorTitle = "注文情報を取得処理でHTTPエラーが返りました。";
+            ord.Err.ErrorCode = resbo.HTTPError.ErrCode;
+            ord.Err.ErrorDescription = "/user/spot/order への注文情報取得処理で、HTTPエラー（" + resbo.HTTPError.ErrCode.ToString() + "）が返りました。";
+
+            return ord;
         }
-
-
     }
 
     // 注文情報を複数のIDから取得メソッド
-    public async Task<Orders> GetOrderListByIDs(string _ApiKey, string _ApiSecret, string pair, List<ulong> orderIDs)
+    public async Task<OrderListResult?> GetOrderListByIDs(string _ApiKey, string _ApiSecret, string pair, List<ulong> orderIDs)
     {
-
         var path = new Uri("/user/spot/orders_info", UriKind.Relative);
 
         var idParam = new PairOrderIdList(pair, orderIDs);
         var body = JsonConvert.SerializeObject(idParam);
 
-        var json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body);
+        //string json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body);
+        var resbo = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body);
+        if (resbo == null)
+        {
+            System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderListByIDs: Send returned NULL.");
+            return null;
+        }
+        var json = resbo.BodyText;
 
         try
         {
@@ -420,42 +1116,65 @@ public class PrivateAPIClient : BaseClient
 
                 var deserialized = JsonConvert.DeserializeObject<JsonOrderInfoObject>(json);
 
-                if (deserialized.success > 0)
+                if (deserialized?.Success > 0)
                 {
-                    var ords = new Orders();
-
-                    foreach (var ord in deserialized.data.orders)
+                    var ords = new OrderListResult
                     {
-                        try
+                        IsSuccess = true
+                    };
+
+                    if (deserialized.Data != null)
+                    {
+                        if (deserialized.Data.Orders != null)
                         {
-                            var o = new Order
+                            foreach (var ord in deserialized.Data.Orders)
                             {
-                                OrderID = ord.order_id,
-                                Pair = ord.pair,
-                                Side = ord.side,
-                                Type = ord.type,
-                                OrderedAt = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddMilliseconds(ord.ordered_at).ToLocalTime(),
-                                Status = ord.status
-                            };
+                                try
+                                {
+                                    var o = new Order
+                                    {
+                                        OrderID = ord.Order_id,
+                                        Pair = ord.Pair,
+                                        Side = ord.Side ?? string.Empty,
+                                        Type = ord.Type ?? string.Empty,
+                                        OrderedAt = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddMilliseconds(ord.Ordered_at).ToLocalTime(),
+                                        Status = ord.Status ?? string.Empty
+                                    };
 
-                            if (!string.IsNullOrEmpty(ord.start_amount))
-                                o.StartAmount = decimal.Parse(ord.start_amount);
-                            if (!string.IsNullOrEmpty(ord.remaining_amount))
-                                o.RemainingAmount = decimal.Parse(ord.remaining_amount);
-                            if (!string.IsNullOrEmpty(ord.executed_amount))
-                                o.ExecutedAmount = decimal.Parse(ord.executed_amount);
-                            if (!string.IsNullOrEmpty(ord.price))
-                                o.Price = decimal.Parse(ord.price);
-                            if (!string.IsNullOrEmpty(ord.average_price))
-                                o.AveragePrice = decimal.Parse(ord.average_price);
+                                    if (!string.IsNullOrEmpty(ord.Start_amount))
+                                    {
+                                        o.StartAmount = decimal.Parse(ord.Start_amount);
+                                    }
 
-                            ords.OrderList.Add(o);
+                                    if (!string.IsNullOrEmpty(ord.Remaining_amount))
+                                    {
+                                        o.RemainingAmount = decimal.Parse(ord.Remaining_amount);
+                                    }
 
-                            //System.Diagnostics.Debug.WriteLine("GetOrderListByIDs ord.status: " + ord.status);
-                        }
-                        catch
-                        {
-                            System.Diagnostics.Debug.WriteLine("■■■■■ GGetOrderListByIDs - ords.OrderList.Add ■■■■■");
+                                    if (!string.IsNullOrEmpty(ord.Executed_amount))
+                                    {
+                                        o.ExecutedAmount = decimal.Parse(ord.Executed_amount);
+                                    }
+
+                                    if (!string.IsNullOrEmpty(ord.Price))
+                                    {
+                                        o.Price = decimal.Parse(ord.Price);
+                                    }
+
+                                    if (!string.IsNullOrEmpty(ord.Average_price))
+                                    {
+                                        o.AveragePrice = decimal.Parse(ord.Average_price);
+                                    }
+
+                                    ords.OrderList.Add(o);
+
+                                    //System.Diagnostics.Debug.WriteLine("GetOrderListByIDs ord.status: " + ord.status);
+                                }
+                                catch
+                                {
+                                    System.Diagnostics.Debug.WriteLine("■■■■■ GGetOrderListByIDs - ords.OrderList.Add ■■■■■");
+                                }
+                            }
                         }
                     }
 
@@ -465,15 +1184,17 @@ public class PrivateAPIClient : BaseClient
                 {
                     var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
 
-                    System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderListByIDs: API error code - " + jsonResult.data.code.ToString() + " ■■■■■");
+                    System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderListByIDs: API error code - " + jsonResult?.Data?.Code.ToString() + " ■■■■■");
 
                     // エラーイベント発火
-                    var er = new ClientError();
-                    er.ErrType = "API";
-                    er.ErrCode = jsonResult.data.code;
-                    if (ApiErrorCodesDictionary.ContainsKey(jsonResult.data.code))
+                    var er = new ClientError
                     {
-                        er.ErrText = "「" + ApiErrorCodesDictionary[jsonResult.data.code] + "」";
+                        ErrType = "API",
+                        ErrCode = jsonResult?.Data?.Code ?? 0
+                    };
+                    if (ApiErrorCodesDictionary.ContainsKey(jsonResult?.Data?.Code ?? 0))
+                    {
+                        er.ErrText = "「" + ApiErrorCodesDictionary[jsonResult?.Data?.Code ?? 0] + "」";
                     }
                     er.ErrDatetime = DateTime.Now;
                     er.ErrPlace = path.ToString();
@@ -487,29 +1208,57 @@ public class PrivateAPIClient : BaseClient
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderListByIDs: Send returned NULL.");
-                return null;
+                System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderListByIDs: Send returned empty string.");
+
+                var ords = new OrderListResult
+                {
+                    IsSuccess = false,
+                    ApiErrorCode = -1
+                };
+
+                ords.Err.ErrorTitle = "注文情報取得（複数）処理でHTTPエラーが返りました。";
+                ords.Err.ErrorCode = resbo.HTTPError.ErrCode;
+                ords.Err.ErrorDescription = "/user/spot/orders_info への発注処理で、HTTPエラー（" + resbo.HTTPError.ErrCode.ToString() + "）が返りました。";
+
+                return ords;
             }
         }
         catch (Exception e)
         {
             System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderListByIDs: Exception " + e);
-            return null;
-        }
 
+            // TODO: これはClientErrorの方を発火すべきでは？
+            var ord = new OrderListResult
+            {
+                IsSuccess = false,
+                ApiErrorCode = -1
+            };
+
+            ord.Err.ErrorTitle = "発注処理で例外処理が発生しました。";
+            ord.Err.ErrorCode = -1;
+            ord.Err.ErrorDescription = "/user/spot/orders_info への情報取得処理で、Exception（" + e + "）発生しました。";
+
+            return ord;
+        }
     }
 
     // 注文キャンセルメソッド
-    public async Task<OrderResult> CancelOrder(string _ApiKey, string _ApiSecret, string pair, ulong orderID)
+    public async Task<OrderResult?> CancelOrder(string _ApiKey, string _ApiSecret, string pair, ulong orderID)
     {
-
         var path = new Uri("/user/spot/cancel_order", UriKind.Relative);
 
         var cancelOrderParam = new PairOrderIdParam(pair, orderID);
 
         var body = JsonConvert.SerializeObject(cancelOrderParam);
 
-        var json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body);
+        //string json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body);
+        var resbo = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body);
+        if (resbo == null)
+        {
+            System.Diagnostics.Debug.WriteLine("■■■■■ CancelOrder: Send returned NULL.");
+            return null;
+        }
+        var json = resbo.BodyText;
 
         if (!string.IsNullOrEmpty(json))
         {
@@ -519,29 +1268,31 @@ public class PrivateAPIClient : BaseClient
 
             var ord = new OrderResult();
 
-            if (deserialized.success > 0)
+            if (deserialized?.Success > 0)
             {
+                if (deserialized.Data != null)
+                {
+                    ord.OrderID = deserialized.Data.Order_id;
+                    ord.Pair = deserialized.Data.Pair;
+                    ord.Side = deserialized.Data.Side ?? string.Empty;
+                    ord.Type = deserialized.Data.Type ?? string.Empty;
 
-                ord.OrderID = deserialized.data.order_id;
-                ord.Pair = deserialized.data.pair;
-                ord.Side = deserialized.data.side;
-                ord.Type = deserialized.data.type;
+                    //TODO エラーハンドリング
+                    ord.StartAmount = decimal.Parse(deserialized.Data.Start_amount ?? "0");
+                    ord.RemainingAmount = decimal.Parse(deserialized.Data.Remaining_amount ?? "0");
+                    ord.ExecutedAmount = decimal.Parse(deserialized.Data.Executed_amount ?? "0");
+                    ord.Price = decimal.Parse(deserialized.Data.Price ?? "0");
+                    ord.AveragePrice = decimal.Parse(deserialized.Data.Average_price ?? "0");
 
-                //TODO エラーハンドリング
-                ord.StartAmount = decimal.Parse(deserialized.data.start_amount);
-                ord.RemainingAmount = decimal.Parse(deserialized.data.remaining_amount);
-                ord.ExecutedAmount = decimal.Parse(deserialized.data.executed_amount);
-                ord.Price = decimal.Parse(deserialized.data.price);
-                ord.AveragePrice = decimal.Parse(deserialized.data.average_price);
+                    var start = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                    var date = start.AddMilliseconds(deserialized.Data.Ordered_at).ToLocalTime();
+                    ord.OrderedAt = date;
 
-                var start = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                var date = start.AddMilliseconds(deserialized.data.ordered_at).ToLocalTime();
-                ord.OrderedAt = date;
+                    ord.Status = deserialized.Data.Status ?? string.Empty;
 
-                ord.Status = deserialized.data.status;
-
-                ord.IsSuccess = true;
-                ord.HasErrorInfo = false;
+                    ord.IsSuccess = true;
+                    ord.HasErrorInfo = false;
+                }
 
                 return ord;
             }
@@ -550,34 +1301,36 @@ public class PrivateAPIClient : BaseClient
                 var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
 
                 ord.IsSuccess = false;
-                ord.ErrorCode = jsonResult.data.code;
+                ord.ApiErrorCode = jsonResult?.Data?.Code ?? 0;
 
                 // ユーザに表示するエラー情報
                 ord.HasErrorInfo = true;
-                ord.Err.ErrorCode = ord.ErrorCode;
+                ord.Err.ErrorCode = ord.ApiErrorCode;
                 ord.Err.ErrorTitle = "注文キャンセル処理でエラーが返りました。";
 
-                if (ApiErrorCodesDictionary.ContainsKey(ord.ErrorCode))
+                if (ApiErrorCodesDictionary.TryGetValue(ord.ApiErrorCode, out var value))
                 {
-                    ord.Err.ErrorDescription = ApiErrorCodesDictionary[ord.ErrorCode];
+                    ord.Err.ErrorDescription = value;
                 }
-                ord.Err.ErrorDescription = ord.Err.ErrorDescription + "(エラーコード：" + ord.ErrorCode.ToString() + ")";
+                ord.Err.ErrorDescription = ord.Err.ErrorDescription + "(エラーコード：" + ord.ApiErrorCode.ToString() + ")";
 
 
                 // エラーイベント発火
-                var er = new ClientError();
-                er.ErrType = "API";
-                er.ErrCode = jsonResult.data.code;
-                if (ApiErrorCodesDictionary.ContainsKey(jsonResult.data.code))
+                var er = new ClientError
                 {
-                    er.ErrText = "「" + ApiErrorCodesDictionary[jsonResult.data.code] + "」";
+                    ErrType = "API",
+                    ErrCode = jsonResult?.Data?.Code ?? 0
+                };
+                if (ApiErrorCodesDictionary.ContainsKey(jsonResult?.Data?.Code ?? 0))
+                {
+                    er.ErrText = "「" + ApiErrorCodesDictionary[jsonResult?.Data?.Code ?? 0] + "」";
                 }
                 er.ErrDatetime = DateTime.Now;
                 er.ErrPlace = path.ToString();
 
                 ErrorOccured?.Invoke(this, er);
 
-                System.Diagnostics.Debug.WriteLine("■■■■■ CancelOrder: API error code - " + jsonResult.data.code.ToString() + " ■■■■■");
+                System.Diagnostics.Debug.WriteLine("■■■■■ CancelOrder: API error code - " + jsonResult?.Data?.Code.ToString() + " ■■■■■");
 
                 return ord;
             }
@@ -585,69 +1338,107 @@ public class PrivateAPIClient : BaseClient
         else
         {
             System.Diagnostics.Debug.WriteLine("■■■■■ CancelOrder: Send returned NULL.");
-            return null;
-        }
 
+            var ord = new OrderResult
+            {
+                IsSuccess = false,
+                ApiErrorCode = -1,
+                HasErrorInfo = true
+            };
+
+            ord.Err.ErrorTitle = "注文キャンセル処理でHTTPエラーが返りました。";
+            ord.Err.ErrorCode = resbo.HTTPError.ErrCode;
+            ord.Err.ErrorDescription = "/user/spot/cancel_order への注文キャンセル処理で、HTTPエラー（" + resbo.HTTPError.ErrCode.ToString() + "）が返りました。";
+
+            return ord;
+        }
     }
 
     // 文キャンセル（複数）メソッド
-    public async Task<Orders> CancelOrders(string _ApiKey, string _ApiSecret, string pair, List<ulong> orderIDs)
+    public async Task<OrderListResult?> CancelOrders(string _ApiKey, string _ApiSecret, string pair, List<ulong> orderIDs)
     {
-
         var path = new Uri("/user/spot/cancel_orders", UriKind.Relative);
 
         var idParam = new PairOrderIdList(pair, orderIDs);
         var body = JsonConvert.SerializeObject(idParam);
 
-        var json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body);
+        //string json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body);
+        var resbo = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body);
+        if (resbo == null)
+        {
+            System.Diagnostics.Debug.WriteLine("■■■■■ CancelOrders: Send returned NULL.");
+            return null;
+        }
+        var json = resbo.BodyText;
 
         try
         {
             if (!string.IsNullOrEmpty(json))
             {
-                //System.Diagnostics.Debug.WriteLine("GetOrderListByIDs: " + json);
+                //System.Diagnostics.Debug.WriteLine("CancelOrders: " + json);
 
                 var deserialized = JsonConvert.DeserializeObject<JsonOrderInfoObject>(json);
 
-                if (deserialized.success > 0)
+                if (deserialized?.Success > 0)
                 {
-                    var ords = new Orders();
-
-                    foreach (var ord in deserialized.data.orders)
+                    var ords = new OrderListResult
                     {
-                        try
+                        IsSuccess = true
+                    };
+
+                    if (deserialized.Data != null)
+                    {
+                        if (deserialized.Data.Orders != null)
                         {
-                            var o = new Order
+                            foreach (var ord in deserialized.Data.Orders)
                             {
-                                OrderID = ord.order_id,
-                                Pair = ord.pair,
-                                Side = ord.side,
-                                Type = ord.type,
-                                OrderedAt = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddMilliseconds(ord.ordered_at).ToLocalTime(),
-                                Status = ord.status
-                            };
+                                try
+                                {
+                                    var o = new Order
+                                    {
+                                        OrderID = ord.Order_id,
+                                        Pair = ord.Pair,
+                                        Side = ord.Side ?? string.Empty,
+                                        Type = ord.Type ?? string.Empty,
+                                        OrderedAt = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddMilliseconds(ord.Ordered_at).ToLocalTime(),
+                                        Status = ord.Status ?? string.Empty
+                                    };
 
-                            if (!string.IsNullOrEmpty(ord.start_amount))
-                                o.StartAmount = decimal.Parse(ord.start_amount);
-                            if (!string.IsNullOrEmpty(ord.remaining_amount))
-                                o.RemainingAmount = decimal.Parse(ord.remaining_amount);
-                            if (!string.IsNullOrEmpty(ord.executed_amount))
-                                o.ExecutedAmount = decimal.Parse(ord.executed_amount);
-                            if (!string.IsNullOrEmpty(ord.price))
-                                o.Price = decimal.Parse(ord.price);
-                            if (!string.IsNullOrEmpty(ord.average_price))
-                                o.AveragePrice = decimal.Parse(ord.average_price);
+                                    if (!string.IsNullOrEmpty(ord.Start_amount))
+                                    {
+                                        o.StartAmount = decimal.Parse(ord.Start_amount);
+                                    }
 
-                            ords.OrderList.Add(o);
+                                    if (!string.IsNullOrEmpty(ord.Remaining_amount))
+                                    {
+                                        o.RemainingAmount = decimal.Parse(ord.Remaining_amount);
+                                    }
 
-                            //System.Diagnostics.Debug.WriteLine("GetOrderListByIDs ord.status: " + ord.status);
+                                    if (!string.IsNullOrEmpty(ord.Executed_amount))
+                                    {
+                                        o.ExecutedAmount = decimal.Parse(ord.Executed_amount);
+                                    }
+
+                                    if (!string.IsNullOrEmpty(ord.Price))
+                                    {
+                                        o.Price = decimal.Parse(ord.Price);
+                                    }
+
+                                    if (!string.IsNullOrEmpty(ord.Average_price))
+                                    {
+                                        o.AveragePrice = decimal.Parse(ord.Average_price);
+                                    }
+
+                                    ords.OrderList.Add(o);
+
+                                    //System.Diagnostics.Debug.WriteLine("CancelOrders ord.status: " + ord.status);
+                                }
+                                catch
+                                {
+                                    System.Diagnostics.Debug.WriteLine("■■■■■ CancelOrders - ords.OrderList.Add ■■■■■");
+                                }
+                            }
                         }
-                        catch
-                        {
-                            System.Diagnostics.Debug.WriteLine("■■■■■ CancelOrders - ords.OrderList.Add ■■■■■");
-                        }
-
-
                     }
 
                     return ords;
@@ -656,15 +1447,17 @@ public class PrivateAPIClient : BaseClient
                 {
                     var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
 
-                    System.Diagnostics.Debug.WriteLine("■■■■■ CancelOrders: API error code - " + jsonResult.data.code.ToString() + " ■■■■■");
+                    System.Diagnostics.Debug.WriteLine("■■■■■ CancelOrders: API error code - " + jsonResult?.Data?.Code.ToString() + " ■■■■■");
 
                     // エラーイベント発火
-                    var er = new ClientError();
-                    er.ErrType = "API";
-                    er.ErrCode = jsonResult.data.code;
-                    if (ApiErrorCodesDictionary.ContainsKey(jsonResult.data.code))
+                    var er = new ClientError
                     {
-                        er.ErrText = "「" + ApiErrorCodesDictionary[jsonResult.data.code] + "」";
+                        ErrType = "API",
+                        ErrCode = jsonResult?.Data?.Code ?? 0
+                    };
+                    if (ApiErrorCodesDictionary.ContainsKey(jsonResult?.Data?.Code ?? 0))
+                    {
+                        er.ErrText = "「" + ApiErrorCodesDictionary[jsonResult?.Data?.Code ?? 0] + "」";
                     }
                     er.ErrDatetime = DateTime.Now;
                     er.ErrPlace = path.ToString();
@@ -677,21 +1470,42 @@ public class PrivateAPIClient : BaseClient
             else
             {
                 System.Diagnostics.Debug.WriteLine("■■■■■ CancelOrders: Send returned NULL.");
-                return null;
+
+                var ords = new OrderListResult
+                {
+                    IsSuccess = false,
+                    ApiErrorCode = -1
+                };
+
+                ords.Err.ErrorTitle = "注文キャンセル処理（複数）でHTTPエラーが返りました。";
+                ords.Err.ErrorCode = resbo.HTTPError.ErrCode;
+                ords.Err.ErrorDescription = "/user/spot/cancel_orders への処理で、HTTPエラー（" + resbo.HTTPError.ErrCode.ToString() + "）が返りました。";
+
+                return ords;
             }
         }
         catch (Exception e)
         {
             System.Diagnostics.Debug.WriteLine("■■■■■ CancelOrders: Exception " + e);
-            return null;
-        }
 
+            // TODO: これはClientErrorの方を発火すべきでは？
+            var ord = new OrderListResult
+            {
+                IsSuccess = false,
+                ApiErrorCode = -1
+            };
+
+            ord.Err.ErrorTitle = "注文キャンセル処理（複数）で例外処理が発生しました。";
+            ord.Err.ErrorCode = -1;
+            ord.Err.ErrorDescription = "/user/spot/cancel_orders への情報取得処理で、Exception（" + e + "）発生しました。";
+
+            return ord;
+        }
     }
 
     // 注文リスト取得メソッド
-    public async Task<Orders> GetOrderList(string _ApiKey, string _ApiSecret, string pair)
+    public async Task<OrderListResult?> GetOrderList(string _ApiKey, string _ApiSecret, string pair)
     {
-
         var path = new Uri("/user/spot/active_orders", UriKind.Relative);
 
         var param = new Dictionary<string, string>{
@@ -703,7 +1517,14 @@ public class PrivateAPIClient : BaseClient
                 //{ "end", "0.01" },//終了UNIXタイムスタンプ
             };
 
-        var json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get, "", param);
+        //string json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get,"", param);
+        var resbo = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get, "", param);
+        if (resbo == null)
+        {
+            System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderList: Send returned NULL.");
+            return null;
+        }
+        var json = resbo.BodyText;
 
         if (!string.IsNullOrEmpty(json))
         {
@@ -711,48 +1532,68 @@ public class PrivateAPIClient : BaseClient
 
             var deserialized = JsonConvert.DeserializeObject<JsonOrderInfoObject>(json);
 
-            if (deserialized.success > 0)
+            if (deserialized?.Success > 0)
             {
-                var ords = new Orders();
-
-                foreach (var ord in deserialized.data.orders)
+                var ords = new OrderListResult
                 {
+                    IsSuccess = true
+                };
 
-                    var o = new Order
+                if (deserialized?.Data?.Orders != null)
+                {
+                    foreach (var ord in deserialized.Data.Orders)
                     {
-                        OrderID = ord.order_id,
-                        Pair = ord.pair,
-                        Side = ord.side,
-                        Type = ord.type,
-                        OrderedAt = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddMilliseconds(ord.ordered_at).ToLocalTime(),
-                        Status = ord.status
-                    };
+                        var o = new Order
+                        {
+                            OrderID = ord.Order_id,
+                            Pair = ord.Pair,
+                            Side = ord.Side ?? string.Empty,
+                            Type = ord.Type ?? string.Empty,
+                            OrderedAt = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddMilliseconds(ord.Ordered_at).ToLocalTime(),
+                            Status = ord.Status ?? string.Empty
+                        };
 
-                    if (!string.IsNullOrEmpty(ord.start_amount)) o.StartAmount = decimal.Parse(ord.start_amount);
-                    if (!string.IsNullOrEmpty(ord.remaining_amount)) o.RemainingAmount = decimal.Parse(ord.remaining_amount);
-                    if (!string.IsNullOrEmpty(ord.executed_amount)) o.ExecutedAmount = decimal.Parse(ord.executed_amount);
-                    if (!string.IsNullOrEmpty(ord.price)) { o.Price = decimal.Parse(ord.price); } else { o.Price = 0; }
-                    if (!string.IsNullOrEmpty(ord.average_price)) o.AveragePrice = decimal.Parse(ord.average_price);
+                        if (!string.IsNullOrEmpty(ord.Start_amount))
+                        {
+                            o.StartAmount = decimal.Parse(ord.Start_amount);
+                        }
 
-                    ords.OrderList.Add(o);
+                        if (!string.IsNullOrEmpty(ord.Remaining_amount))
+                        {
+                            o.RemainingAmount = decimal.Parse(ord.Remaining_amount);
+                        }
 
+                        if (!string.IsNullOrEmpty(ord.Executed_amount))
+                        {
+                            o.ExecutedAmount = decimal.Parse(ord.Executed_amount);
+                        }
+
+                        if (!string.IsNullOrEmpty(ord.Price)) { o.Price = decimal.Parse(ord.Price); } else { o.Price = 0; }
+                        if (!string.IsNullOrEmpty(ord.Average_price))
+                        {
+                            o.AveragePrice = decimal.Parse(ord.Average_price);
+                        }
+
+                        ords.OrderList.Add(o);
+                    }
                 }
-
                 return ords;
             }
             else
             {
                 var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
 
-                System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderList: API error code - " + jsonResult.data.code.ToString() + " ■■■■■");
+                System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderList: API error code - " + jsonResult?.Data?.Code.ToString() + " ■■■■■");
 
                 // エラーイベント発火
-                var er = new ClientError();
-                er.ErrType = "API";
-                er.ErrCode = jsonResult.data.code;
-                if (ApiErrorCodesDictionary.ContainsKey(jsonResult.data.code))
+                var er = new ClientError
                 {
-                    er.ErrText = "「" + ApiErrorCodesDictionary[jsonResult.data.code] + "」";
+                    ErrType = "API",
+                    ErrCode = jsonResult?.Data?.Code ?? 0
+                };
+                if (ApiErrorCodesDictionary.ContainsKey(jsonResult?.Data?.Code ?? 0))
+                {
+                    er.ErrText = "「" + ApiErrorCodesDictionary[jsonResult?.Data?.Code ?? 0] + "」";
                 }
                 er.ErrDatetime = DateTime.Now;
                 er.ErrPlace = path.ToString();
@@ -765,12 +1606,23 @@ public class PrivateAPIClient : BaseClient
         else
         {
             System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderList: Send returned NULL.");
-            return null;
+
+            var ords = new OrderListResult
+            {
+                IsSuccess = false,
+                ApiErrorCode = -1
+            };
+
+            ords.Err.ErrorTitle = "注文リスト取得でHTTPエラーが返りました。";
+            ords.Err.ErrorCode = resbo.HTTPError.ErrCode;
+            ords.Err.ErrorDescription = "/user/spot/active_orders への注文リスト取得処理で、HTTPエラー（" + resbo.HTTPError.ErrCode.ToString() + "）が返りました。";
+
+            return ords;
         }
     }
 
     // 取引履歴取得メソッド
-    public async Task<TradeHistory> GetTradeHistory(string _ApiKey, string _ApiSecret, string pair)
+    public async Task<TradeHistory?> GetTradeHistory(string _ApiKey, string _ApiSecret, string pair)
     {
 
         var path = new Uri("/user/spot/trade_history", UriKind.Relative);
@@ -784,7 +1636,14 @@ public class PrivateAPIClient : BaseClient
                 //{ "order", "asc" },//約定時刻順序(asc: 昇順、desc: 降順、デフォルト降順)
             };
 
-        var json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get, "", param);
+        //string json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get, "", param);
+        var resbo = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get, "", param);
+        if (resbo == null)
+        {
+            System.Diagnostics.Debug.WriteLine("■■■■■ GetTradeHistory: Send returned NULL.");
+            return null;
+        }
+        var json = resbo.BodyText;
 
         if (!string.IsNullOrEmpty(json))
         {
@@ -792,32 +1651,48 @@ public class PrivateAPIClient : BaseClient
 
             var deserialized = JsonConvert.DeserializeObject<JsonTradeHistoryObject>(json);
 
-            if (deserialized.success > 0)
+            if (deserialized?.Success > 0)
             {
                 var history = new TradeHistory();
 
-                foreach (var trd in deserialized.data.trades)
+                if (deserialized?.Data != null)
                 {
-                    var o = new Trade
+                    if (deserialized.Data.Trades != null)
                     {
-                        TradeID = trd.trade_id,
-                        OrderID = trd.order_id,
-                        Pair = trd.pair,
-                        Side = trd.side,
-                        Type = trd.type,
-                        MakerTaker = trd.maker_taker,
-                        ExecutedAt = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddMilliseconds(trd.executed_at).ToLocalTime(),
+                        foreach (var trd in deserialized.Data.Trades)
+                        {
+                            var o = new Trade
+                            {
+                                TradeID = trd.Trade_id,
+                                OrderID = trd.Order_id,
+                                Pair = trd.Pair ?? string.Empty,
+                                Side = trd.Side ?? string.Empty,
+                                Type = trd.Type ?? string.Empty,
+                                MakerTaker = trd.Maker_taker,
+                                ExecutedAt = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddMilliseconds(trd.Executed_at).ToLocalTime(),
 
-                    };
+                            };
 
-                    if (!string.IsNullOrEmpty(trd.amount)) o.Amount = decimal.Parse(trd.amount);
-                    if (!string.IsNullOrEmpty(trd.price)) { o.Price = decimal.Parse(trd.price); } else { o.Price = 0; }
+                            if (!string.IsNullOrEmpty(trd.Amount))
+                            {
+                                o.Amount = decimal.Parse(trd.Amount);
+                            }
 
-                    if (!string.IsNullOrEmpty(trd.amount)) o.FeeAmountBase = decimal.Parse(trd.fee_amount_base);
-                    if (!string.IsNullOrEmpty(trd.amount)) o.FeeAmountQuote = decimal.Parse(trd.fee_amount_quote);
+                            if (!string.IsNullOrEmpty(trd.Price)) { o.Price = decimal.Parse(trd.Price); } else { o.Price = 0; }
 
-                    history.TradeList.Add(o);
+                            if (!string.IsNullOrEmpty(trd.Amount))
+                            {
+                                o.FeeAmountBase = decimal.Parse(trd.Fee_amount_base ?? "0");
+                            }
 
+                            if (!string.IsNullOrEmpty(trd.Amount))
+                            {
+                                o.FeeAmountQuote = decimal.Parse(trd.Fee_amount_quote ?? "0");
+                            }
+
+                            history.TradeList.Add(o);
+                        }
+                    }
                 }
 
                 return history;
@@ -826,15 +1701,17 @@ public class PrivateAPIClient : BaseClient
             {
                 var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
 
-                System.Diagnostics.Debug.WriteLine("■■■■■ GetTradeHistory: API error code - " + jsonResult.data.code.ToString() + " ■■■■■");
+                System.Diagnostics.Debug.WriteLine("■■■■■ GetTradeHistory: API error code - " + jsonResult?.Data?.Code.ToString() + " ■■■■■");
 
                 // エラーイベント発火
-                var er = new ClientError();
-                er.ErrType = "API";
-                er.ErrCode = jsonResult.data.code;
-                if (ApiErrorCodesDictionary.ContainsKey(jsonResult.data.code))
+                var er = new ClientError
                 {
-                    er.ErrText = "「" + ApiErrorCodesDictionary[jsonResult.data.code] + "」";
+                    ErrType = "API",
+                    ErrCode = jsonResult?.Data?.Code ?? 0
+                };
+                if (ApiErrorCodesDictionary.ContainsKey(jsonResult?.Data?.Code ?? 0))
+                {
+                    er.ErrText = "「" + ApiErrorCodesDictionary[jsonResult?.Data?.Code ?? 0] + "」";
                 }
                 er.ErrDatetime = DateTime.Now;
                 er.ErrPlace = path.ToString();
@@ -848,18 +1725,19 @@ public class PrivateAPIClient : BaseClient
         else
         {
             System.Diagnostics.Debug.WriteLine("■■■■■ GetTradeHistory: Send returned NULL.");
+
+            // TradeHistryの場合はords返しても使わないので
+
             return null;
         }
 
     }
 
     // HTTPリクエスト送信メソッド
-    internal async Task<string> Send(Uri path, string apiKey, string secret, HttpMethod method, string body = "", Dictionary<string, string> queries = null)
+    internal async Task<ResponseBodyWrapper?> Send(Uri path, string apiKey, string secret, HttpMethod method, string body = "", Dictionary<string, string>? queries = null)
     {
-
         try
         {
-
             //ACCESS-NONCE
             var _accessNonce = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds().ToString(); //NONCE=unixtime
 
@@ -879,7 +1757,6 @@ public class PrivateAPIClient : BaseClient
                 {
                     message = _accessNonce + "/v1" + path.ToString();
                 }
-
             }
             else if (method == HttpMethod.Post)
             {
@@ -894,51 +1771,51 @@ public class PrivateAPIClient : BaseClient
             //System.Diagnostics.Debug.WriteLine("Sending..." + Environment.NewLine + _HTTPConn.Client.DefaultRequestHeaders.ToString());
 
             HttpResponseMessage res;
-            if (method == HttpMethod.Post)
+            var resbowrap = new ResponseBodyWrapper();
+            try
             {
-                var content = new StringContent(body, Encoding.UTF8, "application/json");
-
-                content.Headers.Add("ACCESS-KEY", apiKey);
-                content.Headers.Add("ACCESS-NONCE", _accessNonce);
-                content.Headers.Add("ACCESS-SIGNATURE", _accessSignature);
-
-                res = await Client.PostAsync(Client.BaseAddress.ToString() + path.ToString(), content);
-            }
-            else if (method == HttpMethod.Get)
-            {
-
-                if (queries == null)
+                if (method == HttpMethod.Post)
                 {
-                    //
-                    var requestMessage = new HttpRequestMessage(HttpMethod.Get, Client.BaseAddress.ToString() + path.ToString());
-                    requestMessage.Headers.Add("ACCESS-KEY", apiKey);
-                    requestMessage.Headers.Add("ACCESS-NONCE", _accessNonce);
-                    requestMessage.Headers.Add("ACCESS-SIGNATURE", _accessSignature);
+                    var content = new StringContent(body, Encoding.UTF8, "application/json");
 
-                    res = await Client.SendAsync(requestMessage);
+                    content.Headers.Add("ACCESS-KEY", apiKey);
+                    content.Headers.Add("ACCESS-NONCE", _accessNonce);
+                    content.Headers.Add("ACCESS-SIGNATURE", _accessSignature);
+
+                    res = await _HTTPConn.Client.PostAsync(_HTTPConn.Client.BaseAddress?.ToString() + path.ToString(), content);
+                }
+                else if (method == HttpMethod.Get)
+                {
+
+                    if (queries == null)
+                    {
+                        //
+                        var requestMessage = new HttpRequestMessage(HttpMethod.Get, _HTTPConn.Client.BaseAddress?.ToString() + path.ToString());
+                        requestMessage.Headers.Add("ACCESS-KEY", apiKey);
+                        requestMessage.Headers.Add("ACCESS-NONCE", _accessNonce);
+                        requestMessage.Headers.Add("ACCESS-SIGNATURE", _accessSignature);
+
+                        res = await _HTTPConn.Client.SendAsync(requestMessage);
+                    }
+                    else
+                    {
+                        var pms = new FormUrlEncodedContent(queries);
+                        var param = await pms.ReadAsStringAsync();
+
+                        //
+                        var requestMessage = new HttpRequestMessage(HttpMethod.Get, _HTTPConn.Client.BaseAddress?.ToString() + path.ToString() + "?" + param);
+                        requestMessage.Headers.Add("ACCESS-KEY", apiKey);
+                        requestMessage.Headers.Add("ACCESS-NONCE", _accessNonce);
+                        requestMessage.Headers.Add("ACCESS-SIGNATURE", _accessSignature);
+
+                        res = await _HTTPConn.Client.SendAsync(requestMessage);
+                    }
                 }
                 else
                 {
-                    var pms = new FormUrlEncodedContent(queries);
-                    var param = await pms.ReadAsStringAsync();
-
-                    //
-                    var requestMessage = new HttpRequestMessage(HttpMethod.Get, Client.BaseAddress.ToString() + path.ToString() + "?" + param);
-                    requestMessage.Headers.Add("ACCESS-KEY", apiKey);
-                    requestMessage.Headers.Add("ACCESS-NONCE", _accessNonce);
-                    requestMessage.Headers.Add("ACCESS-SIGNATURE", _accessSignature);
-
-                    res = await Client.SendAsync(requestMessage);
+                    throw new ArgumentException("method は POST か GET を指定してください。", method.ToString());
                 }
-            }
-            else
-            {
-                throw new ArgumentException("method は POST か GET を指定してください。", method.ToString());
-            }
 
-
-            try
-            {
                 //返答内容を取得
                 var text = await res.Content.ReadAsStringAsync();
 
@@ -947,43 +1824,81 @@ public class PrivateAPIClient : BaseClient
                 {
                     //System.Diagnostics.Debug.WriteLine("■■■■■■■■ Send: HTTP Error " + res.StatusCode.ToString() + " " + method + " " + _HTTPConn.Client.BaseAddress.ToString() + path.ToString() + " ■■■■■■■");
 
-                    var er = new ClientError();
-                    er.ErrType = "HTTP " + method;
-                    er.ErrCode = (int)res.StatusCode;
-                    er.ErrText = res.StatusCode.ToString();
-                    er.ErrDatetime = DateTime.Now;
-                    er.ErrPlace = path.ToString();
-
+                    var er = new ClientError
+                    {
+                        ErrType = "HTTP " + method,
+                        ErrCode = (int)res.StatusCode,
+                        ErrText = res.StatusCode.ToString(),
+                        ErrDatetime = DateTime.Now,
+                        ErrPlace = path.ToString()
+                    };
+                    // イベント発火
                     ErrorOccured?.Invoke(this, er);
 
-                    return "";
+                    //ラッパー
+                    resbowrap.BodyText = "";
+                    resbowrap.HTTPError = er;
+
+                    return resbowrap;
+                    //return "";
                 }
 
-                return text;
+                resbowrap.BodyText = text;
+                return resbowrap;
+                //return text;
+            }
+            catch (System.Net.Sockets.SocketException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine("HTTP Send: SocketException - " + ex.Message + " + 内部例外: " + ex.InnerException.Message);
+                }
+                else
+                {
+
+                    System.Diagnostics.Debug.WriteLine("HTTP Send: SocketException - " + ex.Message);
+                }
+                return null;
+            }
+            catch (System.IO.IOException ex)
+            {
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine("HTTP Send: IOException - " + ex.Message + " + 内部例外: " + ex.InnerException.Message);
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("HTTP Send: IOException - " + ex.Message);
+                }
+                    return null;
             }
             catch (HttpRequestException ex)
             {
-                System.Diagnostics.Debug.WriteLine("HTTP Send: HttpRequestException - " + ex.Message + " + 内部例外: " + ex.InnerException.Message);
+                if (ex.InnerException != null)
+                {
+                    System.Diagnostics.Debug.WriteLine("HTTP Send: HttpRequestException - " + ex.Message + " + 内部例外: " + ex.InnerException.Message);
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("HTTP Send: HttpRequestException - " + ex.Message);
 
-                return "";
+                }
+                return null;
             }
-
-
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine("■■■■■ HTTP GET/POST Error - Exception : " + ex.Message);
-            return "";
+            return null;
         }
         finally
         {
             //_httpClientIsBusy = false;
         }
 
-
-
     }
 
     #endregion
 }
+
 

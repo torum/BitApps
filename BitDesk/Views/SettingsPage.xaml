@@ -16,49 +16,14 @@
             VerticalScrollMode="Auto">
         <StackPanel HorizontalAlignment="Left">
 
-            <Pivot x:Uid="Settings">
+            <Pivot>
 
                 <PivotItem Header="Options">
                     <ScrollViewer>
 
                         <StackPanel HorizontalAlignment="Left" Margin="12,24,0,0">
 
-                            <TextBlock x:Uid="Settings_Personalization" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="12,12,12,12" />
-
-                            <StackPanel Margin="24,12,0,0">
-
-                                <TextBlock x:Uid="Settings_Theme" Margin="0,0,0,6" />
-                                <StackPanel Margin="{StaticResource XSmallTopMargin}" Orientation="Horizontal">
-                                    <RadioButton x:Uid="Settings_Theme_Default" IsEnabled="{x:Bind ViewModel.IsSystemBackdropSupported}" Command="{x:Bind ViewModel.SwitchThemeCommand}" IsChecked="{x:Bind ViewModel.ElementTheme, Converter={StaticResource ElementThemeEnumToBooleanConverter}, ConverterParameter=Default, Mode=OneWay}" FontSize="15" GroupName="AppTheme">
-                                        <RadioButton.CommandParameter>
-                                            <xaml:ElementTheme>Default</xaml:ElementTheme>
-                                        </RadioButton.CommandParameter>
-                                    </RadioButton>
-                                    <RadioButton x:Uid="Settings_Theme_Light" IsEnabled="{x:Bind ViewModel.IsSystemBackdropSupported}" Command="{x:Bind ViewModel.SwitchThemeCommand}" IsChecked="{x:Bind ViewModel.ElementTheme, Converter={StaticResource ElementThemeEnumToBooleanConverter}, ConverterParameter=Light, Mode=OneWay}" FontSize="15" GroupName="AppTheme">
-                                        <RadioButton.CommandParameter>
-                                            <xaml:ElementTheme>Light</xaml:ElementTheme>
-                                        </RadioButton.CommandParameter>
-                                    </RadioButton>
-                                    <RadioButton x:Uid="Settings_Theme_Dark" IsEnabled="{x:Bind ViewModel.IsSystemBackdropSupported}" Command="{x:Bind ViewModel.SwitchThemeCommand}" IsChecked="{x:Bind ViewModel.ElementTheme, Converter={StaticResource ElementThemeEnumToBooleanConverter}, ConverterParameter=Dark, Mode=OneWay}" FontSize="15" GroupName="AppTheme">
-                                        <RadioButton.CommandParameter>
-                                            <xaml:ElementTheme>Dark</xaml:ElementTheme>
-                                        </RadioButton.CommandParameter>
-                                    </RadioButton>
-                                </StackPanel>
-
-                            </StackPanel>
-
-                            <StackPanel Margin="24,24,0,0">
-
-                                <TextBlock x:Uid="Settings_SystemBackdrop" Margin="0,0,0,6"/>
-                                <StackPanel Margin="{StaticResource XSmallTopMargin}" Orientation="Horizontal">
-                                    <RadioButton x:Uid="Settings_SystemBackdrop_Acrylic" IsEnabled="{x:Bind ViewModel.IsAcrylicSupported,Mode=OneWay}" Command="{x:Bind ViewModel.SwitchSystemBackdropCommand}" CommandParameter="Acrylic" IsChecked="{x:Bind ViewModel.Material, Converter={StaticResource SystemBackdropEnumToBooleanConverter}, ConverterParameter=Acrylic, Mode=OneWay}" FontSize="15" GroupName="AppMaterial"/>
-                                    <RadioButton x:Uid="Settings_SystemBackdrop_Mica" IsEnabled="{x:Bind ViewModel.IsAcrylicSupported,Mode=OneWay}" Command="{x:Bind ViewModel.SwitchSystemBackdropCommand}" CommandParameter="Mica" IsChecked="{x:Bind ViewModel.Material, Converter={StaticResource SystemBackdropEnumToBooleanConverter}, ConverterParameter=Mica, Mode=OneWay}" FontSize="15" GroupName="AppMaterial"/>
-                                </StackPanel>
-
-                            </StackPanel>
-
-                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Pairs" Margin="12,36,12,12" />
+                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Pairs" />
 
                             <StackPanel Orientation="Horizontal" Margin="24,12,0,0">
                                 <ImageIcon Source="ms-appx:///Assets/CryptLogos/btc.svg" Width="30"/>
@@ -199,7 +164,99 @@
                         </StackPanel>
 
                     </ScrollViewer>
+                </PivotItem>
 
+                <PivotItem Header="API Keys">
+                    <ScrollViewer>
+
+                        <StackPanel HorizontalAlignment="Left" Margin="12,24,0,0">
+
+                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}">APIキーの設定・変更</TextBlock>
+
+                            <TextBlock Padding="0,12,24,0" TextWrapping="Wrap">
+                                このアプリケーションは、Bitbank.cc が公開しているAPIを利用して注文や資産・注文一覧・取引履歴等の情報取得をしています。これらの機能を利用するには、Bitbankでアカウントを作成し、それぞれの機能ごとにAPIキーを発行して、ここで設定をしてください。
+                            </TextBlock>
+
+
+                            <RichTextBlock Margin="12,10,0,0" IsTextSelectionEnabled="True" HorizontalAlignment="Left">
+                                <Paragraph Margin="0,10,0,0">
+                                    Bitbank ログイン:
+                                    <Hyperlink NavigateUri="https://bitbank.cc/">https://bitbank.cc/</Hyperlink>
+                                </Paragraph>
+                                <Paragraph Margin="0,10,0,0">
+                                    Bitbank API発行ページ:
+                                    <Hyperlink NavigateUri="https://bitbank.cc/app/account/api">https://bitbank.cc/app/account/api</Hyperlink>
+                                </Paragraph>
+                                <Paragraph Margin="0,10,0,0">
+                                    Bitbank FAQページ:
+                                    <Hyperlink NavigateUri="https://bitbankcc.zendesk.com/hc/ja/articles/360005745194-API%E3%82%AD%E3%83%BC%E3%82%92%E7%99%BA%E8%A1%8C%E3%81%97%E3%81%9F%E3%81%84">FAQ：APIキーを発行したい</Hyperlink>
+                                </Paragraph>
+                            </RichTextBlock>
+
+
+                            <StackPanel Margin="0,20,24,0" Spacing="4">
+
+                                <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,0,6">
+                                    <TextBlock Text="保有資産情報の取得用：" FontWeight="SemiBold"></TextBlock>
+                                    <TextBlock Text="権限"></TextBlock>
+                                    <TextBlock VerticalAlignment="Center"><Run Foreground="Orange" FontWeight="Bold">[参照]</Run></TextBlock>
+                                </StackPanel>
+
+                                <TextBox Header="APIキー：" Text="{x:Bind ViewModel.AssetsApiKey, Mode=TwoWay}"></TextBox>
+                                <!-- AssetsApiKey -->
+
+                                <TextBox Header="APIシークレット：" Text="{x:Bind ViewModel.AssetsSecret, Mode=TwoWay}"></TextBox>
+                                <!--  Text="{Binding AssetsApiSecret}" -->
+
+                            </StackPanel>
+                        </StackPanel>
+                        
+                    </ScrollViewer>
+                </PivotItem>
+
+                <PivotItem Header="Personalization">
+                    <ScrollViewer>
+                        
+                        <StackPanel HorizontalAlignment="Left" Margin="12,24,0,0">
+                            <TextBlock x:Uid="Settings_Personalization" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="12,12,12,12" Visibility="Collapsed"/>
+
+                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Personalization" />
+
+                            <StackPanel Margin="24,12,0,0">
+
+                                <TextBlock x:Uid="Settings_Theme" Margin="0,0,0,6" />
+                                <StackPanel Margin="{StaticResource XSmallTopMargin}" Orientation="Horizontal">
+                                    <RadioButton x:Uid="Settings_Theme_Default" IsEnabled="{x:Bind ViewModel.IsSystemBackdropSupported}" Command="{x:Bind ViewModel.SwitchThemeCommand}" IsChecked="{x:Bind ViewModel.ElementTheme, Converter={StaticResource ElementThemeEnumToBooleanConverter}, ConverterParameter=Default, Mode=OneWay}" FontSize="15" GroupName="AppTheme">
+                                        <RadioButton.CommandParameter>
+                                            <xaml:ElementTheme>Default</xaml:ElementTheme>
+                                        </RadioButton.CommandParameter>
+                                    </RadioButton>
+                                    <RadioButton x:Uid="Settings_Theme_Light" IsEnabled="{x:Bind ViewModel.IsSystemBackdropSupported}" Command="{x:Bind ViewModel.SwitchThemeCommand}" IsChecked="{x:Bind ViewModel.ElementTheme, Converter={StaticResource ElementThemeEnumToBooleanConverter}, ConverterParameter=Light, Mode=OneWay}" FontSize="15" GroupName="AppTheme">
+                                        <RadioButton.CommandParameter>
+                                            <xaml:ElementTheme>Light</xaml:ElementTheme>
+                                        </RadioButton.CommandParameter>
+                                    </RadioButton>
+                                    <RadioButton x:Uid="Settings_Theme_Dark" IsEnabled="{x:Bind ViewModel.IsSystemBackdropSupported}" Command="{x:Bind ViewModel.SwitchThemeCommand}" IsChecked="{x:Bind ViewModel.ElementTheme, Converter={StaticResource ElementThemeEnumToBooleanConverter}, ConverterParameter=Dark, Mode=OneWay}" FontSize="15" GroupName="AppTheme">
+                                        <RadioButton.CommandParameter>
+                                            <xaml:ElementTheme>Dark</xaml:ElementTheme>
+                                        </RadioButton.CommandParameter>
+                                    </RadioButton>
+                                </StackPanel>
+
+                            </StackPanel>
+
+                            <StackPanel Margin="24,24,0,0">
+
+                                <TextBlock x:Uid="Settings_SystemBackdrop" Margin="0,0,0,6"/>
+                                <StackPanel Margin="{StaticResource XSmallTopMargin}" Orientation="Horizontal">
+                                    <RadioButton x:Uid="Settings_SystemBackdrop_Acrylic" IsEnabled="{x:Bind ViewModel.IsAcrylicSupported,Mode=OneWay}" Command="{x:Bind ViewModel.SwitchSystemBackdropCommand}" CommandParameter="Acrylic" IsChecked="{x:Bind ViewModel.Material, Converter={StaticResource SystemBackdropEnumToBooleanConverter}, ConverterParameter=Acrylic, Mode=OneWay}" FontSize="15" GroupName="AppMaterial"/>
+                                    <RadioButton x:Uid="Settings_SystemBackdrop_Mica" IsEnabled="{x:Bind ViewModel.IsAcrylicSupported,Mode=OneWay}" Command="{x:Bind ViewModel.SwitchSystemBackdropCommand}" CommandParameter="Mica" IsChecked="{x:Bind ViewModel.Material, Converter={StaticResource SystemBackdropEnumToBooleanConverter}, ConverterParameter=Mica, Mode=OneWay}" FontSize="15" GroupName="AppMaterial"/>
+                                </StackPanel>
+
+                            </StackPanel>
+                        </StackPanel>
+                        
+                    </ScrollViewer>
                 </PivotItem>
 
                 <PivotItem Header="About">
@@ -207,18 +264,18 @@
 
                         <StackPanel HorizontalAlignment="Left" Margin="12,24,0,0">
 
-                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}">About <Run x:Uid="AppDisplayName"/></TextBlock>
+                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}">About <Run Text="BitDesk"/></TextBlock>
 
-                            <TextBlock Margin="0,10,0,0" IsTextSelectionEnabled="True" HorizontalAlignment="Left">Version: <Run Text="{x:Bind ViewModel.VersionText, Mode=OneWay}" FontWeight="Bold" /></TextBlock>
+                            <TextBlock Margin="0,10,0,0" IsTextSelectionEnabled="True" HorizontalAlignment="Left">Version: <Run Text="{x:Bind ViewModel.VersionText, Mode=OneTime}" FontWeight="Bold" /></TextBlock>
 
                             <RichTextBlock MaxWidth="650" Margin="0,10,0,0" IsTextSelectionEnabled="True" HorizontalAlignment="Left">
                                 <Paragraph Margin="0,10,0,0">
                                     Source code:
-                                    <Hyperlink NavigateUri="https://github.com/torum/BitWallpaper">https://github.com/torum/BitWallpaper</Hyperlink>
+                                    <Hyperlink NavigateUri="https://github.com/torum/BitDesk">https://github.com/torum/BitDesk</Hyperlink>
                                 </Paragraph>
                                 <Paragraph Margin="0,10,0,0">
                                     Website:
-                                    <Hyperlink NavigateUri="https://torum.github.io/BitWallpaper/">https://torum.github.io/BitWallpaper/</Hyperlink>
+                                    <Hyperlink NavigateUri="https://torum.github.io/BitDesk/">https://torum.github.io/BitDesk/</Hyperlink>
                                 </Paragraph>
                             </RichTextBlock>
 

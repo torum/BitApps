@@ -1,8 +1,11 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
+using BitApps.Core.Helpers;
 using BitDesk.ViewModels;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Markup;
 using Microsoft.UI.Xaml.Navigation;
+using Windows.ApplicationModel;
 
 namespace BitDesk.Views;
 
@@ -15,19 +18,7 @@ public sealed partial class SettingsPage : Page
 
     public SettingsPage()
     {
-        try
-        {
-            InitializeComponent();
-        }
-        catch (XamlParseException parseException)
-        {
-            Debug.WriteLine($"Unhandled XamlParseException in SettingsPage: {parseException.Message}");
-            foreach (var key in parseException.Data.Keys)
-            {
-                Debug.WriteLine("{Key}:{Value}", key.ToString(), parseException.Data[key]?.ToString());
-            }
-            throw;
-        }
+        InitializeComponent();
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)

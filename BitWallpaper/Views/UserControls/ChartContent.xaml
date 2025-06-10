@@ -95,7 +95,7 @@
                         <StateTrigger IsActive="{x:Bind Path=PairVM.IsPaneVisible, Mode=TwoWay}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="PanelOpenClose.Icon" Value="OpenPane" />
+                        <Setter Target="PanelOpenClose.Icon" Value="ClosePane" />
                         <Setter Target="PanelOpenClose.Label" Value="hide" />
                     </VisualState.Setters>
                 </VisualState>
@@ -484,7 +484,7 @@
                             </AppBarButton.Icon>
                         </AppBarButton>
 
-                        <AppBarButton x:Name="PanelOpenClose" Icon="ClosePane" Label="show" IsCompact="False" x:Uid="AppCommand_DisplayInfoPanel" Command="{x:Bind PairVM.TogglePaneVisibilityCommand}" VerticalAlignment="Bottom" Margin="0,0,4,0" Padding="0" Opacity="0.4">
+                        <AppBarButton x:Name="PanelOpenClose" Icon="OpenPane" Label="show" IsCompact="False" x:Uid="AppCommand_DisplayInfoPanel" Command="{x:Bind PairVM.TogglePaneVisibilityCommand}" VerticalAlignment="Bottom" Margin="0,0,4,0" Padding="0" Opacity="0.4">
                             <AppBarButton.KeyboardAccelerators>
                                 <KeyboardAccelerator Modifiers="Control" Key="I" />
                             </AppBarButton.KeyboardAccelerators>

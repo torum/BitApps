@@ -1,20 +1,41 @@
-﻿namespace BitDesk.Models;
+﻿using BitDesk.Models.APIClients;
+using CommunityToolkit.Mvvm.ComponentModel;
 
-public class Asset
+namespace BitDesk.Models;
+
+public partial class Asset: ObservableObject
 {
-    public string? Name
+    private string _name = string.Empty;
+    public string Name
     {
-        get; set;
+        get => _name;
+        set
+        {
+            if (_name == value)
+            {
+                return;
+            }
+
+            _name = value;
+            OnPropertyChanged(nameof(Name));
+        }
     }
 
-    public string? NameText
-    {
-        get; set;
-    }
-
+    private decimal _amount;
     public decimal Amount
     {
-        get; set;
+        get => _amount;
+        set
+        {
+            if (_amount == value)
+            {
+                return;
+            }
+
+            _amount = value;
+            OnPropertyChanged(nameof(Amount));
+            OnPropertyChanged(nameof(AmountText));
+        }
     }
 
     public decimal FreeAmount
@@ -22,27 +43,16 @@ public class Asset
         get; set;
     }
 
-    public decimal EstimateYenAmount
-    {
-        get; set;
-    }
-
-    public Asset()
-    {
-
-    }
-}
-
-public class Assets
+    public string AmountText =>Amount.ToString();
+    /*
+get
 {
-    public List<Asset> AssetList
-    {
-        get; set;
-    }
+    // TODO: 各通貨に併せて、小数点以下を調整する？
 
-    public Assets()
-    {
-        AssetList = new List<Asset>();
-    }
+    return Amount.ToString();
 }
+*/
+}
+
+
 

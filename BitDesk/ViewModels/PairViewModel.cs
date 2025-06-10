@@ -17,9 +17,11 @@ using System.Windows.Input;
 
 namespace BitDesk.ViewModels;
 
-public class PairViewModel : ObservableRecipient
+public partial class PairViewModel : ObservableRecipient
 {
     #region == Main properties ==
+
+    private MainViewModel? MainViewModel { get; set; }
 
     private readonly PairCodes _p;
     public PairCodes PairCode => _p;
@@ -290,7 +292,7 @@ public class PairViewModel : ObservableRecipient
     }
     public string TickTimeStampString => _tickTimeStamp.ToLocalTime().ToString("G", System.Globalization.CultureInfo.CurrentUICulture);//"yyyy/MM/dd HH:mm:ss"
 
-    private readonly ObservableCollection<TickHistory> _tickHistory = new();
+    private readonly ObservableCollection<TickHistory> _tickHistory = [];
     public ObservableCollection<TickHistory> TickHistories => _tickHistory;
 
     #endregion
@@ -1006,9 +1008,154 @@ public class PairViewModel : ObservableRecipient
 
     #endregion
 
+    #region == Assets ==
+
+    // 現在の資産名
+    private string _assetCurrentName = string.Empty;
+    public string AssetCurrentName
+    {
+        get => _assetCurrentName;
+        set
+        {
+            if (_assetCurrentName == value)
+            {
+                return;
+            }
+
+            _assetCurrentName = value;
+            OnPropertyChanged(nameof(AssetCurrentName));
+        }
+    }
+
+    // 現在の通貨の資産
+    private decimal _assetCurrentAmount;
+    public decimal AssetCurrentAmount
+    {
+        get =>
+            //return Math.Floor((_assetBTCAmount * 10000M)) / 10000M;
+            _assetCurrentAmount;
+        set
+        {
+            if (_assetCurrentAmount == value)
+            {
+                return;
+            }
+
+            _assetCurrentAmount = value;
+            OnPropertyChanged(nameof(AssetCurrentAmount));
+
+            OnPropertyChanged(nameof(AssetCurrentAmountText));
+        }
+    }
+
+    public string AssetCurrentAmountText => AssetCurrentAmount.ToString();
+
+    // 現在の通貨の利用可能資産額
+    private decimal _assetCurrentFreeAmount;
+    public decimal AssetCurrentFreeAmount
+    {
+        get =>
+            // 売買出来ない桁は、切り捨てで。
+            //return _assetBTCFreeAmount;
+            Math.Floor((_assetCurrentFreeAmount * 10000M)) / 10000M;
+        set
+        {
+            if (_assetCurrentFreeAmount == value)
+            {
+                return;
+            }
+
+            _assetCurrentFreeAmount = value;
+            OnPropertyChanged(nameof(AssetCurrentFreeAmount));
+
+            OnPropertyChanged(nameof(AssetCurrentFreeAmountText));
+        }
+    }
+
+    public string AssetCurrentFreeAmountText => AssetCurrentFreeAmount.ToString();
+
+    // 円資産名
+    private string _assetJPYName = string.Empty;
+    public string AssetJPYName
+    {
+        get => _assetJPYName;
+        set
+        {
+            if (_assetJPYName == value)
+            {
+                return;
+            }
+
+            _assetJPYName = value;
+            OnPropertyChanged(nameof(AssetJPYName));
+        }
+    }
+
+    // 円総資産額
+    private decimal _assetJPYAmount;
+    public decimal AssetJPYAmount
+    {
+        get => _assetJPYAmount;
+        set
+        {
+            if (_assetJPYAmount == value)
+            {
+                return;
+            }
+
+            _assetJPYAmount = value;
+            OnPropertyChanged(nameof(AssetJPYAmount));
+            //OnPropertyChanged(nameof(AssetAllEstimateAmountString));
+            OnPropertyChanged(nameof(AssetJPYAmountText));
+        }
+    }
+
+    public string AssetJPYAmountText => _assetJPYAmount.ToString("C4");
+
+    // 円利用可能資産額
+    private decimal _assetJPYFreeAmount;
+    public decimal AssetJPYFreeAmount
+    {
+        get =>
+            // 利用可能額は小数点以下を切り捨て（読みやすいように）
+            //return _assetJPYFreeAmount;
+            Math.Floor(_assetJPYFreeAmount);
+        set
+        {
+            if (_assetJPYFreeAmount == value)
+            {
+                return;
+            }
+
+            _assetJPYFreeAmount = value;
+            OnPropertyChanged(nameof(AssetJPYFreeAmount));
+            OnPropertyChanged(nameof(AssetJPYFreeAmountText));
+        }
+    }
+
+    public string AssetJPYFreeAmountText => AssetJPYFreeAmount.ToString("C0");
+
+    private ObservableCollection<Models.Asset> _assets = [];
+    public ObservableCollection<Models.Asset> Assets
+    {
+        get => _assets;
+        set
+        {
+            if (_assets == value)
+            {
+                return;
+            }
+
+            _assets = value;
+            OnPropertyChanged(nameof(Assets));
+        }
+    }
+
+    #endregion
+
     #region == Depth and Transaction ==
 
-    private ObservableCollection<Transaction> _transactions = new();
+    private ObservableCollection<Transaction> _transactions = [];
     public ObservableCollection<Transaction> Transactions
     {
         get => _transactions;
@@ -1024,7 +1171,7 @@ public class PairViewModel : ObservableRecipient
         }
     }
 
-    private ObservableCollection<Depth> _depth = new();
+    private ObservableCollection<Depth> _depth = [];
     public ObservableCollection<Depth> Depth
     {
         get => _depth;
@@ -1182,7 +1329,7 @@ public class PairViewModel : ObservableRecipient
     #region == Charts ==
 
     public Section<LiveChartsCore.SkiaSharpView.Drawing.SkiaSharpDrawingContext>[] Sections { get; set; } =
-    {
+    [
         new RectangularSection
         {
             Yi = 1,
@@ -1195,10 +1342,10 @@ public class PairViewModel : ObservableRecipient
                 //PathEffect = new DashEffect(new float[] { 6, 6 })
             }
         }
-    };
+    ];
 
     public ICartesianAxis[] XAxes {get; set;} =
-    {
+    [
         new Axis()
         {
             TextSize = 12.5,
@@ -1210,16 +1357,16 @@ public class PairViewModel : ObservableRecipient
             //MinStep = TimeSpan.FromDays(1).Ticks,
             MaxLimit = null,
             MinLimit= DateTime.Now.Ticks - TimeSpan.FromDays(2.8).Ticks,
-            SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray.WithAlpha(80)) { StrokeThickness = 1,PathEffect = new DashEffect(new float[] { 3, 3 }) }
+            SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray.WithAlpha(80)) { StrokeThickness = 1,PathEffect = new DashEffect([3, 3]) }
         }
-    };
+    ];
 
     public ICartesianAxis[] YAxes
     {
         get; set;
 
     } =
-        {
+        [
         new Axis()
             {
                 LabelsRotation = 0,
@@ -1239,16 +1386,16 @@ public class PairViewModel : ObservableRecipient
                 SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray.WithAlpha(80))
                             {
                                 StrokeThickness = 1,
-                                PathEffect = new DashEffect(new float[] { 3, 3 })
+                                PathEffect = new DashEffect([3, 3])
                             },
                 //Labeler = Labelers.Currency,
                 //Labeler = (value) => value.ToString("C", new System.Globalization.CultureInfo("ja-Jp")),
                 Labeler = (value) => value.ToString("N", new CultureInfo("ja-Jp")),
             }
-    };
+    ];
 
     private ISeries[] _series =
-    {
+    [
         new ColumnSeries<DateTimePoint>
         {
             Name = "Depth",
@@ -1272,7 +1419,7 @@ public class PairViewModel : ObservableRecipient
                 //new(DateTime.Now, 100, 0, 0, 0)
             }
         }
-    };
+    ];
     public ISeries[] Series
     {
         get => _series;
@@ -1425,6 +1572,7 @@ public class PairViewModel : ObservableRecipient
 
     #region == Timers ==
     // Timer
+    private readonly DispatcherTimer _dispatcherTimerAssets = new();
     private readonly DispatcherTimer _dispatcherTimerChart = new();
     private readonly DispatcherTimer _dispatcherTimerDepth = new();
     private readonly DispatcherTimer _dispatcherTimerTransaction = new();
@@ -1457,6 +1605,11 @@ public class PairViewModel : ObservableRecipient
 
         #region == Timers ==
 
+        // Assets update timer
+        _dispatcherTimerAssets.Tick += TickerTimerAssets;
+        _dispatcherTimerAssets.Interval = new TimeSpan(0, 0, 10);
+        _dispatcherTimerAssets.Start();
+
         // Depth update timer
         _dispatcherTimerDepth.Tick += TickerTimerDepth;
         _dispatcherTimerDepth.Interval = new TimeSpan(0, 0, 2);
@@ -1477,8 +1630,10 @@ public class PairViewModel : ObservableRecipient
     }
 
     // Called from MainViewModel.
-    public void InitializeAndLoad()
+    public void InitializeAndLoad(MainViewModel vm)
     {
+        MainViewModel = vm;
+
         if (IsChartInitAndLoaded) 
         {
             if (lastChartLoadedDateTime.Add(chartUpdateInterval) < DateTime.Now)
@@ -1507,25 +1662,9 @@ public class PairViewModel : ObservableRecipient
             LoadChart(SelectedCandleType);
         }
 
-        /*
-        Task.Run(async () =>
-        {
+        Task.Run(async () => await GetAssets());
 
-        });
-        */
-        /*
-        List<Ohlcv> res = await GetCandlesticks(this.PairCode, SelectedCandleType);
 
-        if (res == null) return;
-
-        if (res.Count > 0)
-        {
-            LoadChart(res, SelectedCandleType);
-
-            Sections[0].Yi = (double)_ltp;
-            Sections[0].Yj = (double)_ltp;
-        }
-        */
     }
 
     public void CleanUp()
@@ -1768,7 +1907,7 @@ public class PairViewModel : ObservableRecipient
 
     private async Task<List<Ohlcv>?> GetCandlesticks(PairCodes pair, CandleTypes ct)
     {
-        List<Ohlcv>? OhlcvList =  new();
+        List<Ohlcv>? OhlcvList =  [];
 
         //Debug.WriteLine("チャートデータを取得中.... " + pair.ToString());
 
@@ -1871,7 +2010,7 @@ public class PairViewModel : ObservableRecipient
 
                     foreach (var r in responseOhlcvList)
                     {
-                        OhlcvList ??= new List<Ohlcv>();
+                        OhlcvList ??= [];
                         OhlcvList.Add(r);
                     }
                 }
@@ -1992,10 +2131,614 @@ public class PairViewModel : ObservableRecipient
 
     #endregion
 
+    #region == Assets ==
+
+    private void TickerTimerAssets(object? source, object e)
+    {
+        if (!IsEnabled)
+        {
+            return;
+        }
+
+        if (!IsSelectedActive)
+        {
+            return;
+        }
+
+        Task.Run(() => GetAssets());
+    }
+
+    private async Task<bool> GetAssets()
+    {
+        if (MainViewModel == null)
+        {
+            return false;
+        }
+
+        if (MainViewModel.AssetsApiKeyIsSet == false)
+        {
+            // TODO show message?
+            System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets: (AssetsApiKeyIsSet == false)");
+            return false;
+        }
+
+        try
+        {
+            // TODO AssetsResult
+            var asts = await MainViewModel.PriApi.GetAssetList(MainViewModel.AssetsApiKey, MainViewModel.AssetsSecret);
+
+            if (asts != null)
+            {
+                try
+                {
+                    var newAssets = new ObservableCollection<Models.Asset>();
+
+                    foreach (var ast in asts)
+                    {
+                        if (ast.Name == "jpy")
+                        {
+                            App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                            {
+                                AssetJPYName = ast.Name.ToUpper();
+                                AssetJPYAmount = ast.Amount;
+                                AssetJPYFreeAmount = ast.FreeAmount;
+                            });
+                            //Debug.WriteLine("AssetJPYFreeAmount :" + ast.FreeAmount.ToString());
+                            //Debug.WriteLine("AssetJPYAmount :" + ast.Amount.ToString());
+                        }
+                        else if (ast.Name == "btc")
+                        {
+                            if (PairCode.ToString() == "btc_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0) 
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);//new Models.Asset { Name = ast.Name.ToUpper(), Amount = ast.Amount, FreeAmount = ast.FreeAmount });
+                                }
+                            }
+                        }
+                        else if (ast.Name == "xrp")
+                        {
+                            if (PairCode.ToString() == "xrp_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                    //newAssets.Add(new Models.Asset { Name = ast.Name.ToUpper(), Amount = ast.Amount, FreeAmount = ast.FreeAmount });
+                                }
+                            }
+                        }
+                        else if (ast.Name == "eth")
+                        {
+                            if (PairCode.ToString() == "eth_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "ltc")
+                        {
+                            if (PairCode.ToString() == "ltc_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "mona")
+                        {
+                            if (PairCode.ToString() == "mona_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "bcc")
+                        {
+                            if (PairCode.ToString() == "bcc_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "xlm")
+                        {
+                            if (PairCode.ToString() == "xlm_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "qtum")
+                        {
+                            if (PairCode.ToString() == "qtum_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "bat")
+                        {
+                            if (PairCode.ToString() == "bat_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "omg")
+                        {
+                            if (PairCode.ToString() == "omg_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "xym")
+                        {
+                            if (PairCode.ToString() == "xym_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "link")
+                        {
+                            if (PairCode.ToString() == "link_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "mkr")
+                        {
+                            if (PairCode.ToString() == "mkr_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "boba")
+                        {
+                            if (PairCode.ToString() == "boba_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "enj")
+                        {
+                            if (PairCode.ToString() == "enj_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "matic")
+                        {
+                            if (PairCode.ToString() == "matic_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "dot")
+                        {
+                            if (PairCode.ToString() == "dot_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "doge")
+                        {
+                            if (PairCode.ToString() == "doge_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "astr")
+                        {
+                            if (PairCode.ToString() == "astr_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "ada")
+                        {
+                            if (PairCode.ToString() == "ada_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "avax")
+                        {
+                            if (PairCode.ToString() == "avax_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "axs")
+                        {
+                            if (PairCode.ToString() == "axs_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "flr")
+                        {
+                            if (PairCode.ToString() == "flr_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                        else if (ast.Name == "sand")
+                        {
+                            if (PairCode.ToString() == "sand_jpy")
+                            {
+                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                                {
+                                    AssetCurrentName = ast.Name.ToUpper();
+                                    AssetCurrentAmount = ast.Amount;
+                                    AssetCurrentFreeAmount = ast.FreeAmount;
+                                });
+                            }
+                            else
+                            {
+                                if (ast.Amount > 0)
+                                {
+                                    ast.Name = ast.Name.ToUpper();
+                                    newAssets.Add(ast);
+                                }
+                            }
+                        }
+                    }
+
+                    //APIResultAssets = "";
+                    App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                    {
+                        Assets = newAssets;
+                    });
+
+                    //await Task.Delay(1000);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    //System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets: Exception - " + ex.Message);
+                    if (ex.InnerException != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets InnerException1: " + ex.InnerException.Message);
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets Exception1: " + ex.Message);
+                    }
+
+                    //await Task.Delay(1000);
+                    return false;
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets: 取得失敗");
+
+                //APIResultAssets = "<<取得失敗>>";
+
+                await Task.Delay(1000);
+                return false;
+            }
+
+        }
+        catch (Exception e)
+        {
+            if (e.InnerException != null)
+            {
+                System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets InnerException2: " + e.InnerException.Message);
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets Exception2: " + e.Message);
+            }
+
+            await Task.Delay(1000);
+            return false;
+        }
+
+    }
+
+
+    #endregion
+
     #region == Depth ==
 
     private void TickerTimerDepth(object? source, object e)
     {
+        if (!IsEnabled)
+        {
+            return;
+        }
+
+        if (!IsSelectedActive)
+        {
+            return;
+        }
+
         UpdateDepth();
     }
 
@@ -2006,27 +2749,6 @@ public class PairViewModel : ObservableRecipient
         {
             await GetDepth(PairCode);
         }
-        /*
-while (true)
-{
-   if ((IsSelectedActive == false) || (IsPaneVisible == false) || (IsEnabled == false))
-   {
-       await Task.Delay(1000);
-       continue;
-   }
-
-   try
-   {
-       await GetDepth(PairCode);
-   }
-   catch (Exception e)
-   {
-       Debug.WriteLine("■■■■■ UpdateDepth Exception: " + e);
-   }
-
-   await Task.Delay(1500);
-}
-*/
     }
 
     private async Task<bool> GetDepth(PairCodes pair)
@@ -2261,6 +2983,16 @@ while (true)
 
     private void TickerTimerTransaction(object? source, object e)
     {
+        if (!IsEnabled)
+        {
+            return;
+        }
+
+        if (!IsSelectedActive)
+        {
+            return;
+        }
+
         UpdateTransactions();
     }
 
@@ -2298,12 +3030,12 @@ while (true)
 
     private async Task<bool> GetTransactions(PairCodes pair)
     {
-        var trs = await PublicAPIClient.GetTransactions(pair.ToString());
-
         if (!IsEnabled)
         {
             return false;
         }
+
+        var trs = await PublicAPIClient.GetTransactions(pair.ToString());
 
         if (trs != null)
         {

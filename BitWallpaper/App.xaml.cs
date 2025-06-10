@@ -400,7 +400,7 @@ public partial class App : Application
 
     #region == FilePersistence for WinUIEx ==
 
-    private class FilePersistence : IDictionary<string, object>
+    private partial class FilePersistence : IDictionary<string, object>
     {
         private readonly Dictionary<string, object> _data = [];
         private readonly string _file;

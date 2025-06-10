@@ -21,8 +21,8 @@ public sealed partial class ShellPage : Page
         get; private set;
     }
 
-    private readonly List<(string Tag, Type Page)> _pages = new()
-    {
+    private readonly List<(string Tag, Type Page)> _pages =
+    [
         (PairCodes.btc_jpy.ToString(), typeof(BtcJpyPage)),
         (PairCodes.xrp_jpy.ToString(), typeof(XrpJpyPage)),
         (PairCodes.eth_jpy.ToString(), typeof(EthJpyPage)),
@@ -48,7 +48,7 @@ public sealed partial class ShellPage : Page
         (PairCodes.flr_jpy.ToString(), typeof(FlrJpyPage)),
         (PairCodes.sand_jpy.ToString(), typeof(SandJpyPage)),
         ("settings", typeof(SettingsPage)),
-    };
+    ];
 
     public ShellPage(MainViewModel viewModel)
     {
@@ -156,6 +156,34 @@ public sealed partial class ShellPage : Page
                         if (!string.IsNullOrEmpty(xvalue.Value))
                         {
                             MainViewModel.IsDebugSaveLog = xvalue.Value == "True";
+                        }
+                    }
+                }
+
+                // API
+                var keys = xdoc.Root.Element("APIKeys");
+                if (keys != null)
+                {
+                    var key = keys.Element("Asset");
+
+                    if (key != null)
+                    {
+                        var xvalue = key.Attribute("Key");
+                        if (xvalue != null)
+                        {
+                            if (!string.IsNullOrEmpty(xvalue.Value))
+                            {
+                                MainViewModel.AssetsApiKey = xvalue.Value;
+                            }
+                        }
+
+                        xvalue = key.Attribute("Secret");
+                        if (xvalue != null)
+                        {
+                            if (!string.IsNullOrEmpty(xvalue.Value))
+                            {
+                                MainViewModel.AssetsSecret = xvalue.Value;
+                            }
                         }
                     }
                 }
@@ -510,6 +538,22 @@ public sealed partial class ShellPage : Page
 
         root.AppendChild(xOpts);
 
+        // API Keys
+        var xAPIKeys = doc.CreateElement(string.Empty, "APIKeys", string.Empty);
+        var xAsset = doc.CreateElement(string.Empty, "Asset", string.Empty);
+
+        attrs = doc.CreateAttribute("Key");
+        attrs.Value = MainViewModel.AssetsApiKey;
+        xAsset.SetAttributeNode(attrs);
+
+        attrs = doc.CreateAttribute("Secret");
+        attrs.Value = MainViewModel.AssetsSecret;
+        xAsset.SetAttributeNode(attrs);
+
+        xAPIKeys.AppendChild(xAsset);
+
+        root.AppendChild(xAPIKeys);
+
         // Each pairs
         var xPairs = doc.CreateElement(string.Empty, "Pairs", string.Empty);
         foreach (var hoge in MainViewModel.Pairs)
@@ -565,19 +609,6 @@ public sealed partial class ShellPage : Page
         // error logs.
         var app = App.Current as App;
         app?.SaveErrorLog();
-    }
-
-    private void NavigationViewControl_DisplayModeChanged(NavigationView sender, NavigationViewDisplayModeChangedEventArgs args)
-    {
-        /*
-        AppTitleBar.Margin = new Thickness()
-        {
-            Left = sender.CompactPaneLength * (sender.DisplayMode == NavigationViewDisplayMode.Minimal ? 2 : 1),
-            Top = AppTitleBar.Margin.Top,
-            Right = AppTitleBar.Margin.Right,
-            Bottom = AppTitleBar.Margin.Bottom
-        };
-        */
     }
 
     private static KeyboardAccelerator BuildKeyboardAccelerator(VirtualKey key, VirtualKeyModifiers? modifiers = null)

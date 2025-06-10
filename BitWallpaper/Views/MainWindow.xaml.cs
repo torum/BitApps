@@ -1,26 +1,39 @@
-﻿using BitApps.Core.Helpers;
+using BitApps.Core.Helpers;
 using Microsoft.UI.Composition.SystemBackdrops;
+using Microsoft.UI.Xaml.Markup;
 using Microsoft.UI.Xaml.Media;
+using System.Diagnostics;
 using Windows.Storage;
-using Windows.UI.ViewManagement;
 
-namespace BitDesk;
+namespace BitWallpaper.Views;
 
-public sealed partial class MainWindow : WindowEx
+public sealed partial class MainWindow : WinUIEx.WindowEx
 {
+
     public MainWindow()
     {
-        InitializeComponent();
+        try
+        {
+            InitializeComponent();
+        }
+        catch (XamlParseException parseException)
+        {
+            Debug.WriteLine($"Unhandled XamlParseException in MainWindow: {parseException.Message}");
+            /*
+            foreach (var key in parseException.Data.Keys)
+            {
+                Debug.WriteLine("{Key}:{Value}", key.ToString(), parseException.Data[key]?.ToString());
+            }
+            throw;
+            */
+        }
 
-        AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets/App.ico"));
-        Content = null;
-        //Title = "AppDisplayName".GetLocalized();
-
-        settings = new UISettings();
-        settings.ColorValuesChanged += Settings_ColorValuesChanged;
-
+        AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "App_Icon.ico"));
+        //Content = null;
+        Title = "AppDisplayName/Text".GetLocalized();
+        
         // Need to be here in the code bihind.
-        //ExtendsContentIntoTitleBar = true;
+        ExtendsContentIntoTitleBar = true;
 
         // SystemBackdrop
         if (Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController.IsSupported())
@@ -40,8 +53,7 @@ public sealed partial class MainWindow : WindowEx
                     {
                         SystemBackdrop = new MicaBackdrop()
                         {
-                            //Kind = MicaKind.Base
-                            Kind = MicaKind.BaseAlt
+                            Kind = MicaKind.Base
                         };
                     }
                     else
@@ -66,8 +78,7 @@ public sealed partial class MainWindow : WindowEx
         {
             SystemBackdrop = new MicaBackdrop()
             {
-                //Kind = MicaKind.Base
-                Kind = MicaKind.BaseAlt
+                Kind = MicaKind.Base
             };
         }
         else
@@ -75,20 +86,5 @@ public sealed partial class MainWindow : WindowEx
             // Memo: Without Backdrop, theme setting's theme is not gonna have any effect( "system default" will be used). So the setting is disabled.
         }
 
-    }
-
-    private readonly UISettings settings;
-
-    // this handles updating the caption button colors correctly when Windows system theme is changed
-    // while the app is open
-    private void Settings_ColorValuesChanged(UISettings sender, object args)
-    {
-        /*
-        // This calls comes off-thread, hence we will need to dispatch it to current app's thread
-        App.CurrentDispatcherQueue.TryEnqueue(() =>
-        {
-            TitleBarHelper.ApplySystemThemeToCaptionButtons();
-        });
-        */
     }
 }

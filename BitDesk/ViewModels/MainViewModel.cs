@@ -5,6 +5,7 @@ using System.Windows.Input;
 using BitApps.Core.Helpers;
 using BitApps.Core.Models;
 using BitApps.Core.Models.APIClients;
+using BitDesk.Models.APIClients;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
@@ -13,8 +14,69 @@ using Windows.Storage;
 
 namespace BitDesk.ViewModels;
 
-public class MainViewModel : ObservableRecipient
+public partial class MainViewModel : ObservableRecipient
 {
+    private string _assetsApiKey = string.Empty;
+    public string AssetsApiKey
+    {
+        get => _assetsApiKey;
+        set
+        {
+            if (_assetsApiKey == value)
+            {
+                return;
+            }
+
+            _assetsApiKey = value;
+            OnPropertyChanged(nameof(AssetsApiKey));
+
+            if (!string.IsNullOrEmpty(_assetsApiKey) && !string.IsNullOrEmpty(_assetsSecret))
+            {
+                AssetsApiKeyIsSet = true;
+            }
+        }
+    }
+
+    // TODO: enc
+    private string _assetsSecret = string.Empty;
+    public string AssetsSecret
+    {
+        get => _assetsSecret;
+        set
+        {
+            if (_assetsSecret == value)
+            {
+                return;
+            }
+
+            _assetsSecret = value;
+            OnPropertyChanged(nameof(AssetsSecret));
+
+            if (!string.IsNullOrEmpty(_assetsApiKey) && !string.IsNullOrEmpty(_assetsSecret))
+            {
+                AssetsApiKeyIsSet = true;
+            }
+        }
+    }
+
+    private bool _assetsApiKeyIsSet;
+    public bool AssetsApiKeyIsSet
+    {
+        get => _assetsApiKeyIsSet;
+        set
+        {
+            if (_assetsApiKeyIsSet == value)
+            {
+                return;
+            }
+
+            _assetsApiKeyIsSet = value;
+            OnPropertyChanged(nameof(AssetsApiKeyIsSet));
+
+            //this.NotifyPropertyChanged("ShowAsset");
+            //this.NotifyPropertyChanged("ShowAssetApiSet");
+        }
+    }
 
     #region == Application general ==
 
@@ -82,26 +144,7 @@ public class MainViewModel : ObservableRecipient
         }
     }
 
-    public string VersionText
-    {
-        get
-        {
-            Version version;
 
-            if (RuntimeHelper.IsMSIX)
-            {
-                var packageVersion = Package.Current.Id.Version;
-
-                version = new(packageVersion.Major, packageVersion.Minor, packageVersion.Build, packageVersion.Revision);
-            }
-            else
-            {
-                version = Assembly.GetExecutingAssembly().GetName().Version!;
-            }
-
-            return $"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
-        }
-    }
     public ICommand SwitchThemeCommand
     {
         get; private set;
@@ -110,6 +153,38 @@ public class MainViewModel : ObservableRecipient
     public ICommand SwitchSystemBackdropCommand
     {
         get; private set;
+    }
+
+    private static readonly string _versionText = GetVersionText();
+#pragma warning disable IDE0079 // 不要な抑制を削除します
+#pragma warning disable CA1822 // メンバーを static に設定します
+    public string VersionText => _versionText;
+#pragma warning restore CA1822 // メンバーを static に設定します
+#pragma warning restore IDE0079 // 不要な抑制を削除します
+
+    private static Version GetVersion()
+    {
+        Version version;
+
+        if (RuntimeHelper.IsMSIX)
+        {
+            var packageVersion = Package.Current.Id.Version;
+
+            version = new(packageVersion.Major, packageVersion.Minor, packageVersion.Build, packageVersion.Revision);
+        }
+        else
+        {
+            version = Assembly.GetExecutingAssembly().GetName().Version!;
+        }
+
+        return version;
+    }
+
+    private static string GetVersionText()
+    {
+        var version = GetVersion();
+
+        return $"{version.Major}.{version.Minor}.{version.Build}.{version.Revision}";
     }
 
     #endregion
@@ -151,8 +226,8 @@ public class MainViewModel : ObservableRecipient
             {"sand_jpy", PairCodes.sand_jpy},
         };
 
-    private ObservableCollection<PairViewModel> _pairs = new()
-    {
+    private ObservableCollection<PairViewModel> _pairs =
+    [
         new PairViewModel(PairCodes.btc_jpy, 24, "{0:#,0}", "C", 100M, 1000M),
         new PairViewModel(PairCodes.xrp_jpy, 24, "{0:#,0.000}", "C3", 0.1M, 0.01M),
         new PairViewModel(PairCodes.eth_jpy, 24, "{0:#,0}", "C", 100M, 1000M),
@@ -177,7 +252,7 @@ public class MainViewModel : ObservableRecipient
         new PairViewModel(PairCodes.axs_jpy, 24, "{0:#,0.000}", "C3", 100M, 1000M),
         new PairViewModel(PairCodes.flr_jpy, 24, "{0:#,0.000}", "C3", 0.1M, 0.01M),
         new PairViewModel(PairCodes.sand_jpy, 24, "{0:#,0.000}", "C3", 0.1M, 0.01M),
-    };
+    ];
     public ObservableCollection<PairViewModel> Pairs
     {
         get => _pairs;
@@ -219,6 +294,8 @@ public class MainViewModel : ObservableRecipient
                         hoge.IsSelectedActive = false;
                     }
                 }
+
+                //_selectedPair.AssetCurrentAmount = 0;
             }
 
             OnPropertyChanged(nameof(SelectedPair));
@@ -1211,8 +1288,7 @@ public class MainViewModel : ObservableRecipient
 
     // HTTP Clients
     private readonly PublicAPIClient _pubTickerApi = new();
-
-    //_pubTickerApi.ErrorOccured += new PrivateAPIClient.ClinetErrorEvent(OnError);
+    public readonly PrivateAPIClient PriApi = new();
 
     // Timer
     private readonly DispatcherTimer _dispatcherTimerTickAllPairs = new();
@@ -1222,6 +1298,13 @@ public class MainViewModel : ObservableRecipient
 
     public MainViewModel()
     {
+        // TODO:
+        //_pubTickerApi.ErrorOccured += new PrivateAPIClient.ClinetErrorEvent(OnError);
+        PriApi.ErrorOccured += new PrivateAPIClient.ClinetErrorEvent(OnError);
+
+        //StartLoop();
+
+
         GetTickers();
 
         // Ticker update timer
@@ -1375,7 +1458,7 @@ public class MainViewModel : ObservableRecipient
             _selectedPair.InitializeAndStart();
         });
         */
-        _selectedPair?.InitializeAndLoad();
+        _selectedPair?.InitializeAndLoad(this);
     }
 
     public void CleanUp()
@@ -1934,4 +2017,27 @@ public class MainViewModel : ObservableRecipient
             }
         }
     }
+
+    private void OnError(PrivateAPIClient sender, ClientError err)
+    {
+        if (err == null) { return; }
+        /*
+        // TODO
+        err.ErrPlaceParent = "";
+
+        _errors.Insert(0, err);
+
+        if (Application.Current == null) { return; }
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            // タブの「エラー（＊）」を更新
+            ErrorsCount = _errors.Count;
+
+        });
+
+        // ついでにAPI client からのエラーもログ保存の方に追加する。
+        mylogs.AddMyErrorLogs("ClientError: " + "Type " + err.ErrType + ", Error code " + err.ErrCode + ", Error path " + err.ErrPlace + ", Error text " + err.ErrText + ", Error description " + err.ErrEx + " - " + err.ErrDatetime.ToString());
+    */
+    }
+
 }

@@ -9,6 +9,8 @@ Displays cryptocurrency charts using BitBank's API.
  
 
 ## Change log
+* v2.0.10.0 (2025/6/10)
+ Some clean up.
 * v2.0.3.123 (2023/3/18)
  Marged with BitDesk to share the code. 
  "nullable" is enabled.

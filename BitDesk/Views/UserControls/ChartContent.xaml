@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:model="using:BitApps.Core.Models"
+    xmlns:localmodel="using:BitDesk.Models"
     xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:ui="using:CommunityToolkit.WinUI"
@@ -67,8 +68,8 @@
 
             <model:DepthListItemTemplateSelector x:Key="DepthListItemTemplateSelector" LtpTemplate="{StaticResource LtpTemplate}" BidOrAskTemplate="{StaticResource BidOrAskTemplate}" />
 
-            <Style x:Key="SegmentedPanelBottomStyle" TargetType="StackPanel">
-                <Setter Property="CornerRadius" Value="2" />
+            <Style x:Key="PrivatePanelStyle" TargetType="StackPanel">
+                <Setter Property="CornerRadius" Value="8" />
                 <Setter Property="Padding" Value="4" />
                 <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
                 <Setter Property="BorderThickness" Value="1" />
@@ -77,7 +78,7 @@
                 <Setter Property="Spacing" Value="4" />
                 <Setter Property="animations:Implicit.HideAnimations" Value="{StaticResource ShowTransitions}" />
             </Style>
-            
+
             <animations:ImplicitAnimationSet x:Name="ShowTransitions">
                 <animations:OffsetAnimation EasingMode="EaseOut"
                                         From="0,24,0"
@@ -139,7 +140,7 @@
                         <StateTrigger IsActive="{x:Bind Path=PairViewModel.IsPaneVisible, Mode=TwoWay}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="PanelOpenClose.Icon" Value="OpenPane" />
+                        <Setter Target="PanelOpenClose.Icon" Value="ClosePane" />
                         <Setter Target="PanelOpenClose.Label" Value="hide" />
                     </VisualState.Setters>
                 </VisualState>
@@ -147,6 +148,7 @@
         </VisualStateManager.VisualStateGroups>
 
         <SplitView x:Name="SplitViewControl" Grid.Row="0" Grid.Column="0" Margin="0" BorderThickness="1,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}" PaneBackground="Transparent" IsPaneOpen="{x:Bind Path=PairViewModel.IsPaneVisible, Mode=TwoWay}" PanePlacement="Right" OpenPaneLength="280" CompactPaneLength="0" DisplayMode="CompactInline">
+            
             <SplitView.Pane>
                 <Grid Margin="6,6,0,0">
                     <Grid.RowDefinitions>
@@ -238,7 +240,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel x:Name="SecondaryTitle" Grid.Row="0" Grid.Column="0" Margin="0">
+                <StackPanel x:Name="SecondaryTitle" Grid.Row="0" Grid.Column="0" Margin="0" BorderThickness="0,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Margin="12,12,0,0" Text="{x:Bind Path=PairViewModel.PairString, Mode=OneWay}" Style="{StaticResource BaseTextBlockStyle}"/>
 
@@ -262,9 +264,9 @@
                     </StackPanel>
                 </StackPanel>
 
-                <StackPanel Grid.Row="0" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                <StackPanel Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
 
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right">
 
                         <AppBarButton Label="{x:Bind PairViewModel.SelectedCandleTypeLabelString, Mode=OneWay}" ToolTipService.ToolTip="CandleType" IsCompact="False" VerticalAlignment="Bottom" Margin="0" Padding="0" Opacity="0.4">
                             <AppBarButton.Icon>
@@ -304,7 +306,7 @@
                             </AppBarButton.Icon>
                         </AppBarButton>
 
-                        <AppBarButton x:Name="PanelOpenClose" Icon="ClosePane" Label="show" IsCompact="False" x:Uid="AppCommand_DisplayInfoPanel" Command="{x:Bind PairViewModel.TogglePaneVisibilityCommand}" VerticalAlignment="Bottom" Margin="0,0,4,0" Padding="0" Opacity="0.4">
+                        <AppBarButton x:Name="PanelOpenClose" Icon="OpenPane" Label="show" IsCompact="False" x:Uid="AppCommand_DisplayInfoPanel" Command="{x:Bind PairViewModel.TogglePaneVisibilityCommand}" VerticalAlignment="Bottom" Margin="0,0,4,0" Padding="0" Opacity="0.4">
                             <AppBarButton.KeyboardAccelerators>
                                 <KeyboardAccelerator Modifiers="Control" Key="I" />
                             </AppBarButton.KeyboardAccelerators>
@@ -315,8 +317,72 @@
                 </StackPanel>
 
                 <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Column="0" Margin="12,0,0,12" BorderThickness="0,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Margin="0,16,0,0" Padding="0,0,0,12" Spacing="4" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
+                            <TextBlock Grid.Column="0" Style="{StaticResource BaseTextBlockStyle}">Asset</TextBlock>
+                            <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentName, Mode=OneWay}" Margin="0,0,6,0" Visibility="Collapsed"></TextBlock>
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentAmountText, Mode=OneWay}"></TextBlock>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" HorizontalAlignment="Right" Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetJPYAmountText, Mode=OneWay}"></TextBlock>
+                            <TextBlock Grid.Column="0" Style="{StaticResource BaseTextBlockStyle}">Available</TextBlock>
+                            <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right">
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentName, Mode=OneWay}" Margin="0,0,6,0" Visibility="Collapsed"></TextBlock>
+                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentFreeAmountText, Mode=OneWay}"></TextBlock>
+                            </StackPanel>
+                            <TextBlock Grid.Column="1" HorizontalAlignment="Right" Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetJPYFreeAmountText, Mode=OneWay}"></TextBlock>
+                            <TextBlock Grid.Column="0" Style="{StaticResource BaseTextBlockStyle}">Other Assets</TextBlock>
+                        </StackPanel>
+
+                        <ListBox Width="148" Grid.Row="1" BorderThickness="0" ItemsSource="{x:Bind Path=PairViewModel.Assets, Mode=OneWay}" Background="Transparent" Margin="0" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem" BasedOn="{StaticResource DefaultListBoxItemStyle}">
+                                    <Setter Property="Padding" Value="0,3,0,0"/>
+                                    <Setter Property="Height" Value="25"/>
+                                    <Setter Property="IsEnabled" Value="False" />
+                                    <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+                                    <Setter Property="Width" Value="148"></Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="localmodel:Asset">
+                                    <Grid Margin="0" HorizontalAlignment="Stretch" Width="148">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="48" />
+                                            <ColumnDefinition Width="100" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" x:Name="AssetName" Text="{x:Bind Name, Mode=OneWay}" Margin="0" Padding="0 0 0 0" HorizontalAlignment="Left">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
+                                                </Style>
+                                            </TextBlock.Style></TextBlock>
+                                        <TextBlock Grid.Column="1" x:Name="AssetAmount" Text="{x:Bind AmountText, Mode=OneWay}" Margin="0" Padding="0 0 0 0" HorizontalAlignment="Right">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
+                                                </Style>
+                                            </TextBlock.Style></TextBlock>
+
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                    </Grid>
+
                     <lvc:CartesianChart x:Name="LiveChart"
-                        Margin="0,0,0,0" 
+                                        Margin="0,0,0,0"
+                                        Grid.Column="1"
                                     Series="{x:Bind PairViewModel.Series, Mode=OneWay}" 
                                     XAxes="{x:Bind PairViewModel.XAxes, Mode=OneWay}" 
                                     YAxes="{x:Bind PairViewModel.YAxes, Mode=OneWay}" 
@@ -326,7 +392,6 @@
 
                 </Grid>
                 
-
             </Grid>
 
         </SplitView>
@@ -351,16 +416,18 @@
                             HorizontalAlignment="Stretch"
                             SelectedIndex="0" Margin="4">
                     <controls:SegmentedItem x:Uid="TabHeader_Orders"
-                                    Tag="unfulfilled" />
+                                    Tag="Orders" />
                     <controls:SegmentedItem x:Uid="TabHeader_History"
-                                    Tag="fulfilled" />
+                                    Tag="History" />
+                    <controls:SegmentedItem x:Uid="TabHeader_Errors"
+                                    Tag="Errors" />
                 </controls:Segmented>
                 <controls:SwitchPresenter Grid.Row="1" Value="{Binding SelectedItem.Tag, ElementName=SegmentedControlBottom}" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
-                    <controls:Case Value="unfulfilled">
+                    <controls:Case Value="Orders">
 
                         <StackPanel animations:Implicit.HideAnimations="{StaticResource HideTransitions}"
                             animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}"
-                            Style="{StaticResource SegmentedPanelBottomStyle}">
+                            Style="{StaticResource PrivatePanelStyle}">
 
                             <ListView VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
                                 <!--  ItemsSource="{x:Bind InventoryItems}" -->
@@ -419,21 +486,33 @@
                                     </Style>
                                 </ListView.ItemContainerStyle>
                             </ListView>
+                            
                         </StackPanel>
 
                     </controls:Case>
-                    <controls:Case Value="fulfilled">
+                    <controls:Case Value="History">
+                        
                         <StackPanel animations:Implicit.HideAnimations="{StaticResource HideTransitions}"
                             animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}"
-                            Style="{StaticResource SegmentedPanelBottomStyle}">
+                            Style="{StaticResource PrivatePanelStyle}">
 
                         </StackPanel>
                         
+                    </controls:Case>
+                    <controls:Case Value="Errors">
+
+                        <StackPanel animations:Implicit.HideAnimations="{StaticResource HideTransitions}"
+                            animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}"
+                            Style="{StaticResource PrivatePanelStyle}">
+
+                        </StackPanel>
+
                     </controls:Case>
                 </controls:SwitchPresenter>
 
             </Grid>
         </Grid>
+        
     </Grid>
     
 </UserControl>

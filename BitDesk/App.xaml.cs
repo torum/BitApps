@@ -117,10 +117,10 @@ public partial class App : Application
 
         base.OnLaunched(args);
 
-        var _viewModel = App.GetService<MainViewModel>();
-        var _shell = new ShellPage(_viewModel);
+        //var _viewModel = App.GetService<MainViewModel>();
+        //var _shell = new ShellPage(_viewModel);
+        var _shell = App.GetService<ShellPage>();//new ShellPage();
         MainWindow.Content = _shell;
-
 
         MainWindow?.Activate();
     }
@@ -220,9 +220,9 @@ public partial class App : Application
 
     #region == FilePersistence for WinUIEx ==
 
-    private class FilePersistence : IDictionary<string, object>
+    private partial class FilePersistence : IDictionary<string, object>
     {
-        private readonly Dictionary<string, object> _data = new();
+        private readonly Dictionary<string, object> _data = [];
         private readonly string _file;
 
         public FilePersistence(string filename)

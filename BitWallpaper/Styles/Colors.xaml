@@ -5,23 +5,19 @@
         <ResourceDictionary x:Key="Dark">
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary>
-                    <Color x:Key="LtpColor">#FFF</Color>
-                    <SolidColorBrush x:Key="LtpColorBrush" Color="{StaticResource LtpColor}" />
-                    
+                    <SolidColorBrush x:Key="LtpColorBrush" Color="#FFFFFFFF" />
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
         <ResourceDictionary x:Key="Light">
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary>
-                    <Color x:Key="LtpColor">#333</Color>
-                    <SolidColorBrush x:Key="LtpColorBrush" Color="{StaticResource LtpColor}" />
+                    <SolidColorBrush x:Key="LtpColorBrush" Color="#333333" />
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
         <ResourceDictionary x:Key="HighContrast">
-            <Color x:Key="LtpColor">#FF6600</Color>
-            <SolidColorBrush x:Key="LtpColorBrush" Color="{StaticResource LtpColor}" />
+            <SolidColorBrush x:Key="LtpColorBrush" Color="#FF6600" />
         </ResourceDictionary>
     </ResourceDictionary.ThemeDictionaries>
 </ResourceDictionary>

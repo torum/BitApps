@@ -4,7 +4,7 @@ using System.Net.Http.Headers;
 
 namespace BitApps.Core.Models.APIClients;
 
-public class PublicAPIClient : BaseClient
+public class PublicAPIClient : BaseSingletonClient
 {
     private readonly Uri PublicAPIUri = new("https://public.bitbank.cc");
 
@@ -49,6 +49,10 @@ public class PublicAPIClient : BaseClient
             var s = await response.Content.ReadAsStringAsync();
 
             var deserialized = JsonConvert.DeserializeObject<JsonTickerObject>(s);
+            if (deserialized == null)
+            {
+                return null;
+            }
 
             if (deserialized.Success <= 0)
             {
@@ -163,6 +167,10 @@ public class PublicAPIClient : BaseClient
                 //System.Diagnostics.Debug.WriteLine("GetTicker: " + s);
 
                 var deserialized = JsonConvert.DeserializeObject<JsonDepthObject>(json);
+                if (deserialized == null)
+                {
+                    return null;
+                }
 
                 if (deserialized.Success > 0)
                 {
@@ -218,7 +226,8 @@ public class PublicAPIClient : BaseClient
                 else
                 {
                     var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
-                    if (jsonResult.Data is not null)
+
+                    if (jsonResult?.Data is not null)
                     {
                         Debug.WriteLine("GetDepth: API error code - " + jsonResult.Data.Code.ToString());
                     }
@@ -289,7 +298,7 @@ public class PublicAPIClient : BaseClient
 
                 var deserialized = JsonConvert.DeserializeObject<JsonTransactions>(json);
 
-                if (deserialized.Success > 0)
+                if (deserialized?.Success > 0)
                 {
                     if (deserialized.Data?.Transactions is not null)
                     {
@@ -338,7 +347,7 @@ public class PublicAPIClient : BaseClient
                 else
                 {
                     var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
-                    if (jsonResult.Data is not null)
+                    if (jsonResult?.Data is not null)
                     {
                         Debug.WriteLine("GetTransactions: API error code - " + jsonResult.Data.Code.ToString());
                     }
@@ -524,7 +533,7 @@ public class PublicAPIClient : BaseClient
                     else
                     {
                         var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
-                        System.Diagnostics.Debug.WriteLine("GetCandlestick: API error code - " + jsonResult.Data?.Code.ToString());
+                        System.Diagnostics.Debug.WriteLine("GetCandlestick: API error code - " + jsonResult?.Data?.Code.ToString());
 
                         // TODO
                         return null;

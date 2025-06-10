@@ -297,4 +297,7 @@
   <data name="TabHeader_Orders.Content" xml:space="preserve">
     <value>Orders</value>
   </data>
+  <data name="TabHeader_Errors.Content" xml:space="preserve">
+    <value>Errors</value>
+  </data>
 </root>

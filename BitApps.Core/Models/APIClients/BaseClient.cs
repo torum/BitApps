@@ -7,40 +7,40 @@ using System.Threading.Tasks;
 
 namespace BitApps.Core.Models.APIClients;
 
-public abstract class BaseClient : IDisposable
+public abstract class BaseClient
 {
-    private static readonly object _locker = new();
-    private static volatile HttpClient? _client;
+    protected HTTPConnection _HTTPConn;
 
-    protected static HttpClient Client
+    public BaseClient()
     {
-        get
-        {
-            if (_client == null)
-            {
-                lock (_locker)
-                {
-                    _client ??= new HttpClient();
-                }
-            }
+        _HTTPConn = new HTTPConnection();
 
-            return _client;
-        }
     }
 
-    public void Dispose()
+    #region == Events ==
+
+    public delegate void ClientDebugOutput(BaseClient sender, string data);
+
+    public event ClientDebugOutput? DebugOutput;
+
+    #endregion
+
+    protected async void ToDebugWindow(string data)
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
+        await Task.Run(() => { DebugOutput?.Invoke(this, data); });
     }
 
-    public virtual void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            _client?.Dispose();
+}
 
-            _client = null;
-        }
+public class HTTPConnection
+{
+    public HttpClient Client
+    {
+        get;
+    }
+
+    public HTTPConnection()
+    {
+        Client = new HttpClient();
     }
 }
