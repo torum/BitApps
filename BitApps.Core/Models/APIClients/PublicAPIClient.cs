@@ -4,7 +4,7 @@ using System.Net.Http.Headers;
 
 namespace BitApps.Core.Models.APIClients;
 
-public class PublicAPIClient : BaseSingletonClient
+public partial class PublicAPIClient : BaseSingletonClient
 {
     private readonly Uri PublicAPIUri = new("https://public.bitbank.cc");
 
@@ -51,13 +51,16 @@ public class PublicAPIClient : BaseSingletonClient
             var deserialized = JsonConvert.DeserializeObject<JsonTickerObject>(s);
             if (deserialized == null)
             {
+                Debug.WriteLine("GetTicker: DeserializeObject is null.");
                 return null;
             }
 
             if (deserialized.Success <= 0)
             {
                 Debug.WriteLine("GetTicker: API returned failed response.");
-                return null;
+
+                // TODO: deserialize jason error obj?
+
                 /*
                     // 
                     ClientError er = new ClientError();
@@ -74,6 +77,9 @@ public class PublicAPIClient : BaseSingletonClient
 
                     return null; 
                 */
+
+                
+                return null;
             }
 
             try

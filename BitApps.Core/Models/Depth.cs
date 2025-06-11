@@ -3,7 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace BitApps.Core.Models;
 
-public class Depth : ViewModelBase
+public partial class Depth : ViewModelBase
 {
     private string _priceFormat = "";
     public string PriceFormat
@@ -162,7 +162,7 @@ public class Depth : ViewModelBase
     }
 }
 
-public class DepthListItemTemplateSelector : DataTemplateSelector
+public partial class DepthListItemTemplateSelector : DataTemplateSelector
 {
     public DataTemplate? LtpTemplate { get; set; }
     public DataTemplate? BidOrAskTemplate { get; set; }
@@ -200,7 +200,7 @@ public class DepthResult
 
     public DepthResult()
     {
-        DepthAskList = new List<Depth>();
-        DepthBidList = new List<Depth>();
+        DepthAskList = [];
+        DepthBidList = [];
     }
 }

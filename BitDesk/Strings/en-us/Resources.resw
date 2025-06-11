@@ -300,4 +300,82 @@
   <data name="TabHeader_Errors.Content" xml:space="preserve">
     <value>Errors</value>
   </data>
+  <data name="Pair_Asset.Text" xml:space="preserve">
+    <value>Asset</value>
+  </data>
+  <data name="Pair_AssetAvailable.Text" xml:space="preserve">
+    <value>Available</value>
+  </data>
+  <data name="Pair_AssetOtherAssets.Text" xml:space="preserve">
+    <value>Other Assets</value>
+  </data>
+  <data name="ListView_Orders_OrderID.Text" xml:space="preserve">
+    <value>注文ID</value>
+  </data>
+  <data name="ListView_Orders_OrderedAt.Text" xml:space="preserve">
+    <value>注文日時</value>
+  </data>
+  <data name="ListView_Orders_SideText.Text" xml:space="preserve">
+    <value>売/買</value>
+  </data>
+  <data name="ListView_Orders_TypeText.Text" xml:space="preserve">
+    <value>タイプ</value>
+  </data>
+  <data name="ListView_Orders_StartAmount.Text" xml:space="preserve">
+    <value>注文数</value>
+  </data>
+  <data name="ListView_Orders_Price.Text" xml:space="preserve">
+    <value>注文価格</value>
+  </data>
+  <data name="ListView_Orders_Shushi.Text" xml:space="preserve">
+    <value>現在値差</value>
+  </data>
+  <data name="ListView_Orders_AveragePrice.Text" xml:space="preserve">
+    <value>平均約定</value>
+  </data>
+  <data name="ListView_Orders_RemainingAmount.Text" xml:space="preserve">
+    <value>未約定</value>
+  </data>
+  <data name="ListView_Orders_ActualPrice.Text" xml:space="preserve">
+    <value>注文金額</value>
+  </data>
+  <data name="ListView_Orders_StatusText.Text" xml:space="preserve">
+    <value>ステータス</value>
+  </data>
+  <data name="ListView_TradeHistory_OrderID.Text" xml:space="preserve">
+    <value>注文ID</value>
+  </data>
+  <data name="ListView_TradeHistory_ExecutedAt.Text" xml:space="preserve">
+    <value>約定日時</value>
+  </data>
+  <data name="ListView_TradeHistory_SideText.Text" xml:space="preserve">
+    <value>売/買</value>
+  </data>
+  <data name="ListView_TradeHistory_TypeText.Text" xml:space="preserve">
+    <value>タイプ</value>
+  </data>
+  <data name="ListView_TradeHistory_Amount.Text" xml:space="preserve">
+    <value>数量</value>
+  </data>
+  <data name="ListView_TradeHistory_Price.Text" xml:space="preserve">
+    <value>価格</value>
+  </data>
+  <data name="ListView_TradeHistory_FeeAmountQuote.Text" xml:space="preserve">
+    <value>発生手数料</value>
+  </data>
+  <data name="ListView_TradeHistory_MakerTaker.Text" xml:space="preserve">
+    <value>Maker/Taker</value>
+  </data>
+  <data name="ListView_TradeHistory_TradeID.Text" xml:space="preserve">
+    <value>取引ID</value>
+  </data>
+  <data name="ListView_TradeHistory_Pair.Text" xml:space="preserve">
+    <value>通貨ペア</value>
+  </data>
+  <data name="ListView_TradeHistory_FeeAmountBase.Text" xml:space="preserve">
+    <value>-</value>
+  </data>
+  <data name="ListView_TradeHistory_FeeOccurredAmountQuote.Text" xml:space="preserve">
+    <value>実現手数料</value>
+  </data>
 </root>

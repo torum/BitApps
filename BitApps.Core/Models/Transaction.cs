@@ -1,6 +1,6 @@
 ﻿namespace BitApps.Core.Models;
 
-public class Transaction : ViewModelBase
+public partial class Transaction : ViewModelBase
 {
     private string _priceFormat = "";
     public string PriceFormat
@@ -132,7 +132,7 @@ public class TransactionsResult
 
     public TransactionsResult()
     {
-        Trans = new List<Transaction>();
+        Trans = [];
     }
 }
 

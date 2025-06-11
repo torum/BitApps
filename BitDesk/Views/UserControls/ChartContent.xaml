@@ -10,6 +10,7 @@
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:animations="using:CommunityToolkit.WinUI.Animations"
+    xmlns:triggers="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
     <UserControl.Resources>
         <ResourceDictionary>
@@ -145,6 +146,23 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
+
+
+            <VisualStateGroup>
+                <VisualState x:Name="Equal">
+                    <VisualState.StateTriggers>
+                        <triggers:CompareStateTrigger Comparison="Equal" Value="buy" To="buy" />
+                        <triggers:CompareStateTrigger Comparison="Equal" Value="{Binding Tag, ElementName=TextBlockTest, Mode=OneWay}" To="buy" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        <Setter Target="TextBlockTest.Foreground" Value="Red" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
+
         </VisualStateManager.VisualStateGroups>
 
         <SplitView x:Name="SplitViewControl" Grid.Row="0" Grid.Column="0" Margin="0" BorderThickness="1,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}" PaneBackground="Transparent" IsPaneOpen="{x:Bind Path=PairViewModel.IsPaneVisible, Mode=TwoWay}" PanePlacement="Right" OpenPaneLength="280" CompactPaneLength="0" DisplayMode="CompactInline">
@@ -328,20 +346,20 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <StackPanel Grid.Row="0" Margin="0,16,0,0" Padding="0,0,0,12" Spacing="4" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
-                            <TextBlock Grid.Column="0" Style="{StaticResource BaseTextBlockStyle}">Asset</TextBlock>
+                        <StackPanel Grid.Row="0" Margin="0,12,0,0" Padding="0,0,0,8" Spacing="4" BorderThickness="0,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
+                            <TextBlock Grid.Column="0" Style="{StaticResource BaseTextBlockStyle}" x:Uid="Pair_Asset"></TextBlock>
                             <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right">
                                 <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentName, Mode=OneWay}" Margin="0,0,6,0" Visibility="Collapsed"></TextBlock>
                                 <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentAmountText, Mode=OneWay}"></TextBlock>
                             </StackPanel>
                             <TextBlock Grid.Column="1" HorizontalAlignment="Right" Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetJPYAmountText, Mode=OneWay}"></TextBlock>
-                            <TextBlock Grid.Column="0" Style="{StaticResource BaseTextBlockStyle}">Available</TextBlock>
+                            <TextBlock Grid.Column="0" Style="{StaticResource BaseTextBlockStyle}" x:Uid="Pair_AssetAvailable"></TextBlock>
                             <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right">
                                 <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentName, Mode=OneWay}" Margin="0,0,6,0" Visibility="Collapsed"></TextBlock>
                                 <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentFreeAmountText, Mode=OneWay}"></TextBlock>
                             </StackPanel>
                             <TextBlock Grid.Column="1" HorizontalAlignment="Right" Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetJPYFreeAmountText, Mode=OneWay}"></TextBlock>
-                            <TextBlock Grid.Column="0" Style="{StaticResource BaseTextBlockStyle}">Other Assets</TextBlock>
+                            <TextBlock Grid.Column="0" Style="{StaticResource BaseTextBlockStyle}" x:Uid="Pair_AssetOtherAssets"></TextBlock>
                         </StackPanel>
 
                         <ListBox Width="148" Grid.Row="1" BorderThickness="0" ItemsSource="{x:Bind Path=PairViewModel.Assets, Mode=OneWay}" Background="Transparent" Margin="0" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden">
@@ -406,111 +424,206 @@
         </controls:GridSplitter>
 
         <Grid Grid.Row="1" Grid.Column="0">
-            <Grid Grid.Row="0">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-                <controls:Segmented Grid.Row="0" x:Name="SegmentedControlBottom" Style="{StaticResource PivotSegmentedStyle}"
+            <controls:Segmented Grid.Row="0" x:Name="SegmentedControlBottom" Style="{StaticResource PivotSegmentedStyle}"
                             HorizontalAlignment="Stretch"
                             SelectedIndex="0" Margin="4">
-                    <controls:SegmentedItem x:Uid="TabHeader_Orders"
+                <controls:SegmentedItem x:Uid="TabHeader_Orders"
                                     Tag="Orders" />
-                    <controls:SegmentedItem x:Uid="TabHeader_History"
+                <controls:SegmentedItem x:Uid="TabHeader_History"
                                     Tag="History" />
-                    <controls:SegmentedItem x:Uid="TabHeader_Errors"
+                <controls:SegmentedItem x:Uid="TabHeader_Errors"
                                     Tag="Errors" />
-                </controls:Segmented>
-                <controls:SwitchPresenter Grid.Row="1" Value="{Binding SelectedItem.Tag, ElementName=SegmentedControlBottom}" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
-                    <controls:Case Value="Orders">
+            </controls:Segmented>
+            <controls:SwitchPresenter Grid.Row="1" Value="{Binding SelectedItem.Tag, ElementName=SegmentedControlBottom}">
+                <controls:Case Value="Orders">
 
-                        <StackPanel animations:Implicit.HideAnimations="{StaticResource HideTransitions}"
+                    <ListView ItemsSource="{x:Bind Path=PairViewModel.Orders, Mode=OneWay}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                  ScrollViewer.VerticalScrollBarVisibility="Visible" animations:Implicit.HideAnimations="{StaticResource HideTransitions}"
+                            animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}">
+                        <ListView.Header>
+                            <Grid Padding="16,12" ColumnSpacing="8" Background="{ThemeResource NavigationViewContentBackground}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100" />
+                                    <ColumnDefinition Width="140" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock x:Uid="ListView_Orders_OrderID" />
+                                <TextBlock Grid.Column="1" x:Uid="ListView_Orders_OrderedAt"/>
+                                <TextBlock Grid.Column="2" x:Uid="ListView_Orders_SideText"/>
+                                <TextBlock Grid.Column="3" x:Uid="ListView_Orders_TypeText"/>
+                                <TextBlock Grid.Column="4" x:Uid="ListView_Orders_StartAmount"/>
+                                <TextBlock Grid.Column="5" x:Uid="ListView_Orders_Price"/>
+                                <TextBlock Grid.Column="6" x:Uid="ListView_Orders_Shushi"/>
+                                <TextBlock Grid.Column="7" x:Uid="ListView_Orders_AveragePrice"/>
+                                <TextBlock Grid.Column="8" x:Uid="ListView_Orders_RemainingAmount"/>
+                                <TextBlock Grid.Column="9" x:Uid="ListView_Orders_ActualPrice"/>
+                                <TextBlock Grid.Column="10" x:Uid="ListView_Orders_StatusText"/>
+                            </Grid>
+                        </ListView.Header>
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="localmodel:Order">
+                                <Grid ColumnSpacing="8">
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup>
+                                            <!-- Not working... -->
+                                            <VisualState x:Name="Equal">
+                                                <VisualState.StateTriggers>
+                                                    <triggers:CompareStateTrigger Comparison="Equal" Value="{Binding Tag, ElementName=TextBlockTest, Mode=OneWay}" To="buy" />
+                                                </VisualState.StateTriggers>
+                                                <VisualState.Setters>
+                                                        <Setter Target="TextBlockTest.Foreground" Value="Red" />
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="140" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind OrderID, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="1" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind OrderdAtText, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="2" Foreground="{ThemeResource TextFillColorSecondaryBrush}" x:Name="TextBlockTest" Tag="{x:Bind Side, Mode=OneWay}" Text="{x:Bind SideText, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="3" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind TypeText, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="4" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind StartAmount, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="5" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind Price, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="6" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind Shushi, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="7" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind AveragePrice, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="8" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind RemainingAmount, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="9" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind ActualPrice, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="10" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind StatusText, Mode=OneWay}" />
+
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                        <ListView.ItemContainerStyle>
+                            <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+
+                </controls:Case>
+                <controls:Case Value="History">
+
+                    <ListView ItemsSource="{x:Bind Path=PairViewModel.TradeHistories, Mode=OneWay}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                  ScrollViewer.VerticalScrollBarVisibility="Visible" animations:Implicit.HideAnimations="{StaticResource HideTransitions}"
+                            animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}">
+                        <ListView.Header>
+                            <Grid Padding="16,12" ColumnSpacing="8" Background="{ThemeResource NavigationViewContentBackground}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="100" />
+                                    <ColumnDefinition Width="100" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="140" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" x:Uid="ListView_TradeHistory_OrderID" />
+                                <TextBlock Grid.Column="1" x:Uid="ListView_TradeHistory_TradeID" />
+                                <TextBlock Grid.Column="2" x:Uid="ListView_TradeHistory_Pair" />
+                                <TextBlock Grid.Column="3" x:Uid="ListView_TradeHistory_ExecutedAt"/>
+                                <TextBlock Grid.Column="4" x:Uid="ListView_TradeHistory_SideText"/>
+                                <TextBlock Grid.Column="5" x:Uid="ListView_TradeHistory_TypeText"/>
+                                <TextBlock Grid.Column="6" x:Uid="ListView_TradeHistory_Amount"/>
+                                <TextBlock Grid.Column="7" x:Uid="ListView_TradeHistory_Price"/>
+                                <TextBlock Grid.Column="8" x:Uid="ListView_TradeHistory_FeeAmountQuote"/>
+                                <TextBlock Grid.Column="9" x:Uid="ListView_TradeHistory_FeeOccurredAmountQuote"/>
+                                <TextBlock Grid.Column="10" x:Uid="ListView_TradeHistory_MakerTaker"/>
+                            </Grid>
+                        </ListView.Header>
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="localmodel:Trade">
+                                <Grid ColumnSpacing="8">
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup>
+                                            <!-- Not working... -->
+                                            <VisualState x:Name="Equal">
+                                                <VisualState.StateTriggers>
+                                                    <triggers:CompareStateTrigger Comparison="Equal" Value="{Binding Tag, ElementName=TextBlockTest, Mode=OneWay}" To="buy" />
+                                                </VisualState.StateTriggers>
+                                                <VisualState.Setters>
+                                                    <Setter Target="TextBlockTest.Foreground" Value="Red" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="140" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind OrderID, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="1" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind TradeID, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="2" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind Pair, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="3" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind ExecutedAtText, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="4" Foreground="{ThemeResource TextFillColorSecondaryBrush}" x:Name="TextBlockTest" Tag="{x:Bind Side, Mode=OneWay}" Text="{x:Bind SideText, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="5" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind TypeText, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="6" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind Amount, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="7" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind Price, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="8" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind FeeAmountQuote, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="9" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind FeeOccurredAmountQuote, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="10" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind MakerTaker, Mode=OneWay}" />
+
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                        <ListView.ItemContainerStyle>
+                            <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+
+
+                </controls:Case>
+                <controls:Case Value="Errors">
+
+                    <StackPanel animations:Implicit.HideAnimations="{StaticResource HideTransitions}"
                             animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}"
                             Style="{StaticResource PrivatePanelStyle}">
 
-                            <ListView VerticalAlignment="Stretch" VerticalContentAlignment="Stretch">
-                                <!--  ItemsSource="{x:Bind InventoryItems}" -->
-                                <ListView.Header>
-                                    <Grid Padding="16,12" ColumnSpacing="16">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="80" />
-                                            <ColumnDefinition Width="80" />
-                                            <ColumnDefinition Width="80" />
-                                            <ColumnDefinition Width="80" />
-                                            <ColumnDefinition Width="80" />
-                                            <ColumnDefinition Width="80" />
-                                            <ColumnDefinition Width="80" />
-                                            <ColumnDefinition Width="80" />
-                                            <ColumnDefinition Width="80" />
-                                            <ColumnDefinition Width="80" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Order Id" />
-                                        <TextBlock Grid.Column="1" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="DateTime" />
-                                        <TextBlock Grid.Column="2" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Kind" />
-                                        <TextBlock Grid.Column="3" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Type" />
-                                        <TextBlock Grid.Column="4" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Quantity" />
-                                        <TextBlock Grid.Column="5" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Price" />
-                                        <TextBlock Grid.Column="6" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Diff" />
-                                        <TextBlock Grid.Column="7" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="filled" />
-                                        <TextBlock Grid.Column="8" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="pending" />
-                                        <TextBlock Grid.Column="9" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="price" />
-                                        <TextBlock Grid.Column="10" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="status" />
-                                    </Grid>
-                                </ListView.Header>
-                                <ListView.ItemTemplate>
-                                    <DataTemplate>
-                                        <!--  x:DataType="local:InventoryItem" -->
-                                        <Grid ColumnSpacing="16">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="80" />
-                                                <ColumnDefinition Width="120" />
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="100" />
-                                            </Grid.ColumnDefinitions>
-                                            <!--
-                                        
-                                        <TextBlock Text="{x:Bind Id}" />
-                                        <TextBlock Grid.Column="1" Text="{x:Bind Name}" />
-                                        <TextBlock Grid.Column="2" Text="{x:Bind Description}" />
-                                        <TextBlock Grid.Column="3" Text="{x:Bind Quantity}" />
-                                        
-                                        -->
-                                        </Grid>
-                                    </DataTemplate>
-                                </ListView.ItemTemplate>
-                                <ListView.ItemContainerStyle>
-                                    <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
-                                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                    </Style>
-                                </ListView.ItemContainerStyle>
-                            </ListView>
-                            
-                        </StackPanel>
+                    </StackPanel>
 
-                    </controls:Case>
-                    <controls:Case Value="History">
-                        
-                        <StackPanel animations:Implicit.HideAnimations="{StaticResource HideTransitions}"
-                            animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}"
-                            Style="{StaticResource PrivatePanelStyle}">
+                </controls:Case>
+            </controls:SwitchPresenter>
 
-                        </StackPanel>
-                        
-                    </controls:Case>
-                    <controls:Case Value="Errors">
-
-                        <StackPanel animations:Implicit.HideAnimations="{StaticResource HideTransitions}"
-                            animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}"
-                            Style="{StaticResource PrivatePanelStyle}">
-
-                        </StackPanel>
-
-                    </controls:Case>
-                </controls:SwitchPresenter>
-
-            </Grid>
         </Grid>
         
     </Grid>

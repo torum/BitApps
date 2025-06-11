@@ -9,6 +9,18 @@ namespace BitApps.Core.Models.APIClients;
 
 public abstract class BaseClient
 {
+    public HttpClient Client
+    {
+        get;
+    }
+
+    public BaseClient()
+    {
+        Client = new HttpClient();
+
+    }
+}
+    /*
     protected HTTPConnection _HTTPConn;
 
     public BaseClient()
@@ -44,3 +56,5 @@ public class HTTPConnection
         Client = new HttpClient();
     }
 }
+
+*/

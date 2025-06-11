@@ -144,7 +144,7 @@ public partial class App : Application
         Debug.WriteLine($"StackTrace: {e.Exception.StackTrace}, Source: {e.Exception.Source}");
         AppendErrorLog("App_UnhandledException", e.Message + System.Environment.NewLine + $"StackTrace: {e.Exception.StackTrace}, Source: {e.Exception.Source}");
 
-        SaveErrorLog();
+        //SaveErrorLog();
     }
 
     private void TaskScheduler_UnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
@@ -156,7 +156,7 @@ public partial class App : Application
 
         Debug.WriteLine("TaskScheduler_UnobservedTaskException: " + exception.Message);
         AppendErrorLog("TaskScheduler_UnobservedTaskException", exception.Message);
-        SaveErrorLog();
+        //SaveErrorLog();
 
         e.SetObserved();
     }
@@ -178,7 +178,7 @@ public partial class App : Application
         {
             Debug.WriteLine("CurrentDomain_UnhandledException: " + exception.Message);
             AppendErrorLog("CurrentDomain_UnhandledException", exception.Message);
-            SaveErrorLog();
+            //SaveErrorLog();
         }
     }
 

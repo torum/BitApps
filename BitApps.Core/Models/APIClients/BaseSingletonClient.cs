@@ -28,6 +28,20 @@ public abstract class BaseSingletonClient : IDisposable
         }
     }
 
+    #region == Events ==
+
+    public delegate void ClientDebugOutput(BaseSingletonClient sender, string data);
+
+    public event ClientDebugOutput? DebugOutput;
+
+    protected async void ToDebugWindow(string data)
+    {
+        // TODO:
+        await Task.Run(() => { DebugOutput?.Invoke(this, data); });
+    }
+
+    #endregion
+
     public void Dispose()
     {
         Dispose(true);

@@ -16,68 +16,6 @@ namespace BitDesk.ViewModels;
 
 public partial class MainViewModel : ObservableRecipient
 {
-    private string _assetsApiKey = string.Empty;
-    public string AssetsApiKey
-    {
-        get => _assetsApiKey;
-        set
-        {
-            if (_assetsApiKey == value)
-            {
-                return;
-            }
-
-            _assetsApiKey = value;
-            OnPropertyChanged(nameof(AssetsApiKey));
-
-            if (!string.IsNullOrEmpty(_assetsApiKey) && !string.IsNullOrEmpty(_assetsSecret))
-            {
-                AssetsApiKeyIsSet = true;
-            }
-        }
-    }
-
-    // TODO: enc
-    private string _assetsSecret = string.Empty;
-    public string AssetsSecret
-    {
-        get => _assetsSecret;
-        set
-        {
-            if (_assetsSecret == value)
-            {
-                return;
-            }
-
-            _assetsSecret = value;
-            OnPropertyChanged(nameof(AssetsSecret));
-
-            if (!string.IsNullOrEmpty(_assetsApiKey) && !string.IsNullOrEmpty(_assetsSecret))
-            {
-                AssetsApiKeyIsSet = true;
-            }
-        }
-    }
-
-    private bool _assetsApiKeyIsSet;
-    public bool AssetsApiKeyIsSet
-    {
-        get => _assetsApiKeyIsSet;
-        set
-        {
-            if (_assetsApiKeyIsSet == value)
-            {
-                return;
-            }
-
-            _assetsApiKeyIsSet = value;
-            OnPropertyChanged(nameof(AssetsApiKeyIsSet));
-
-            //this.NotifyPropertyChanged("ShowAsset");
-            //this.NotifyPropertyChanged("ShowAssetApiSet");
-        }
-    }
-
     #region == Application general ==
 
     private SystemBackdropOption _material = SystemBackdropOption.Mica;
@@ -1229,6 +1167,196 @@ public partial class MainViewModel : ObservableRecipient
 
     #endregion
 
+    #region == API keys ==
+
+    // Assets
+
+    private string _assetsApiKey = string.Empty;
+    public string AssetsApiKey
+    {
+        get => _assetsApiKey;
+        set
+        {
+            if (_assetsApiKey == value.Trim())
+            {
+                return;
+            }
+
+            _assetsApiKey = value.Trim();
+            OnPropertyChanged(nameof(AssetsApiKey));
+
+            if (!string.IsNullOrEmpty(_assetsApiKey) && !string.IsNullOrEmpty(_assetsSecret))
+            {
+                AssetsApiKeyIsSet = true;
+            }
+        }
+    }
+
+    // TODO: encrypt
+    private string _assetsSecret = string.Empty;
+    public string AssetsSecret
+    {
+        get => _assetsSecret;
+        set
+        {
+            if (_assetsSecret == value.Trim())
+            {
+                return;
+            }
+
+            _assetsSecret = value.Trim();
+            OnPropertyChanged(nameof(AssetsSecret));
+
+            if (!string.IsNullOrEmpty(_assetsApiKey) && !string.IsNullOrEmpty(_assetsSecret))
+            {
+                AssetsApiKeyIsSet = true;
+            }
+        }
+    }
+
+    private bool _assetsApiKeyIsSet;
+    public bool AssetsApiKeyIsSet
+    {
+        get => _assetsApiKeyIsSet;
+        set
+        {
+            if (_assetsApiKeyIsSet == value)
+            {
+                return;
+            }
+
+            _assetsApiKeyIsSet = value;
+            OnPropertyChanged(nameof(AssetsApiKeyIsSet));
+
+            //this.NotifyPropertyChanged("ShowAsset");
+            //this.NotifyPropertyChanged("ShowAssetApiSet");
+        }
+    }
+
+    // Orders
+
+    private string _ordersApiKey = string.Empty;
+    public string OrdersApiKey
+    {
+        get => _ordersApiKey;
+        set
+        {
+            if (_ordersApiKey == value.Trim())
+            {
+                return;
+            }
+
+            _ordersApiKey = value.Trim();
+            OnPropertyChanged(nameof(OrdersApiKey));
+
+            if (!string.IsNullOrEmpty(_ordersApiKey) && !string.IsNullOrEmpty(_ordersSecret))
+            {
+                AssetsApiKeyIsSet = true;
+            }
+        }
+    }
+
+    // TODO: encrypt
+    private string _ordersSecret = string.Empty;
+    public string OrdersSecret
+    {
+        get => _ordersSecret;
+        set
+        {
+            if (_ordersSecret == value.Trim())
+            {
+                return;
+            }
+
+            _ordersSecret = value.Trim();
+            OnPropertyChanged(nameof(OrdersSecret));
+
+            if (!string.IsNullOrEmpty(_ordersApiKey) && !string.IsNullOrEmpty(_ordersSecret))
+            {
+                OrdersApiKeyIsSet = true;
+            }
+        }
+    }
+
+    private bool _ordersApiKeyIsSet;
+    public bool OrdersApiKeyIsSet
+    {
+        get => _ordersApiKeyIsSet;
+        set
+        {
+            if (_ordersApiKeyIsSet == value)
+            {
+                return;
+            }
+
+            _ordersApiKeyIsSet = value;
+            OnPropertyChanged(nameof(OrdersApiKeyIsSet));
+        }
+    }
+
+    // TradeHistory 
+
+    private string _tradeHistoryApiKey = string.Empty;
+    public string TradeHistoryApiKey
+    {
+        get => _tradeHistoryApiKey;
+        set
+        {
+            if (_tradeHistoryApiKey == value.Trim())
+            {
+                return;
+            }
+
+            _tradeHistoryApiKey = value.Trim();
+            OnPropertyChanged(nameof(TradeHistoryApiKey));
+
+            if (!string.IsNullOrEmpty(_tradeHistoryApiKey) && !string.IsNullOrEmpty(_tradeHistorySecret))
+            {
+                TradeHistoryApiKeyIsSet = true;
+            }
+        }
+    }
+
+    // TODO: encrypt
+    private string _tradeHistorySecret = string.Empty;
+    public string TradeHistorySecret
+    {
+        get => _tradeHistorySecret;
+        set
+        {
+            if (_tradeHistorySecret == value.Trim())
+            {
+                return;
+            }
+
+            _tradeHistorySecret = value.Trim();
+            OnPropertyChanged(nameof(TradeHistorySecret));
+
+            if (!string.IsNullOrEmpty(_tradeHistoryApiKey) && !string.IsNullOrEmpty(_tradeHistorySecret))
+            {
+                TradeHistoryApiKeyIsSet = true;
+            }
+        }
+    }
+
+    private bool _tradeHistoryApiKeyIsSet;
+    public bool TradeHistoryApiKeyIsSet
+    {
+        get => _tradeHistoryApiKeyIsSet;
+        set
+        {
+            if (_tradeHistoryApiKeyIsSet == value)
+            {
+                return;
+            }
+
+            _tradeHistoryApiKeyIsSet = value;
+            OnPropertyChanged(nameof(TradeHistoryApiKeyIsSet));
+        }
+    }
+
+    #endregion
+
     #region == Options ==
 
     private bool _navigationViewControl_IsPaneOpen = true;
@@ -1287,8 +1415,9 @@ public partial class MainViewModel : ObservableRecipient
     #endregion
 
     // HTTP Clients
-    private readonly PublicAPIClient _pubTickerApi = new();
-    public readonly PrivateAPIClient PriApi = new();
+    private readonly PublicAPIClient _pubTickerApi = new(); // singelton
+    public readonly PrivateAPIClient PriAssetsApi = new(); // not singelton
+    public readonly PrivateAPIClient PriOrdersApi = new(); // not singelton
 
     // Timer
     private readonly DispatcherTimer _dispatcherTimerTickAllPairs = new();
@@ -1300,10 +1429,8 @@ public partial class MainViewModel : ObservableRecipient
     {
         // TODO:
         //_pubTickerApi.ErrorOccured += new PrivateAPIClient.ClinetErrorEvent(OnError);
-        PriApi.ErrorOccured += new PrivateAPIClient.ClinetErrorEvent(OnError);
-
-        //StartLoop();
-
+        PriAssetsApi.ErrorOccured += new PrivateAPIClient.ClinetErrorEvent(OnError);
+        PriOrdersApi.ErrorOccured += new PrivateAPIClient.ClinetErrorEvent(OnError);
 
         GetTickers();
 
@@ -1468,6 +1595,7 @@ public partial class MainViewModel : ObservableRecipient
             _dispatcherTimerTickAllPairs.Stop();
 
             _pubTickerApi.Dispose();
+
         }
         catch (Exception ex)
         {
@@ -2018,7 +2146,7 @@ public partial class MainViewModel : ObservableRecipient
         }
     }
 
-    private void OnError(PrivateAPIClient sender, ClientError err)
+    private void OnError(BaseClient sender, ClientError err)
     {
         if (err == null) { return; }
         /*

@@ -4,17 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BitDesk.Models;
+namespace BitApps.Core.Models;
 
 public class JsonErrorData
 {
     public int Code { get; set; } = 0;
-    //public string ja { get; set; } = string.Empty;
+    public string Ja { get; set; } = string.Empty;
 }
 
 public class JsonErrorObject
 {
-    //public int success { get; set; } = 0;
+    public int Success { get; set; } = 0;
     public JsonErrorData? Data { get; set; }
 }
 

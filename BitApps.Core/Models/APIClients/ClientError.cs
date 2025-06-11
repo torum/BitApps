@@ -1,4 +1,5 @@
-﻿namespace BitDesk.Models.APIClients;
+﻿
+namespace BitApps.Core.Models.APIClients;
 
 public class ClientError
 {

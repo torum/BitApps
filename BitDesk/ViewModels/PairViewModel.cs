@@ -1,6 +1,12 @@
-﻿using BitApps.Core.Helpers;
+﻿using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Windows.Input;
+using BitApps.Core.Helpers;
 using BitApps.Core.Models;
 using BitApps.Core.Models.APIClients;
+using BitDesk.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
@@ -9,11 +15,9 @@ using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using LiveChartsCore.SkiaSharpView.Painting.Effects;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using SkiaSharp;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Globalization;
-using System.Windows.Input;
+using static System.Net.WebRequestMethods;
 
 namespace BitDesk.ViewModels;
 
@@ -60,6 +64,36 @@ public partial class PairViewModel : ObservableRecipient
                 {PairCodes.sand_jpy, "SAND/JPY"},
             };
 
+    public Dictionary<string, PairCodes> GetPairCodes
+    {
+        get; set;
+    } = new Dictionary<string, PairCodes>()
+        {
+            {"btc_jpy", PairCodes.btc_jpy},
+            {"xrp_jpy", PairCodes.xrp_jpy},
+            {"eth_jpy", PairCodes.eth_jpy},
+            {"ltc_jpy", PairCodes.ltc_jpy},
+            {"mona_jpy", PairCodes.mona_jpy},
+            {"bcc_jpy", PairCodes.bcc_jpy},
+            {"xlm_jpy", PairCodes.xlm_jpy},
+            {"qtum_jpy", PairCodes.qtum_jpy},
+            {"bat_jpy", PairCodes.bat_jpy},
+            {"omg_jpy", PairCodes.omg_jpy},
+            {"xym_jpy", PairCodes.xym_jpy},
+            {"link_jpy", PairCodes.link_jpy},
+            {"mkr_jpy", PairCodes.mkr_jpy},
+            {"boba_jpy", PairCodes.boba_jpy},
+            {"enj_jpy", PairCodes.enj_jpy},
+            {"matic_jpy", PairCodes.matic_jpy},
+            {"dot_jpy", PairCodes.dot_jpy},
+            {"doge_jpy", PairCodes.doge_jpy},
+            {"astr_jpy", PairCodes.astr_jpy},
+            {"ada_jpy", PairCodes.ada_jpy},
+            {"avax_jpy", PairCodes.avax_jpy},
+            {"axs_jpy", PairCodes.axs_jpy},
+            {"flr_jpy", PairCodes.flr_jpy},
+            {"sand_jpy", PairCodes.sand_jpy},
+        };
 
     public string CurrencyUnitString => CurrentPairCoin[_p];
 
@@ -1153,7 +1187,43 @@ public partial class PairViewModel : ObservableRecipient
 
     #endregion
 
-    #region == Depth and Transaction ==
+    #region == Orders TradeHistory ==
+
+    private ObservableCollection<Order> _orders = [];
+    public ObservableCollection<Order> Orders
+    {
+        get => _orders;
+        set
+        {
+            if (_orders== value)
+            {
+                return;
+            }
+
+            _orders = value;
+            OnPropertyChanged(nameof(Orders));
+        }
+    }
+
+    private ObservableCollection<Trade> _tradeHistories = [];
+    public ObservableCollection<Trade> TradeHistories
+    {
+        get => _tradeHistories;
+        set
+        {
+            if (_tradeHistories == value)
+            {
+                return;
+            }
+
+            _tradeHistories = value;
+            OnPropertyChanged(nameof(TradeHistories));
+        }
+    }
+
+    #endregion
+
+    #region == Transactions ==
 
     private ObservableCollection<Transaction> _transactions = [];
     public ObservableCollection<Transaction> Transactions
@@ -1170,6 +1240,10 @@ public partial class PairViewModel : ObservableRecipient
             OnPropertyChanged(nameof(Transactions));
         }
     }
+
+    #endregion
+
+    #region == Depth and Transaction ==
 
     private ObservableCollection<Depth> _depth = [];
     public ObservableCollection<Depth> Depth
@@ -1576,6 +1650,8 @@ public partial class PairViewModel : ObservableRecipient
     private readonly DispatcherTimer _dispatcherTimerChart = new();
     private readonly DispatcherTimer _dispatcherTimerDepth = new();
     private readonly DispatcherTimer _dispatcherTimerTransaction = new();
+    private readonly DispatcherTimer _dispatcherTimerOrders = new(); 
+    private readonly DispatcherTimer _dispatcherTimerTradeHistory = new(); 
     #endregion
 
     private DateTime lastChartLoadedDateTime= DateTime.MinValue;
@@ -1605,10 +1681,6 @@ public partial class PairViewModel : ObservableRecipient
 
         #region == Timers ==
 
-        // Assets update timer
-        _dispatcherTimerAssets.Tick += TickerTimerAssets;
-        _dispatcherTimerAssets.Interval = new TimeSpan(0, 0, 10);
-        _dispatcherTimerAssets.Start();
 
         // Depth update timer
         _dispatcherTimerDepth.Tick += TickerTimerDepth;
@@ -1624,6 +1696,19 @@ public partial class PairViewModel : ObservableRecipient
         _dispatcherTimerChart.Tick += TickerTimerChart;
         _dispatcherTimerChart.Interval = chartUpdateInterval;
         _dispatcherTimerChart.Start();
+
+        // Assets update timer
+        _dispatcherTimerAssets.Tick += TickerTimerAssets;
+        _dispatcherTimerAssets.Interval = new TimeSpan(0, 0, 20);
+        _dispatcherTimerAssets.Start();
+        // Orders update timer
+        _dispatcherTimerOrders.Tick += TickerTimerOrders;
+        _dispatcherTimerOrders.Interval = new TimeSpan(0, 0, 20);
+        _dispatcherTimerOrders.Start();
+        // TradeHistory update timer
+        _dispatcherTimerTradeHistory.Tick += TickerTimerTradeHistory;
+        _dispatcherTimerTradeHistory.Interval = new TimeSpan(0, 0, 20);
+        _dispatcherTimerTradeHistory.Start();
 
         #endregion
 
@@ -1663,8 +1748,8 @@ public partial class PairViewModel : ObservableRecipient
         }
 
         Task.Run(async () => await GetAssets());
-
-
+        Task.Run(() => GetOrders());
+        Task.Run(() => GetTradeHistory());
     }
 
     public void CleanUp()
@@ -2131,6 +2216,385 @@ public partial class PairViewModel : ObservableRecipient
 
     #endregion
 
+    private void TickerTimerTradeHistory(object? source, object e)
+    {
+        if (!IsEnabled)
+        {
+            return;
+        }
+
+        if (!IsSelectedActive)
+        {
+            return;
+        }
+
+        Task.Run(() => GetTradeHistory());
+    }
+
+    private async Task GetTradeHistory()
+    {
+        if (MainViewModel == null)
+        {
+            return;
+        }
+
+        if (MainViewModel.TradeHistoryApiKeyIsSet == false)
+        {
+            // TODO show message?
+            System.Diagnostics.Debug.WriteLine("■■■■■ GetOrders: (TradeHistoryApiKeyIsSet == false)");
+            return;
+        }
+
+        try
+        {
+
+            var trd = await MainViewModel.PriOrdersApi.GetTradeHistory(MainViewModel.TradeHistoryApiKey, MainViewModel.TradeHistorySecret, PairCode.ToString());
+
+            if (trd != null)
+            {
+                // 逆順にする
+                trd.TradeList.Reverse();
+
+                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                {
+                    foreach (var tr in trd.TradeList)
+                    {
+                        var found = TradeHistories.FirstOrDefault(x => x.TradeID == tr.TradeID);
+                        if (found == null)
+                        {
+                            // "btc_jpy" を "BTC/JPY"に。
+                            if (GetPairCodes.TryGetValue(tr.Pair, out var value))
+                            {
+                                tr.Pair = PairStrings[value];
+                            }
+
+                            found = new Trade
+                            {
+                                TradeID = tr.TradeID,
+                                OrderID = tr.OrderID,
+                                Pair = tr.Pair,
+                                Price = tr.Price,
+                                ExecutedAt = tr.ExecutedAt,
+                                Amount = tr.Amount,
+                                Side = tr.Side,
+                                Type = tr.Type,
+                                //FeeAmountBase = tr.FeeAmountBase,
+                                FeeOccurredAmountQuote = tr.FeeOccurredAmountQuote,
+                                FeeAmountQuote = tr.FeeAmountQuote,
+                                MakerTaker = tr.MakerTaker,
+                            };
+
+                            TradeHistories.Insert(0, found);
+                        }
+
+                    }
+
+                });
+
+                return;
+            }
+            else
+            {
+                // TODO:
+                /*
+                _tradeHistories = -1;
+                NotifyPropertyChanged(nameof(TradeHistoryTitle));
+
+                APIResultTradeHistory = "<<取得失敗>>";
+                */
+
+                System.Diagnostics.Debug.WriteLine("■■■■■ GetTradeHistory is null.");
+
+                return;
+            }
+
+        }
+        catch (Exception e)
+        {
+            System.Diagnostics.Debug.WriteLine("■■■■■ GetTradeHistory Exception: " + e);
+
+            return;
+        }
+    }
+
+
+    #region == Orders ==
+
+    private void TickerTimerOrders(object? source, object e)
+    {
+        if (!IsEnabled)
+        {
+            return;
+        }
+
+        if (!IsSelectedActive)
+        {
+            return;
+        }
+
+        Task.Run(() => GetOrders());
+    }
+
+    private async Task GetOrders()
+    {
+        if (MainViewModel == null)
+        {
+            return;
+        }
+
+        if (MainViewModel.OrdersApiKeyIsSet == false)
+        {
+            // TODO show message?
+            System.Diagnostics.Debug.WriteLine("■■■■■ GetOrders: (OrdersApiKeyIsSet == false)");
+            return;
+        }
+
+        var ords = await MainViewModel.PriOrdersApi.GetOrderList(MainViewModel.OrdersApiKey, MainViewModel.OrdersSecret, PairCode.ToString());
+        if (ords == null) 
+        {
+            return;
+        }
+        if (ords.IsSuccess == false)
+        {
+            return;
+        }
+
+        try
+        {
+            // 逆順にする
+            ords.OrderList.Reverse();
+
+            try
+            {
+                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                {
+                    foreach (var ord in ords.OrderList)
+                    {
+
+                        var found = Orders.FirstOrDefault(x => x.OrderID == ord.OrderID);
+                        if (found != null)
+                        {
+                            found.AveragePrice = ord.AveragePrice;
+                            found.OrderedAt = ord.OrderedAt;
+                            found.Pair = ord.Pair;
+                            found.Price = ord.Price;
+                            found.RemainingAmount = ord.RemainingAmount;
+                            found.ExecutedAmount = ord.ExecutedAmount;
+                            found.Side = ord.Side;
+                            found.StartAmount = ord.StartAmount;
+                            found.Type = ord.Type;
+                            found.Status = ord.Status;
+
+                            // 現在値のセット
+                            // 投資金額
+                            if (found.Type == "limit")
+                            {
+                                found.ActualPrice = (ord.Price * ord.StartAmount);
+                                // 一部約定の時は考えない？
+                            }
+                            else
+                            {
+                                found.ActualPrice = (ord.AveragePrice * ord.StartAmount);
+                            }
+
+                            // 現在値との差額
+                            if ((found.Status == "UNFILLED") || (found.Status == "PARTIALLY_FILLED"))
+                            {
+                                found.Shushi = (ord.Price - _ltp);
+                            }
+                            else
+                            {
+                                // 約定済みなので
+                                found.Shushi = 0;
+                            }
+                        }
+                        else
+                        {
+                            // 現在値のセット
+                            // 投資金額
+                            if (ord.Type == "limit")
+                            {
+                                ord.ActualPrice = (ord.Price * ord.StartAmount);
+                            }
+                            else
+                            {
+                                ord.ActualPrice = (ord.AveragePrice * ord.StartAmount);
+                            }
+
+                            // 現在値との差額
+                            if ((ord.Status == "UNFILLED") || (ord.Status == "PARTIALLY_FILLED"))
+                            {
+                                //ord.Shushi = ((_ltp - ord.Price));
+                                ord.Shushi = (ord.Price - _ltp);
+
+                                // リスト追加
+                                Orders.Insert(0, ord);
+                            }
+                            else
+                            {
+                                // 約定済みなので
+                                //ord.Shushi = 0;
+
+                                // 追加しない。
+                            }
+
+                        }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderList: Exception - " + ex.Message);
+
+            }
+
+
+            // 返ってきた注文リストに存在しない注文リスト
+            var lst = new List<ulong>();
+
+            // 返ってきた注文リストに存在しない注文を抽出
+            try
+            {
+                foreach (var ors in Orders)
+                {
+                    var found = ords.OrderList.FirstOrDefault(x => x.OrderID == ors.OrderID);
+                    if (found == null)
+                    {
+                        if (string.IsNullOrEmpty(ors.Status) || (ors.Status == "UNFILLED") || (ors.Status == "PARTIALLY_FILLED"))
+                        {
+                            //if ( (ors.Status != "FULLY_FILLED") || (ors.Status != "CANCELED_UNFILLED") || (ors.Status != "CANCELED_PARTIALLY_FILLED")) { 
+                            lst.Add(ors.OrderID);
+                        }
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderList lst: Exception - " + ex.Message);
+            }
+
+            // 注文リスト更新
+            if (lst.Count > 0)
+            {
+                // リストのリスト（小分けにして分割取得用）
+                var ListOfList = new List<List<ulong>>();
+
+                // GetOrderListByIDs 40015 数が多いとエラーになるので、小分けにして。
+                var temp = new List<ulong>();
+                var c = 0;
+
+                for (var i = 0; i < lst.Count; i++)
+                {
+
+                    temp.Add(lst[c]);
+
+                    if (temp.Count == 5)
+                    {
+                        ListOfList.Add(temp);
+
+                        temp = [];
+                    }
+
+                    if (c == lst.Count - 1)
+                    {
+                        if (temp.Count > 0)
+                        {
+                            ListOfList.Add(temp);
+                        }
+
+                        break;
+                    }
+
+                    c += 1;
+                }
+
+                foreach (var list in ListOfList)
+                {
+                    // 最新の注文情報をゲット
+                    Orders? oup = await MainViewModel.PriOrdersApi.GetOrderListByIDs(MainViewModel.OrdersApiKey, MainViewModel.OrdersSecret, PairCode.ToString(), list);
+                    if (oup != null)
+                    {
+                        // 注文をアップデート
+                        foreach (var ord in oup.OrderList)
+                        {
+                            App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                            {
+                                try
+                                {
+                                    var found = Orders.FirstOrDefault(x => x.OrderID == ord.OrderID);
+                                    if (found != null)
+                                    {
+                                        var i = Orders.IndexOf(found);
+                                        if (i > -1)
+                                        {
+                                            Orders[i].Status = ord.Status;
+                                            Orders[i].AveragePrice = ord.AveragePrice;
+                                            Orders[i].OrderedAt = ord.OrderedAt;
+                                            Orders[i].Type = ord.Type;
+                                            Orders[i].StartAmount = ord.StartAmount;
+                                            Orders[i].RemainingAmount = ord.RemainingAmount;
+                                            Orders[i].ExecutedAmount = ord.ExecutedAmount;
+                                            Orders[i].Price = ord.Price;
+                                            Orders[i].AveragePrice = ord.AveragePrice;
+
+
+                                            // 現在値のセット
+                                            // 投資金額
+                                            if (Orders[i].Type == "limit")
+                                            {
+                                                Orders[i].ActualPrice = (ord.Price * ord.StartAmount);
+                                            }
+                                            else
+                                            {
+                                                Orders[i].ActualPrice = (ord.AveragePrice * ord.StartAmount);
+                                            }
+
+                                            // 現在値との差額
+                                            if ((Orders[i].Status == "UNFILLED") || (Orders[i].Status == "PARTIALLY_FILLED"))
+                                            {
+                                                Orders[i].Shushi = ((_ltp - ord.Price));
+                                            }
+                                            else
+                                            {
+                                                // 約定済みなので
+                                                //orders[i].Shushi = 0;
+
+                                                // 約定済みは単に削除
+                                                Orders.Remove(Orders[i]);
+
+                                            }
+
+                                        }
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    System.Diagnostics.Debug.WriteLine("■■■■■ Order oup: Exception - " + ex.Message);
+
+                                }
+                            });
+
+                            await Task.Delay(400);
+                        }
+                    }
+                }
+            }
+
+
+        }
+        catch (Exception e)
+        {
+            System.Diagnostics.Debug.WriteLine("■■■■■ GetOrders Exception: " + e);
+
+            return;
+        }
+
+
+    }
+
+    #endregion
+
     #region == Assets ==
 
     private void TickerTimerAssets(object? source, object e)
@@ -2157,15 +2621,15 @@ public partial class PairViewModel : ObservableRecipient
 
         if (MainViewModel.AssetsApiKeyIsSet == false)
         {
-            // TODO show message?
+            // TODO: show message?
             System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets: (AssetsApiKeyIsSet == false)");
             return false;
         }
 
         try
         {
-            // TODO AssetsResult
-            var asts = await MainViewModel.PriApi.GetAssetList(MainViewModel.AssetsApiKey, MainViewModel.AssetsSecret);
+            // TODO: Use AssetsResult
+            var asts = await MainViewModel.PriAssetsApi.GetAssetList(MainViewModel.AssetsApiKey, MainViewModel.AssetsSecret);
 
             if (asts != null)
             {
@@ -2721,7 +3185,6 @@ public partial class PairViewModel : ObservableRecipient
         }
 
     }
-
 
     #endregion
 

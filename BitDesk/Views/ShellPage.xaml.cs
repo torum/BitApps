@@ -164,7 +164,7 @@ public sealed partial class ShellPage : Page
                 var keys = xdoc.Root.Element("APIKeys");
                 if (keys != null)
                 {
-                    var key = keys.Element("Asset");
+                    var key = keys.Element("Assets");
 
                     if (key != null)
                     {
@@ -183,6 +183,52 @@ public sealed partial class ShellPage : Page
                             if (!string.IsNullOrEmpty(xvalue.Value))
                             {
                                 MainViewModel.AssetsSecret = xvalue.Value;
+                            }
+                        }
+                    }
+
+                    key = keys.Element("Orders");
+
+                    if (key != null)
+                    {
+                        var xvalue = key.Attribute("Key");
+                        if (xvalue != null)
+                        {
+                            if (!string.IsNullOrEmpty(xvalue.Value))
+                            {
+                                MainViewModel.OrdersApiKey = xvalue.Value;
+                            }
+                        }
+
+                        xvalue = key.Attribute("Secret");
+                        if (xvalue != null)
+                        {
+                            if (!string.IsNullOrEmpty(xvalue.Value))
+                            {
+                                MainViewModel.OrdersSecret = xvalue.Value;
+                            }
+                        }
+                    }
+
+                    key = keys.Element("TradeHistory");
+
+                    if (key != null)
+                    {
+                        var xvalue = key.Attribute("Key");
+                        if (xvalue != null)
+                        {
+                            if (!string.IsNullOrEmpty(xvalue.Value))
+                            {
+                                MainViewModel.TradeHistoryApiKey = xvalue.Value;
+                            }
+                        }
+
+                        xvalue = key.Attribute("Secret");
+                        if (xvalue != null)
+                        {
+                            if (!string.IsNullOrEmpty(xvalue.Value))
+                            {
+                                MainViewModel.TradeHistorySecret = xvalue.Value;
                             }
                         }
                     }
@@ -540,7 +586,8 @@ public sealed partial class ShellPage : Page
 
         // API Keys
         var xAPIKeys = doc.CreateElement(string.Empty, "APIKeys", string.Empty);
-        var xAsset = doc.CreateElement(string.Empty, "Asset", string.Empty);
+
+        var xAsset = doc.CreateElement(string.Empty, "Assets", string.Empty);
 
         attrs = doc.CreateAttribute("Key");
         attrs.Value = MainViewModel.AssetsApiKey;
@@ -551,6 +598,30 @@ public sealed partial class ShellPage : Page
         xAsset.SetAttributeNode(attrs);
 
         xAPIKeys.AppendChild(xAsset);
+
+        var xOrder = doc.CreateElement(string.Empty, "Orders", string.Empty);
+
+        attrs = doc.CreateAttribute("Key");
+        attrs.Value = MainViewModel.OrdersApiKey;
+        xOrder.SetAttributeNode(attrs);
+
+        attrs = doc.CreateAttribute("Secret");
+        attrs.Value = MainViewModel.OrdersSecret;
+        xOrder.SetAttributeNode(attrs);
+
+        xAPIKeys.AppendChild(xOrder);
+
+        var xTradeHistory = doc.CreateElement(string.Empty, "TradeHistory", string.Empty);
+
+        attrs = doc.CreateAttribute("Key");
+        attrs.Value = MainViewModel.TradeHistoryApiKey;
+        xTradeHistory.SetAttributeNode(attrs);
+
+        attrs = doc.CreateAttribute("Secret");
+        attrs.Value = MainViewModel.TradeHistorySecret;
+        xTradeHistory.SetAttributeNode(attrs);
+
+        xAPIKeys.AppendChild(xTradeHistory);
 
         root.AppendChild(xAPIKeys);
 

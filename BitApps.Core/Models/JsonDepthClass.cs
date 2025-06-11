@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace BitDesk.Models;
+namespace BitApps.Core.Models;
 
 public partial class JsonDepthObject
 {

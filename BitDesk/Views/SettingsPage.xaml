@@ -194,21 +194,35 @@
                             </RichTextBlock>
 
 
-                            <StackPanel Margin="0,20,24,0" Spacing="4">
+                            <StackPanel Margin="0,20,24,0" Spacing="8">
 
-                                <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,0,6">
+                                <!-- Api Keys -->
+                                <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,24,0,0">
                                     <TextBlock Text="保有資産情報の取得用：" FontWeight="SemiBold"></TextBlock>
                                     <TextBlock Text="権限"></TextBlock>
                                     <TextBlock VerticalAlignment="Center"><Run Foreground="Orange" FontWeight="Bold">[参照]</Run></TextBlock>
                                 </StackPanel>
-
                                 <TextBox Header="APIキー：" Text="{x:Bind ViewModel.AssetsApiKey, Mode=TwoWay}"></TextBox>
-                                <!-- AssetsApiKey -->
-
                                 <TextBox Header="APIシークレット：" Text="{x:Bind ViewModel.AssetsSecret, Mode=TwoWay}"></TextBox>
-                                <!--  Text="{Binding AssetsApiSecret}" -->
+
+                                <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,24,0,0">
+                                    <TextBlock Text="注文情報の取得用：" FontWeight="SemiBold"></TextBlock>
+                                    <TextBlock Text="権限"></TextBlock>
+                                    <TextBlock VerticalAlignment="Center"><Run Foreground="Orange" FontWeight="Bold">[参照]</Run></TextBlock>
+                                </StackPanel>
+                                <TextBox Header="APIキー：" Text="{x:Bind ViewModel.OrdersApiKey, Mode=TwoWay}"></TextBox>
+                                <TextBox Header="APIシークレット：" Text="{x:Bind ViewModel.OrdersSecret, Mode=TwoWay}"></TextBox>
+
+                                <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,24,0,0">
+                                    <TextBlock Text="約定履歴の取得用：" FontWeight="SemiBold"></TextBlock>
+                                    <TextBlock Text="権限"></TextBlock>
+                                    <TextBlock VerticalAlignment="Center"><Run Foreground="Orange" FontWeight="Bold">[参照]</Run></TextBlock>
+                                </StackPanel>
+                                <TextBox Header="APIキー：" Text="{x:Bind ViewModel.TradeHistoryApiKey, Mode=TwoWay}"></TextBox>
+                                <TextBox Header="APIシークレット：" Text="{x:Bind ViewModel.TradeHistorySecret, Mode=TwoWay}"></TextBox>
 
                             </StackPanel>
+                            
                         </StackPanel>
                         
                     </ScrollViewer>

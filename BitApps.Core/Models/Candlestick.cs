@@ -73,7 +73,7 @@ public class CandlestickResult
 
     public CandlestickResult()
     {
-        Candlesticks = new List<Ohlcv>();
+        Candlesticks = [];
     }
 }
 
