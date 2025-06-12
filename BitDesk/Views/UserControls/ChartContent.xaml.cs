@@ -77,12 +77,12 @@ public sealed partial class ChartContent : UserControl
 
     private void DoScroll()
     {
-        if (this.DepthListBox.Items.Count > 0)
+        if (DepthListBox.Items.Count > 0)
         {
             try
             {
                 // ListBox‚©‚çAutomationPeer‚ðŽæ“¾
-                var peer = ItemsControlAutomationPeer.CreatePeerForElement(this.DepthListBox);
+                var peer = ItemsControlAutomationPeer.CreatePeerForElement(DepthListBox);
                 // GetPattern‚ÅIScrollProvider‚ðŽæ“¾
 
                 if (peer.GetPattern(Microsoft.UI.Xaml.Automation.Peers.PatternInterface.Scroll) is IScrollProvider scrollProvider)

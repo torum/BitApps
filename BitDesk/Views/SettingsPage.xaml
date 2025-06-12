@@ -194,7 +194,7 @@
                             </RichTextBlock>
 
 
-                            <StackPanel Margin="0,20,24,0" Spacing="8">
+                            <StackPanel Margin="0,20,24,24" Spacing="8">
 
                                 <!-- Api Keys -->
                                 <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,24,0,0">

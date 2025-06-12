@@ -246,7 +246,7 @@ public partial class Order : ViewModelBase
     private decimal _actualPrice;
     public decimal ActualPrice
     {
-        get => _actualPrice;
+        get => Math.Floor((_actualPrice * 10000M)) / 10000M;//_actualPrice;
         set
         {
             if (_actualPrice == value)

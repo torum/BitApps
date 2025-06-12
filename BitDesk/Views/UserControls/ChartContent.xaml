@@ -70,13 +70,13 @@
             <model:DepthListItemTemplateSelector x:Key="DepthListItemTemplateSelector" LtpTemplate="{StaticResource LtpTemplate}" BidOrAskTemplate="{StaticResource BidOrAskTemplate}" />
 
             <Style x:Key="PrivatePanelStyle" TargetType="StackPanel">
-                <Setter Property="CornerRadius" Value="8" />
-                <Setter Property="Padding" Value="4" />
+                <Setter Property="CornerRadius" Value="3" />
+                <Setter Property="Padding" Value="0" />
                 <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}" />
-                <Setter Property="BorderThickness" Value="1" />
+                <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}" />
                 <Setter Property="Orientation" Value="Horizontal" />
-                <Setter Property="Spacing" Value="4" />
+                <Setter Property="Spacing" Value="0" />
                 <Setter Property="animations:Implicit.HideAnimations" Value="{StaticResource ShowTransitions}" />
             </Style>
 
@@ -165,8 +165,10 @@
 
         </VisualStateManager.VisualStateGroups>
 
+        <!-- Main SplitView -->
         <SplitView x:Name="SplitViewControl" Grid.Row="0" Grid.Column="0" Margin="0" BorderThickness="1,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}" PaneBackground="Transparent" IsPaneOpen="{x:Bind Path=PairViewModel.IsPaneVisible, Mode=TwoWay}" PanePlacement="Right" OpenPaneLength="280" CompactPaneLength="0" DisplayMode="CompactInline">
             
+            <!-- Depth and Transactions -->
             <SplitView.Pane>
                 <Grid Margin="6,6,0,0">
                     <Grid.RowDefinitions>
@@ -248,6 +250,7 @@
                 </Grid>
             </SplitView.Pane>
 
+            <!-- Main Grid for Assets and Chart -->
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -258,12 +261,15 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel x:Name="SecondaryTitle" Grid.Row="0" Grid.Column="0" Margin="0" BorderThickness="0,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
+                <!-- Pair label and LTP -->
+                <StackPanel x:Name="SecondaryTitle" Grid.Row="0" Grid.Column="0" Margin="0" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Margin="12,12,0,0" Text="{x:Bind Path=PairViewModel.PairString, Mode=OneWay}" Style="{StaticResource BaseTextBlockStyle}"/>
 
                         <TextBlock Margin="12,12,0,0" Text="" Style="{StaticResource BaseTextBlockStyle}"/>
                         <TextBlock Margin="0,12,0,0" Text="{x:Bind Mode=OneWay, Path=PairViewModel.LtpString}" Style="{StaticResource BaseTextBlockStyle}"/>
+
+                        <TextBlock Margin="0,12,0,0" Style="{StaticResource BaseTextBlockStyle}" Text="{x:Bind PairViewModel.AssetCurrentEstimateAmountText, Mode=OneWay}"></TextBlock>
 
                         <TextBlock Text="-" Margin="12,12,0,0" Style="{StaticResource BaseTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}"></TextBlock>
 
@@ -282,7 +288,8 @@
                     </StackPanel>
                 </StackPanel>
 
-                <StackPanel Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
+                <!-- App Buttons for chart options and panel -->
+                <StackPanel Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
 
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right">
 
@@ -333,51 +340,60 @@
                     </StackPanel>
 
                 </StackPanel>
-
+                
+                <!-- Assets, Chart-->
                 <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="160"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <Grid Grid.Column="0" Margin="12,0,0,12" BorderThickness="0,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
+                    <!-- Assets -->
+                    <Grid Grid.Column="0" Margin="12,0,0,0" Padding="0,0,12,12" BorderThickness="0,0,1,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
 
-                        <StackPanel Grid.Row="0" Margin="0,12,0,0" Padding="0,0,0,8" Spacing="4" BorderThickness="0,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
+                        <!-- Order button -->
+                        <AppBarButton Grid.Row="0" Margin="0,8,0,0" Icon="Add" Label="Order" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" HorizontalAlignment="Left"/>
+
+                        <!-- Current Asset -->
+                        <StackPanel Grid.Row="1" Margin="0,12,0,0" Padding="0,0,0,8" Spacing="4" BorderThickness="0,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
                             <TextBlock Grid.Column="0" Style="{StaticResource BaseTextBlockStyle}" x:Uid="Pair_Asset"></TextBlock>
                             <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right">
                                 <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentName, Mode=OneWay}" Margin="0,0,6,0" Visibility="Collapsed"></TextBlock>
-                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentAmountText, Mode=OneWay}"></TextBlock>
+                                <TextBlock Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentAmountText, Mode=OneWay}"></TextBlock>
                             </StackPanel>
-                            <TextBlock Grid.Column="1" HorizontalAlignment="Right" Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetJPYAmountText, Mode=OneWay}"></TextBlock>
+
+                            <TextBlock Grid.Column="1" HorizontalAlignment="Right" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetJPYAmountText, Mode=OneWay}"></TextBlock>
                             <TextBlock Grid.Column="0" Style="{StaticResource BaseTextBlockStyle}" x:Uid="Pair_AssetAvailable"></TextBlock>
                             <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right">
                                 <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentName, Mode=OneWay}" Margin="0,0,6,0" Visibility="Collapsed"></TextBlock>
-                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentFreeAmountText, Mode=OneWay}"></TextBlock>
+                                <TextBlock Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentFreeAmountText, Mode=OneWay}"></TextBlock>
                             </StackPanel>
-                            <TextBlock Grid.Column="1" HorizontalAlignment="Right" Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetJPYFreeAmountText, Mode=OneWay}"></TextBlock>
+                            <TextBlock Grid.Column="1" HorizontalAlignment="Right" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetJPYFreeAmountText, Mode=OneWay}"></TextBlock>
                             <TextBlock Grid.Column="0" Style="{StaticResource BaseTextBlockStyle}" x:Uid="Pair_AssetOtherAssets"></TextBlock>
                         </StackPanel>
 
-                        <ListBox Width="148" Grid.Row="1" BorderThickness="0" ItemsSource="{x:Bind Path=PairViewModel.Assets, Mode=OneWay}" Background="Transparent" Margin="0" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                        <!-- Other Assets -->
+                        <ListBox Width="135" Grid.Row="2" BorderThickness="0" ItemsSource="{x:Bind Path=PairViewModel.Assets, Mode=OneWay}" Background="Transparent" Margin="0" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden">
                             <ListBox.ItemContainerStyle>
                                 <Style TargetType="ListBoxItem" BasedOn="{StaticResource DefaultListBoxItemStyle}">
                                     <Setter Property="Padding" Value="0,3,0,0"/>
-                                    <Setter Property="Height" Value="25"/>
+                                    <Setter Property="Height" Value="23"/>
                                     <Setter Property="IsEnabled" Value="False" />
                                     <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
-                                    <Setter Property="Width" Value="148"></Setter>
+                                    <Setter Property="Width" Value="135"></Setter>
                                 </Style>
                             </ListBox.ItemContainerStyle>
                             <ListBox.ItemTemplate>
                                 <DataTemplate x:DataType="localmodel:Asset">
-                                    <Grid Margin="0" HorizontalAlignment="Stretch" Width="148">
+                                    <Grid Margin="0" HorizontalAlignment="Stretch" Width="135">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="48" />
-                                            <ColumnDefinition Width="100" />
+                                            <ColumnDefinition Width="86" />
                                         </Grid.ColumnDefinitions>
 
                                         <TextBlock Grid.Column="0" x:Name="AssetName" Text="{x:Bind Name, Mode=OneWay}" Margin="0" Padding="0 0 0 0" HorizontalAlignment="Left">
@@ -398,6 +414,7 @@
 
                     </Grid>
 
+                    <!-- Chart -->
                     <lvc:CartesianChart x:Name="LiveChart"
                                         Margin="0,0,0,0"
                                         Grid.Column="1"
@@ -414,7 +431,7 @@
 
         </SplitView>
 
-        <!--  Row Grid Splitter  -->
+        <!-- Row Grid Splitter -->
         <controls:GridSplitter Grid.Row="1"
                                Height="12"
                                VerticalAlignment="Top">
@@ -423,6 +440,7 @@
             </controls:GridSplitter.RenderTransform>
         </controls:GridSplitter>
 
+        <!-- Active Orders, TradeHistory, Errors -->
         <Grid Grid.Row="1" Grid.Column="0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -442,6 +460,7 @@
             <controls:SwitchPresenter Grid.Row="1" Value="{Binding SelectedItem.Tag, ElementName=SegmentedControlBottom}">
                 <controls:Case Value="Orders">
 
+                    <!-- Orders -->
                     <ListView ItemsSource="{x:Bind Path=PairViewModel.Orders, Mode=OneWay}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                   ScrollViewer.VerticalScrollBarVisibility="Visible" animations:Implicit.HideAnimations="{StaticResource HideTransitions}"
                             animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}">
@@ -527,6 +546,7 @@
                 </controls:Case>
                 <controls:Case Value="History">
 
+                    <!-- TradeHistory  -->
                     <ListView ItemsSource="{x:Bind Path=PairViewModel.TradeHistories, Mode=OneWay}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                   ScrollViewer.VerticalScrollBarVisibility="Visible" animations:Implicit.HideAnimations="{StaticResource HideTransitions}"
                             animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}">
@@ -611,10 +631,10 @@
                         </ListView.ItemContainerStyle>
                     </ListView>
 
-
                 </controls:Case>
                 <controls:Case Value="Errors">
-
+                    
+                    <!-- Errors  -->
                     <StackPanel animations:Implicit.HideAnimations="{StaticResource HideTransitions}"
                             animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}"
                             Style="{StaticResource PrivatePanelStyle}">

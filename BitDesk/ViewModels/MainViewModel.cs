@@ -1429,8 +1429,7 @@ public partial class MainViewModel : ObservableRecipient
     {
         // TODO:
         //_pubTickerApi.ErrorOccured += new PrivateAPIClient.ClinetErrorEvent(OnError);
-        PriAssetsApi.ErrorOccured += new PrivateAPIClient.ClinetErrorEvent(OnError);
-        PriOrdersApi.ErrorOccured += new PrivateAPIClient.ClinetErrorEvent(OnError);
+
 
         GetTickers();
 
@@ -2144,28 +2143,6 @@ public partial class MainViewModel : ObservableRecipient
                 }
             }
         }
-    }
-
-    private void OnError(BaseClient sender, ClientError err)
-    {
-        if (err == null) { return; }
-        /*
-        // TODO
-        err.ErrPlaceParent = "";
-
-        _errors.Insert(0, err);
-
-        if (Application.Current == null) { return; }
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            // タブの「エラー（＊）」を更新
-            ErrorsCount = _errors.Count;
-
-        });
-
-        // ついでにAPI client からのエラーもログ保存の方に追加する。
-        mylogs.AddMyErrorLogs("ClientError: " + "Type " + err.ErrType + ", Error code " + err.ErrCode + ", Error path " + err.ErrPlace + ", Error text " + err.ErrText + ", Error description " + err.ErrEx + " - " + err.ErrDatetime.ToString());
-    */
     }
 
 }

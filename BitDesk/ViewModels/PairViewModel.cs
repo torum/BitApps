@@ -7,6 +7,7 @@ using BitApps.Core.Helpers;
 using BitApps.Core.Models;
 using BitApps.Core.Models.APIClients;
 using BitDesk.Models;
+using BitDesk.Models.APIClients;
 using CommunityToolkit.Mvvm.ComponentModel;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
@@ -144,6 +145,7 @@ public partial class PairViewModel : ObservableRecipient
 
             OnPropertyChanged(nameof(Ltp));
             OnPropertyChanged(nameof(LtpString));
+            OnPropertyChanged(nameof(AssetCurrentEstimateAmountText));
             /*
             if (_ltp > BasePrice)
             {
@@ -324,7 +326,7 @@ public partial class PairViewModel : ObservableRecipient
 
         }
     }
-    public string TickTimeStampString => _tickTimeStamp.ToLocalTime().ToString("G", System.Globalization.CultureInfo.CurrentUICulture);//"yyyy/MM/dd HH:mm:ss"
+    public string TickTimeStampString => _tickTimeStamp.ToLocalTime().ToString("HH:mm:ss");//("G", System.Globalization.CultureInfo.CurrentUICulture);//"yyyy/MM/dd HH:mm:ss"
 
     private readonly ObservableCollection<TickHistory> _tickHistory = [];
     public ObservableCollection<TickHistory> TickHistories => _tickHistory;
@@ -1101,12 +1103,31 @@ public partial class PairViewModel : ObservableRecipient
 
             _assetCurrentFreeAmount = value;
             OnPropertyChanged(nameof(AssetCurrentFreeAmount));
-
             OnPropertyChanged(nameof(AssetCurrentFreeAmountText));
         }
     }
 
     public string AssetCurrentFreeAmountText => AssetCurrentFreeAmount.ToString();
+
+    // 現在の通貨の時価評価額 (ティックから更新される)
+    private decimal _assetCurrentEstimateAmount;
+    public decimal AssetCurrentEstimateAmount
+    {
+        get => Math.Floor((_assetCurrentEstimateAmount * 10000M)) / 10000M;
+        set
+        {
+            if (_assetCurrentEstimateAmount == value)
+            {
+                return;
+            }
+
+            _assetCurrentEstimateAmount = value;
+            OnPropertyChanged(nameof(AssetCurrentEstimateAmount));
+            OnPropertyChanged(nameof(AssetCurrentEstimateAmountText));
+        }
+    }
+
+    public string AssetCurrentEstimateAmountText => "/"+AssetCurrentEstimateAmount.ToString("C0")+"";
 
     // 円資産名
     private string _assetJPYName = string.Empty;
@@ -1681,7 +1702,6 @@ public partial class PairViewModel : ObservableRecipient
 
         #region == Timers ==
 
-
         // Depth update timer
         _dispatcherTimerDepth.Tick += TickerTimerDepth;
         _dispatcherTimerDepth.Interval = new TimeSpan(0, 0, 2);
@@ -1718,6 +1738,9 @@ public partial class PairViewModel : ObservableRecipient
     public void InitializeAndLoad(MainViewModel vm)
     {
         MainViewModel = vm;
+
+        MainViewModel.PriAssetsApi.ErrorOccured += new PrivateAPIClient.ClinetErrorEvent(OnError);
+        MainViewModel.PriOrdersApi.ErrorOccured += new PrivateAPIClient.ClinetErrorEvent(OnError);
 
         if (IsChartInitAndLoaded) 
         {
@@ -2216,6 +2239,8 @@ public partial class PairViewModel : ObservableRecipient
 
     #endregion
 
+    #region == TradeHistory ==
+
     private void TickerTimerTradeHistory(object? source, object e)
     {
         if (!IsEnabled)
@@ -2317,6 +2342,7 @@ public partial class PairViewModel : ObservableRecipient
         }
     }
 
+    #endregion
 
     #region == Orders ==
 
@@ -2659,6 +2685,7 @@ public partial class PairViewModel : ObservableRecipient
                                     AssetCurrentName = ast.Name.ToUpper();
                                     AssetCurrentAmount = ast.Amount;
                                     AssetCurrentFreeAmount = ast.FreeAmount;
+                                    
                                 });
                             }
                             else
@@ -3133,10 +3160,45 @@ public partial class PairViewModel : ObservableRecipient
                         }
                     }
 
-                    //APIResultAssets = "";
                     App.CurrentDispatcherQueue?.TryEnqueue(() =>
                     {
-                        Assets = newAssets;
+                        AssetCurrentEstimateAmount = AssetCurrentAmount * _ltp;
+                    });
+                    
+
+                    App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                    {
+                        //Assets = newAssets;
+                        foreach (var ors in newAssets)
+                        {
+                            var found = Assets.FirstOrDefault(x => x.Name == ors.Name); 
+                            if (found != null)
+                            {
+                                found = ors;
+                            }
+                            else
+                            {
+                                Assets.Add(ors);
+                            }
+                        }
+                        var lst = new List<Asset>();
+                        foreach (var ors in Assets)
+                        {
+                            var found = newAssets.FirstOrDefault(x => x.Name == ors.Name);
+                            if (found == null)
+                            {
+                                lst.Add(ors);
+                            }
+                        }
+
+                        foreach (var ff in lst)
+                        {
+                            var found = Assets.FirstOrDefault(x => x.Name == ff.Name);
+                            if (found != null)
+                            {
+                                Assets.Remove(ff);
+                            }
+                        }
                     });
 
                     //await Task.Delay(1000);
@@ -3576,4 +3638,28 @@ while (true)
     }
 
     #endregion
+
+
+    private void OnError(BaseClient sender, ClientError err)
+    {
+        if (err == null) { return; }
+        /*
+        // TODO
+        err.ErrPlaceParent = "";
+
+        _errors.Insert(0, err);
+
+        if (Application.Current == null) { return; }
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            // タブの「エラー（＊）」を更新
+            ErrorsCount = _errors.Count;
+
+        });
+
+        // ついでにAPI client からのエラーもログ保存の方に追加する。
+        mylogs.AddMyErrorLogs("ClientError: " + "Type " + err.ErrType + ", Error code " + err.ErrCode + ", Error path " + err.ErrPlace + ", Error text " + err.ErrText + ", Error description " + err.ErrEx + " - " + err.ErrDatetime.ToString());
+    */
+    }
+
 }

@@ -18,7 +18,7 @@ using LiveChartsCore.Kernel;
 
 namespace BitWallpaper.ViewModels;
 
-public class PairViewModel : ViewModelBase
+public partial class PairViewModel : ViewModelBase
 {
     #region == Main properties ==
 
@@ -291,7 +291,7 @@ public class PairViewModel : ViewModelBase
     }
     public string TickTimeStampString => _tickTimeStamp.ToLocalTime().ToString("G", System.Globalization.CultureInfo.CurrentUICulture);//"yyyy/MM/dd HH:mm:ss"
 
-    private readonly ObservableCollection<TickHistory> _tickHistory = new();
+    private readonly ObservableCollection<TickHistory> _tickHistory = [];
     public ObservableCollection<TickHistory> TickHistories => _tickHistory;
 
     #endregion
@@ -1009,7 +1009,7 @@ public class PairViewModel : ViewModelBase
 
     #region == Depth and Transaction ==
 
-    private ObservableCollection<Transaction> _transactions = new();
+    private ObservableCollection<Transaction> _transactions = [];
     public ObservableCollection<Transaction> Transactions
     {
         get => _transactions;
@@ -1025,7 +1025,7 @@ public class PairViewModel : ViewModelBase
         }
     }
 
-    private ObservableCollection<Depth> _depth = new();
+    private ObservableCollection<Depth> _depth = [];
     public ObservableCollection<Depth> Depth
     {
         get => _depth;
@@ -1183,7 +1183,7 @@ public class PairViewModel : ViewModelBase
     #region == Charts ==
 
     public Section<LiveChartsCore.SkiaSharpView.Drawing.SkiaSharpDrawingContext>[] Sections { get; set; } =
-    {
+    [
         new RectangularSection
         {
             Yi = 1,
@@ -1196,10 +1196,10 @@ public class PairViewModel : ViewModelBase
                 //PathEffect = new DashEffect(new float[] { 6, 6 })
             }
         }
-    };
+    ];
 
     public ICartesianAxis[] XAxes {get; set;} =
-    {
+    [
         new Axis()
         {
             TextSize = 12.5,
@@ -1210,16 +1210,16 @@ public class PairViewModel : ViewModelBase
             //MinStep = TimeSpan.FromDays(1).Ticks,
             MaxLimit = null,
             MinLimit= DateTime.Now.Ticks - TimeSpan.FromDays(2.8).Ticks,
-            SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray.WithAlpha(80)) { StrokeThickness = 1,PathEffect = new DashEffect(new float[] { 3, 3 }) }
+            SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray.WithAlpha(80)) { StrokeThickness = 1,PathEffect = new DashEffect([3, 3]) }
         }
-    };
+    ];
 
     public ICartesianAxis[] YAxes
     {
         get; set;
 
     } =
-        {
+        [
         new Axis()
             {
                 LabelsRotation = 0,
@@ -1238,16 +1238,16 @@ public class PairViewModel : ViewModelBase
                 SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray.WithAlpha(80))
                             {
                                 StrokeThickness = 1,
-                                PathEffect = new DashEffect(new float[] { 3, 3 })
+                                PathEffect = new DashEffect([3, 3])
                             },
                 //Labeler = Labelers.Currency,
                 //Labeler = (value) => value.ToString("C", new System.Globalization.CultureInfo("ja-Jp")),
                 Labeler = (value) => value.ToString("N", new CultureInfo("ja-Jp")),
             }
-    };
+    ];
 
     private ISeries[] _series =
-    {
+    [
         new ColumnSeries<DateTimePoint>
         {
             Name = "Depth",
@@ -1274,7 +1274,7 @@ public class PairViewModel : ViewModelBase
                 //new(DateTime.Now, 100, 0, 0, 0)
             }
         }
-    };
+    ];
     public ISeries[] Series
     {
         get => _series;
@@ -1777,7 +1777,7 @@ public class PairViewModel : ViewModelBase
 
     private async Task<List<Ohlcv>?> GetCandlesticks(PairCodes pair, CandleTypes ct)
     {
-        List<Ohlcv>? OhlcvList = new();
+        List<Ohlcv>? OhlcvList = [];
 
         //Debug.WriteLine("チャートデータを取得中.... " + pair.ToString());
 
@@ -1879,7 +1879,7 @@ public class PairViewModel : ViewModelBase
 
                     foreach (var r in responseOhlcvList)
                     {
-                        OhlcvList ??= new List<Ohlcv>();
+                        OhlcvList ??= [];
                         OhlcvList.Add(r);
                     }
                 }
@@ -2276,7 +2276,7 @@ while (true)
     #endregion
 
     #region == Transaction ==
-
+    /*
     private void TickerTimerTransaction(object? source, object e)
     {
         if (!IsEnabled)
@@ -2299,29 +2299,7 @@ while (true)
         {
             await GetTransactions(PairCode);
         }
-        /*
-while (true)
-{
-   if ((IsSelectedActive == false) || (IsPaneVisible == false) || (IsEnabled == false))
-   {
-       await Task.Delay(2000);
-       continue;
-   }
-   else
-   {
-       try
-       {
-           await GetTransactions(this.PairCode);
-       }
-       catch (Exception e)
-       {
-           Debug.WriteLine("■■■■■ UpdateTransactions Exception: " + e);
-       }
-   }
 
-   await Task.Delay(2000);
-}
-*/
     }
 
     private async Task<bool> GetTransactions(PairCodes pair)
@@ -2382,7 +2360,7 @@ while (true)
             return false;
         }
     }
-
+    */
     #endregion
 
     #region == Commands ==

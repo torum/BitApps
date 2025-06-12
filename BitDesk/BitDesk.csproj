@@ -301,18 +301,36 @@
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <Optimize>False</Optimize>
+    <NoWarn>NU1701;</NoWarn>
+    <WarningsAsErrors>NU1701</WarningsAsErrors>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Optimize>False</Optimize>
+    <NoWarn>NU1701;</NoWarn>
+    <WarningsAsErrors>NU1701</WarningsAsErrors>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <Optimize>True</Optimize>
+    <NoWarn>NU1701;</NoWarn>
+    <WarningsAsErrors>NU1701</WarningsAsErrors>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Optimize>True</Optimize>
+    <NoWarn>NU1701;</NoWarn>
+    <WarningsAsErrors>NU1701</WarningsAsErrors>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
+    <NoWarn>NU1701;</NoWarn>
+    <WarningsAsErrors>NU1701</WarningsAsErrors>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
+    <NoWarn>NU1701;</NoWarn>
+    <WarningsAsErrors>NU1701</WarningsAsErrors>
   </PropertyGroup>
 
   <Target Name="_RemoveFrameworkReferences" BeforeTargets="_ConvertItems;_CalculateInputsForGenerateCurrentProjectAppxManifest">

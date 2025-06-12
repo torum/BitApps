@@ -9,7 +9,6 @@ namespace BitWallpaper.Views;
 
 public sealed partial class MainWindow : WinUIEx.WindowEx
 {
-
     public MainWindow()
     {
         try
