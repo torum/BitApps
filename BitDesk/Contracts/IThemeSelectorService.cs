@@ -1,6 +1,6 @@
 ﻿using Microsoft.UI.Xaml;
 
-namespace BitDesk.Contracts.Services;
+namespace BitDesk.Contracts;
 
 public interface IThemeSelectorService
 {

@@ -1,4 +1,4 @@
-﻿using BitDesk.Contracts.Services;
+﻿using BitDesk.Contracts;
 using BitApps.Core.Helpers;
 
 using Microsoft.UI.Xaml;
@@ -45,7 +45,10 @@ public class ThemeSelectorService : IThemeSelectorService
         await Task.CompletedTask;
     }
 
+#pragma warning disable IDE0079 // 不要な抑制を削除します
+#pragma warning disable CA1822 // メンバーを static に設定します
     private ElementTheme LoadThemeFromSettingsAsync()
+
     {
         /*
         var themeName = await _localSettingsService.ReadSettingAsync<string>(SettingsKey);
@@ -82,4 +85,6 @@ public class ThemeSelectorService : IThemeSelectorService
 
         await Task.CompletedTask;
     }
+#pragma warning restore CA1822 // メンバーを static に設定します
+#pragma warning restore IDE0079 // 不要な抑制を削除します
 }

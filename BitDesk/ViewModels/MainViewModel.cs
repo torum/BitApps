@@ -82,7 +82,6 @@ public partial class MainViewModel : ObservableRecipient
         }
     }
 
-
     public ICommand SwitchThemeCommand
     {
         get; private set;
@@ -1429,7 +1428,6 @@ public partial class MainViewModel : ObservableRecipient
     {
         // TODO:
         //_pubTickerApi.ErrorOccured += new PrivateAPIClient.ClinetErrorEvent(OnError);
-
 
         GetTickers();
 

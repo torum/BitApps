@@ -20,8 +20,8 @@ public sealed partial class MainShell : Page
         get;
     }
 
-    private readonly List<(string Tag, Type Page)> _pages = new()
-    {
+    private readonly List<(string Tag, Type Page)> _pages =
+    [
         (PairCodes.btc_jpy.ToString(), typeof(BtcJpyPage)),
         (PairCodes.xrp_jpy.ToString(), typeof(XrpJpyPage)),
         (PairCodes.eth_jpy.ToString(), typeof(EthJpyPage)),
@@ -47,7 +47,7 @@ public sealed partial class MainShell : Page
         (PairCodes.flr_jpy.ToString(), typeof(FlrJpyPage)),
         (PairCodes.sand_jpy.ToString(), typeof(SandJpyPage)),
         ("settings", typeof(SettingsPage)),
-    };
+    ];
     /*
     private string _envDataFolder = System.Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
     private string _appDataFolder;

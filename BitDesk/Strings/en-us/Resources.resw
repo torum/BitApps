@@ -291,11 +291,12 @@
   <data name="Shell_XymJpy.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Symbol (XYM/JPY)</value>
   </data>
-  <data name="TabHeader_History.Content" xml:space="preserve">
-    <value>History</value>
+  <data name="TabHeader_Transactions.Content" xml:space="preserve">
+    <value>Transactions</value>
+    <comment>歩み値</comment>
   </data>
-  <data name="TabHeader_Orders.Content" xml:space="preserve">
-    <value>Orders</value>
+  <data name="TabHeader_OrderBook.Content" xml:space="preserve">
+    <value>Order Book</value>
   </data>
   <data name="TabHeader_Errors.Content" xml:space="preserve">
     <value>Errors</value>
@@ -377,5 +378,11 @@
   </data>
   <data name="ListView_TradeHistory_FeeOccurredAmountQuote.Text" xml:space="preserve">
     <value>実現手数料</value>
+  </data>
+  <data name="TabHeader_ActiveOrders.Content" xml:space="preserve">
+    <value>Active Orders</value>
+  </data>
+  <data name="TabHeader_History.Content" xml:space="preserve">
+    <value>History</value>
   </data>
 </root>

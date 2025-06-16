@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json.Nodes;
-using BitDesk.Contracts.Services;
+using BitDesk.Contracts;
 using BitDesk.Services;
 using BitDesk.ViewModels;
 using BitDesk.Views;
@@ -63,11 +63,14 @@ public partial class App : Application
         {
             // Services
             services.AddSingleton<IThemeSelectorService, ThemeSelectorService>();
+            services.AddSingleton<IModalDialogService, ModalDialogService>();
 
             // Views and ViewModels
             services.AddSingleton<SettingsPage>();
             services.AddSingleton<MainViewModel>();
             services.AddSingleton<ShellPage>();
+
+            //services.AddTransient<PairViewModel>();
         }).
         Build();
 

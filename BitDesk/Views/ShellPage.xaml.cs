@@ -1,4 +1,4 @@
-﻿using BitDesk.Contracts.Services;
+﻿using BitDesk.Contracts;
 using BitApps.Core.Helpers;
 using BitDesk.ViewModels;
 using Microsoft.UI.Xaml;

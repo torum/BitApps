@@ -54,26 +54,32 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
     <AppxBundle>Always</AppxBundle>
     <DefaultLanguage>en-US</DefaultLanguage>
+	  <NoWarn>NU1701;</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <AppxBundle>Always</AppxBundle>
     <DefaultLanguage>en-US</DefaultLanguage>
+	  <NoWarn>NU1701;</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
     <AppxBundle>Always</AppxBundle>
     <DefaultLanguage>en-US</DefaultLanguage>
+	  <NoWarn>NU1701;</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <AppxBundle>Always</AppxBundle>
     <DefaultLanguage>en-US</DefaultLanguage>
+	  <NoWarn>NU1701;</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
     <AppxBundle>Always</AppxBundle>
     <DefaultLanguage>en-US</DefaultLanguage>
+	  <NoWarn>NU1701;</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <AppxBundle>Always</AppxBundle>
     <DefaultLanguage>en-US</DefaultLanguage>
+	  <NoWarn>NU1701;</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

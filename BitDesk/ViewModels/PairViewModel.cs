@@ -6,15 +6,19 @@ using System.Windows.Input;
 using BitApps.Core.Helpers;
 using BitApps.Core.Models;
 using BitApps.Core.Models.APIClients;
+using BitDesk.Contracts;
 using BitDesk.Models;
 using BitDesk.Models.APIClients;
+using BitDesk.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.Kernel.Sketches;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using LiveChartsCore.SkiaSharpView.Painting.Effects;
+using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using SkiaSharp;
@@ -1127,7 +1131,7 @@ public partial class PairViewModel : ObservableRecipient
         }
     }
 
-    public string AssetCurrentEstimateAmountText => "/"+AssetCurrentEstimateAmount.ToString("C0")+"";
+    public string AssetCurrentEstimateAmountText => AssetCurrentEstimateAmount.ToString("C0")+"";
 
     // 円資産名
     private string _assetJPYName = string.Empty;
@@ -1677,12 +1681,23 @@ public partial class PairViewModel : ObservableRecipient
 
     private DateTime lastChartLoadedDateTime= DateTime.MinValue;
 
+    #region == Commands ==
+
     public delegate void DepthCenterEventHandler();
     public event DepthCenterEventHandler? DepthScrollCenter;
+
+    //public event EventHandler? EventShowNewModal;
+
+    #endregion
+
+
+    private readonly IModalDialogService _dlg;
 
     // 
     public PairViewModel(PairCodes p, double fontSize, string ltpFormstString, string currencyFormstString, decimal grouping100, decimal grouping1000)
     {
+        _dlg = App.GetService<IModalDialogService>();
+
         _p = p;
         _ltpFontSize = fontSize;
         _ltpFormstString = ltpFormstString;
@@ -1691,12 +1706,10 @@ public partial class PairViewModel : ObservableRecipient
         _depthGrouping100 = grouping100;
         _depthGrouping1000 = grouping1000;
 
+
         #region == RelayCommands ==
 
-        //TogglePaneVisibilityCommand = new RelayCommand(new Action(TogglePaneVisibility), CanExecuteTogglePaneVisibilityCommand);
-        TogglePaneVisibilityCommand = new RelayCommand(TogglePaneVisibilityCommand_Execute, TogglePaneVisibilityCommand_CanExecute);
         ChangeCandleTypeCommand = new GenericRelayCommand<CandleTypes>(param => ChangeCandleTypeCommand_Execute(param), param => ChangeCandleTypeCommand_CanExecute());
-        //TogglePairVisibilityCommand = new GenericRelayCommand<PairCodes>(param => TogglePairVisibilityCommand_Execute(param), param => TogglePairVisibilityCommand_CanExecute());
 
         #endregion
 
@@ -3616,13 +3629,9 @@ while (true)
 
     #region == Commands ==
 
-    public RelayCommand TogglePaneVisibilityCommand { get; private set; }
-    private bool TogglePaneVisibilityCommand_CanExecute()
-    {
-        return true;
-    }
-
-    public void TogglePaneVisibilityCommand_Execute()
+    private RelayCommand? togglePaneVisibilityCommand;
+    public IRelayCommand TogglePaneVisibilityCommand => togglePaneVisibilityCommand ??= new RelayCommand(TogglePaneVisibility);
+    public void TogglePaneVisibility()
     {
         IsPaneVisible = !IsPaneVisible;
     }
@@ -3637,8 +3646,30 @@ while (true)
         ChangeCandleType(candleType);
     }
 
-    #endregion
+    // Show New Modal window command
+    private RelayCommand? showNewModalCommand;
+    public IRelayCommand ShowNewModalCommand => showNewModalCommand ??= new RelayCommand(ShowNewModal);
+    private void ShowNewModal()
+    {
+        Debug.WriteLine("ShowNewModal command executed.");
+        //EventShowNewModal?.Invoke(this, EventArgs.Empty);
+        _dlg.ShowOrderDialog(this);
+        /*
+        _dlg.Test().ContinueWith(result =>
+        {
+            if (result.Result)
+            {
+                Debug.WriteLine("Modal dialog closed successfully.");
+            }
+            else
+            {
+                Debug.WriteLine("Modal dialog was not closed successfully.");
+            }
+        });
+        */
+    }
 
+    #endregion
 
     private void OnError(BaseClient sender, ClientError err)
     {

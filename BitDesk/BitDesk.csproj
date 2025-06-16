@@ -71,6 +71,8 @@
     <None Remove="Views\LtcJpyPage.xaml" />
     <None Remove="Views\MaticJpyPage.xaml" />
     <None Remove="Views\MkrJpyPage.xaml" />
+    <None Remove="Views\Modal\ModalShell.xaml" />
+    <None Remove="Views\Modal\ModalWindow.xaml" />
     <None Remove="Views\MonaJpyPage.xaml" />
     <None Remove="Views\OmgJpyPage.xaml" />
     <None Remove="Views\QtumJpPage.xaml" />
@@ -301,36 +303,43 @@
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
     <Optimize>False</Optimize>
-    <NoWarn>NU1701;</NoWarn>
-    <WarningsAsErrors>NU1701</WarningsAsErrors>
+    <NoWarn></NoWarn>
+    <WarningsAsErrors></WarningsAsErrors>
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Optimize>False</Optimize>
-    <NoWarn>NU1701;</NoWarn>
-    <WarningsAsErrors>NU1701</WarningsAsErrors>
+    <NoWarn></NoWarn>
+    <WarningsAsErrors></WarningsAsErrors>
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
-    <Optimize>True</Optimize>
-    <NoWarn>NU1701;</NoWarn>
-    <WarningsAsErrors>NU1701</WarningsAsErrors>
+    <Optimize>False</Optimize>
+    <NoWarn></NoWarn>
+    <WarningsAsErrors></WarningsAsErrors>
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <Optimize>True</Optimize>
-    <NoWarn>NU1701;</NoWarn>
-    <WarningsAsErrors>NU1701</WarningsAsErrors>
+    <Optimize>False</Optimize>
+    <NoWarn></NoWarn>
+    <WarningsAsErrors></WarningsAsErrors>
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
-    <NoWarn>NU1701;</NoWarn>
-    <WarningsAsErrors>NU1701</WarningsAsErrors>
+    <NoWarn></NoWarn>
+    <WarningsAsErrors></WarningsAsErrors>
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">
-    <NoWarn>NU1701;</NoWarn>
-    <WarningsAsErrors>NU1701</WarningsAsErrors>
+    <NoWarn></NoWarn>
+    <WarningsAsErrors></WarningsAsErrors>
+    <DebugType>embedded</DebugType>
+    <Optimize>False</Optimize>
   </PropertyGroup>
 
   <Target Name="_RemoveFrameworkReferences" BeforeTargets="_ConvertItems;_CalculateInputsForGenerateCurrentProjectAppxManifest">
@@ -356,5 +365,14 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\Modal\ModalShell.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Update="Views\Modal\ModalWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 </Project>

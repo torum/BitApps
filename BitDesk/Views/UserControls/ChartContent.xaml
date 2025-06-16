@@ -167,8 +167,8 @@
 
         <!-- Main SplitView -->
         <SplitView x:Name="SplitViewControl" Grid.Row="0" Grid.Column="0" Margin="0" BorderThickness="1,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}" PaneBackground="Transparent" IsPaneOpen="{x:Bind Path=PairViewModel.IsPaneVisible, Mode=TwoWay}" PanePlacement="Right" OpenPaneLength="280" CompactPaneLength="0" DisplayMode="CompactInline">
-            
-            <!-- Depth and Transactions -->
+
+            <!-- OrderBook(Depth) and Transactions -->
             <SplitView.Pane>
                 <Grid Margin="6,6,0,0">
                     <Grid.RowDefinitions>
@@ -185,9 +185,9 @@
                         <controls:Segmented Grid.Row="0" x:Name="SegmentedControlSide"
                             HorizontalAlignment="Stretch"
                             SelectedIndex="0" Margin="8">
-                            <controls:SegmentedItem x:Uid="TabHeader_Orders"
+                            <controls:SegmentedItem x:Uid="TabHeader_OrderBook"
                                     Tag="square" />
-                            <controls:SegmentedItem x:Uid="TabHeader_History"
+                            <controls:SegmentedItem x:Uid="TabHeader_Transactions"
                                     Tag="circle" />
                         </controls:Segmented>
                         <controls:SwitchPresenter Grid.Row="1" Value="{Binding SelectedItem.Tag, ElementName=SegmentedControlSide}">
@@ -269,7 +269,6 @@
                         <TextBlock Margin="12,12,0,0" Text="" Style="{StaticResource BaseTextBlockStyle}"/>
                         <TextBlock Margin="0,12,0,0" Text="{x:Bind Mode=OneWay, Path=PairViewModel.LtpString}" Style="{StaticResource BaseTextBlockStyle}"/>
 
-                        <TextBlock Margin="0,12,0,0" Style="{StaticResource BaseTextBlockStyle}" Text="{x:Bind PairViewModel.AssetCurrentEstimateAmountText, Mode=OneWay}"></TextBlock>
 
                         <TextBlock Text="-" Margin="12,12,0,0" Style="{StaticResource BaseTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}"></TextBlock>
 
@@ -344,7 +343,7 @@
                 <!-- Assets, Chart-->
                 <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="160"/>
+                        <ColumnDefinition Width="250"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
@@ -357,46 +356,69 @@
                         </Grid.RowDefinitions>
 
                         <!-- Order button -->
-                        <AppBarButton Grid.Row="0" Margin="0,8,0,0" Icon="Add" Label="Order" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" HorizontalAlignment="Left"/>
+                        <AppBarButton Grid.Row="0" Command="{x:Bind PairViewModel.ShowNewModalCommand}" Margin="0,8,0,0" Icon="Add" Label="Order" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" HorizontalAlignment="Left"/>
 
                         <!-- Current Asset -->
-                        <StackPanel Grid.Row="1" Margin="0,12,0,0" Padding="0,0,0,8" Spacing="4" BorderThickness="0,0,0,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
-                            <TextBlock Grid.Column="0" Style="{StaticResource BaseTextBlockStyle}" x:Uid="Pair_Asset"></TextBlock>
-                            <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right">
-                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentName, Mode=OneWay}" Margin="0,0,6,0" Visibility="Collapsed"></TextBlock>
-                                <TextBlock Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentAmountText, Mode=OneWay}"></TextBlock>
-                            </StackPanel>
+                        <Grid Grid.Row="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Column="1" HorizontalAlignment="Right" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetJPYAmountText, Mode=OneWay}"></TextBlock>
-                            <TextBlock Grid.Column="0" Style="{StaticResource BaseTextBlockStyle}" x:Uid="Pair_AssetAvailable"></TextBlock>
-                            <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right">
-                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentName, Mode=OneWay}" Margin="0,0,6,0" Visibility="Collapsed"></TextBlock>
-                                <TextBlock Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentFreeAmountText, Mode=OneWay}"></TextBlock>
-                            </StackPanel>
-                            <TextBlock Grid.Column="1" HorizontalAlignment="Right" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetJPYFreeAmountText, Mode=OneWay}"></TextBlock>
-                            <TextBlock Grid.Column="0" Style="{StaticResource BaseTextBlockStyle}" x:Uid="Pair_AssetOtherAssets"></TextBlock>
-                        </StackPanel>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,6,0,3" Style="{StaticResource BaseTextBlockStyle}">
+                                <Run x:Uid="Pair_Asset"/>
+                                <Run Text=": "/>
+                                <Run Text="{x:Bind PairViewModel.AssetCurrentName, Mode=OneWay}"/></TextBlock>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,3" HorizontalAlignment="Right" Text="{x:Bind PairViewModel.AssetCurrentAmountText, Mode=OneWay}"></TextBlock>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Margin="12,3,0,0" Opacity="{StaticResource CustumTextOpacity}" Text="Estimate: "></TextBlock>
+                            <TextBlock Grid.Row="2" Grid.Column="1" HorizontalAlignment="Right" Margin="0,3,0,3" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentEstimateAmountText, Mode=OneWay}"></TextBlock>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" Margin="12,3,0,0" Opacity="{StaticResource CustumTextOpacity}" Text="Available: "></TextBlock>
+                            <TextBlock Grid.Row="3" Grid.Column="1" HorizontalAlignment="Right" Margin="0,3,0,3" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentFreeAmountText, Mode=OneWay}"></TextBlock>
+
+                            <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,6,0,3" Style="{StaticResource BaseTextBlockStyle}"><Run x:Uid="Pair_Asset"/>
+                                <Run Text=": "/>
+                                <Run Text="JPY"/></TextBlock>
+                            <TextBlock Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" Text="{x:Bind PairViewModel.AssetJPYAmountText, Mode=OneWay}"></TextBlock>
+
+                            <TextBlock Grid.Row="6" Grid.Column="0" HorizontalAlignment="Left" Margin="12,3,0,0" Opacity="{StaticResource CustumTextOpacity}" Text="Available: "></TextBlock>
+                            <TextBlock Grid.Row="6" Grid.Column="1" HorizontalAlignment="Right" Margin="0,3,0,3" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetJPYFreeAmountText, Mode=OneWay}"></TextBlock>
+
+                            <TextBlock Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,6,0,6" Style="{StaticResource BaseTextBlockStyle}"><Run x:Uid="Pair_AssetOtherAssets"/></TextBlock>
+
+                        </Grid>
 
                         <!-- Other Assets -->
-                        <ListBox Width="135" Grid.Row="2" BorderThickness="0" ItemsSource="{x:Bind Path=PairViewModel.Assets, Mode=OneWay}" Background="Transparent" Margin="0" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Hidden">
+                        <ListBox Grid.Row="2" Grid.Column="0" ItemsSource="{x:Bind Path=PairViewModel.Assets, Mode=OneWay}" Background="Transparent" Margin="0" BorderThickness="0" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
                             <ListBox.ItemContainerStyle>
                                 <Style TargetType="ListBoxItem" BasedOn="{StaticResource DefaultListBoxItemStyle}">
                                     <Setter Property="Padding" Value="0,3,0,0"/>
                                     <Setter Property="Height" Value="23"/>
                                     <Setter Property="IsEnabled" Value="False" />
                                     <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
-                                    <Setter Property="Width" Value="135"></Setter>
                                 </Style>
                             </ListBox.ItemContainerStyle>
                             <ListBox.ItemTemplate>
                                 <DataTemplate x:DataType="localmodel:Asset">
-                                    <Grid Margin="0" HorizontalAlignment="Stretch" Width="135">
+                                    <Grid Margin="0" HorizontalAlignment="Stretch" Width="223">
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="48" />
-                                            <ColumnDefinition Width="86" />
+                                            <ColumnDefinition Width="60" />
+                                            <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Column="0" x:Name="AssetName" Text="{x:Bind Name, Mode=OneWay}" Margin="0" Padding="0 0 0 0" HorizontalAlignment="Left">
+                                        <TextBlock Grid.Column="0" x:Name="AssetName" Text="{x:Bind Name, Mode=OneWay}" Margin="12,0,0,0" Padding="0 0 0 0" HorizontalAlignment="Left">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
                                                 </Style>
@@ -450,7 +472,7 @@
             <controls:Segmented Grid.Row="0" x:Name="SegmentedControlBottom" Style="{StaticResource PivotSegmentedStyle}"
                             HorizontalAlignment="Stretch"
                             SelectedIndex="0" Margin="4">
-                <controls:SegmentedItem x:Uid="TabHeader_Orders"
+                <controls:SegmentedItem x:Uid="TabHeader_ActiveOrders"
                                     Tag="Orders" />
                 <controls:SegmentedItem x:Uid="TabHeader_History"
                                     Tag="History" />
@@ -539,6 +561,8 @@
                         <ListView.ItemContainerStyle>
                             <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="Height" Value="30" />
+                                <Setter Property="MinHeight" Value="30" />
                             </Style>
                         </ListView.ItemContainerStyle>
                     </ListView>
@@ -627,6 +651,8 @@
                         <ListView.ItemContainerStyle>
                             <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                <Setter Property="Height" Value="30" />
+                                <Setter Property="MinHeight" Value="30" />
                             </Style>
                         </ListView.ItemContainerStyle>
                     </ListView>
