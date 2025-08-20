@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mod="using:BitDesk.Models"
     xmlns:helpers="using:BitDesk.Helpers"
     Loaded="OnLoaded">
 
@@ -362,6 +363,43 @@
             <Grid x:Name="NavigationVewPageContent" Margin="{StaticResource NavigationViewPageContentMargin}">
                 <Frame x:Name="NavigationFrame" Navigated="NavigationFrame_Navigated" NavigationFailed="NavigationFrame_NavigationFailed"/>
             </Grid>
+            
+            <!--
+            <NavigationView.PaneFooter>
+                <ListBox ItemsSource="{x:Bind Path=MainViewModel.Assets, Mode=OneWay}" Background="Transparent" Margin="6" BorderThickness="0" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem" BasedOn="{StaticResource DefaultListBoxItemStyle}">
+                            <Setter Property="Padding" Value="0,3,0,0"/>
+                            <Setter Property="Height" Value="23"/>
+                            <Setter Property="IsEnabled" Value="False" />
+                            <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="mod:Asset">
+                            <Grid Margin="0" HorizontalAlignment="Stretch" Width="193">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" x:Name="AssetName" Text="{x:Bind Name, Mode=OneWay}" Margin="12,0,0,0" Padding="0 0 0 0" HorizontalAlignment="Left">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
+                                        </Style>
+                                    </TextBlock.Style></TextBlock>
+                                <TextBlock Grid.Column="1" x:Name="AssetAmount" Text="{x:Bind AmountText, Mode=OneWay}" Margin="0" Padding="0 0 0 0" HorizontalAlignment="Right">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
+                                        </Style>
+                                    </TextBlock.Style></TextBlock>
+
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </NavigationView.PaneFooter>
+            -->
         </NavigationView>
     </Grid>
 </Page>

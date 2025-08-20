@@ -254,6 +254,7 @@
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
@@ -291,6 +292,9 @@
                 <StackPanel Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
 
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom" HorizontalAlignment="Right">
+
+                        <!-- Order button -->
+                        <AppBarButton Label="Order" Icon="Add" ToolTipService.ToolTip="Order" Command="{x:Bind PairViewModel.ShowNewModalCommand}" IsCompact="False" VerticalAlignment="Bottom" Margin="0" Padding="0" Opacity="0.4"/>
 
                         <AppBarButton Label="{x:Bind PairViewModel.SelectedCandleTypeLabelString, Mode=OneWay}" ToolTipService.ToolTip="CandleType" IsCompact="False" VerticalAlignment="Bottom" Margin="0" Padding="0" Opacity="0.4">
                             <AppBarButton.Icon>
@@ -339,107 +343,39 @@
                     </StackPanel>
 
                 </StackPanel>
+
+                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="24" Margin="12,0,0,0" Opacity="{StaticResource CustumTextOpacity}">
+                    <TextBlock>
+						<Run Text="BID:"/>
+						<Run Text="{x:Bind PairViewModel.Bid, Mode=OneWay}"/>
+						<Run Text=", ASK:"/>
+						<Run Text="{x:Bind PairViewModel.Ask, Mode=OneWay}"/>
+                    </TextBlock>
+                    <TextBlock>
+						<Run Text="{x:Bind PairViewModel.AssetCurrentName, Mode=OneWay}"/>
+
+						<Run Text="{x:Bind PairViewModel.AssetCurrentFreeAmountText, Mode=OneWay}"/>
+						<Run Text="/"/>
+						<Run Text="{x:Bind PairViewModel.AssetCurrentAmountText, Mode=OneWay}"/>
+
+						<Run Text=" ("/>
+						<Run Text="{x:Bind PairViewModel.AssetCurrentEstimateAmountText, Mode=OneWay}"/>
+                        <Run Text=") "/>
+                    </TextBlock>
+                    <TextBlock>
+						<Run Text="JPY"/>
+						<Run Text="{x:Bind PairViewModel.AssetJPYFreeAmountText, Mode=OneWay}"/>
+						<Run Text="/"/>
+						<Run Text="{x:Bind PairViewModel.AssetJPYAmountText, Mode=OneWay}"/>
+                    </TextBlock>
+                </StackPanel>
                 
                 <!-- Assets, Chart-->
-                <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="250"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Assets -->
-                    <Grid Grid.Column="0" Margin="12,0,0,0" Padding="0,0,12,12" BorderThickness="0,0,1,0" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-
-                        <!-- Order button -->
-                        <AppBarButton Grid.Row="0" Command="{x:Bind PairViewModel.ShowNewModalCommand}" Margin="0,8,0,0" Icon="Add" Label="Order" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" HorizontalAlignment="Left"/>
-
-                        <!-- Current Asset -->
-                        <Grid Grid.Row="1">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-
-                            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,6,0,3" Style="{StaticResource BaseTextBlockStyle}">
-                                <Run x:Uid="Pair_Asset"/>
-                                <Run Text=": "/>
-                                <Run Text="{x:Bind PairViewModel.AssetCurrentName, Mode=OneWay}"/></TextBlock>
-                            <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,0,0,3" HorizontalAlignment="Right" Text="{x:Bind PairViewModel.AssetCurrentAmountText, Mode=OneWay}"></TextBlock>
-
-                            <TextBlock Grid.Row="2" Grid.Column="0" HorizontalAlignment="Left" Margin="12,3,0,0" Opacity="{StaticResource CustumTextOpacity}" Text="Estimate: "></TextBlock>
-                            <TextBlock Grid.Row="2" Grid.Column="1" HorizontalAlignment="Right" Margin="0,3,0,3" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentEstimateAmountText, Mode=OneWay}"></TextBlock>
-
-                            <TextBlock Grid.Row="3" Grid.Column="0" HorizontalAlignment="Left" Margin="12,3,0,0" Opacity="{StaticResource CustumTextOpacity}" Text="Available: "></TextBlock>
-                            <TextBlock Grid.Row="3" Grid.Column="1" HorizontalAlignment="Right" Margin="0,3,0,3" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetCurrentFreeAmountText, Mode=OneWay}"></TextBlock>
-
-                            <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,6,0,3" Style="{StaticResource BaseTextBlockStyle}"><Run x:Uid="Pair_Asset"/>
-                                <Run Text=": "/>
-                                <Run Text="JPY"/></TextBlock>
-                            <TextBlock Grid.Row="5" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" Text="{x:Bind PairViewModel.AssetJPYAmountText, Mode=OneWay}"></TextBlock>
-
-                            <TextBlock Grid.Row="6" Grid.Column="0" HorizontalAlignment="Left" Margin="12,3,0,0" Opacity="{StaticResource CustumTextOpacity}" Text="Available: "></TextBlock>
-                            <TextBlock Grid.Row="6" Grid.Column="1" HorizontalAlignment="Right" Margin="0,3,0,3" Opacity="{StaticResource CustumTextOpacity}" Text="{x:Bind PairViewModel.AssetJPYFreeAmountText, Mode=OneWay}"></TextBlock>
-
-                            <TextBlock Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,6,0,6" Style="{StaticResource BaseTextBlockStyle}"><Run x:Uid="Pair_AssetOtherAssets"/></TextBlock>
-
-                        </Grid>
-
-                        <!-- Other Assets -->
-                        <ListBox Grid.Row="2" Grid.Column="0" ItemsSource="{x:Bind Path=PairViewModel.Assets, Mode=OneWay}" Background="Transparent" Margin="0" BorderThickness="0" HorizontalContentAlignment="Stretch" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto">
-                            <ListBox.ItemContainerStyle>
-                                <Style TargetType="ListBoxItem" BasedOn="{StaticResource DefaultListBoxItemStyle}">
-                                    <Setter Property="Padding" Value="0,3,0,0"/>
-                                    <Setter Property="Height" Value="23"/>
-                                    <Setter Property="IsEnabled" Value="False" />
-                                    <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
-                                </Style>
-                            </ListBox.ItemContainerStyle>
-                            <ListBox.ItemTemplate>
-                                <DataTemplate x:DataType="localmodel:Asset">
-                                    <Grid Margin="0" HorizontalAlignment="Stretch" Width="223">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="60" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-
-                                        <TextBlock Grid.Column="0" x:Name="AssetName" Text="{x:Bind Name, Mode=OneWay}" Margin="12,0,0,0" Padding="0 0 0 0" HorizontalAlignment="Left">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
-                                                </Style>
-                                            </TextBlock.Style></TextBlock>
-                                        <TextBlock Grid.Column="1" x:Name="AssetAmount" Text="{x:Bind AmountText, Mode=OneWay}" Margin="0" Padding="0 0 0 0" HorizontalAlignment="Right">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
-                                                </Style>
-                                            </TextBlock.Style></TextBlock>
-
-                                    </Grid>
-                                </DataTemplate>
-                            </ListBox.ItemTemplate>
-                        </ListBox>
-
-                    </Grid>
+                <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
 
                     <!-- Chart -->
                     <lvc:CartesianChart x:Name="LiveChart"
                                         Margin="0,0,0,0"
-                                        Grid.Column="1"
                                     Series="{x:Bind PairViewModel.Series, Mode=OneWay}" 
                                     XAxes="{x:Bind PairViewModel.XAxes, Mode=OneWay}" 
                                     YAxes="{x:Bind PairViewModel.YAxes, Mode=OneWay}" 
@@ -489,29 +425,29 @@
                         <ListView.Header>
                             <Grid Padding="16,12" ColumnSpacing="8" Background="{ThemeResource NavigationViewContentBackground}">
                                 <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="60" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="60" />
                                     <ColumnDefinition Width="100" />
+                                    <ColumnDefinition Width="90" />
+                                    <ColumnDefinition Width="90" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="120" />
                                     <ColumnDefinition Width="140" />
-                                    <ColumnDefinition Width="80" />
-                                    <ColumnDefinition Width="80" />
-                                    <ColumnDefinition Width="80" />
-                                    <ColumnDefinition Width="80" />
-                                    <ColumnDefinition Width="80" />
-                                    <ColumnDefinition Width="80" />
-                                    <ColumnDefinition Width="80" />
-                                    <ColumnDefinition Width="80" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock x:Uid="ListView_Orders_OrderID" />
-                                <TextBlock Grid.Column="1" x:Uid="ListView_Orders_OrderedAt"/>
-                                <TextBlock Grid.Column="2" x:Uid="ListView_Orders_SideText"/>
-                                <TextBlock Grid.Column="3" x:Uid="ListView_Orders_TypeText"/>
-                                <TextBlock Grid.Column="4" x:Uid="ListView_Orders_StartAmount"/>
-                                <TextBlock Grid.Column="5" x:Uid="ListView_Orders_Price"/>
-                                <TextBlock Grid.Column="6" x:Uid="ListView_Orders_Shushi"/>
-                                <TextBlock Grid.Column="7" x:Uid="ListView_Orders_AveragePrice"/>
-                                <TextBlock Grid.Column="8" x:Uid="ListView_Orders_RemainingAmount"/>
-                                <TextBlock Grid.Column="9" x:Uid="ListView_Orders_ActualPrice"/>
-                                <TextBlock Grid.Column="10" x:Uid="ListView_Orders_StatusText"/>
+                                <TextBlock Grid.Column="0" x:Uid="ListView_Orders_SideText"/>
+                                <TextBlock Grid.Column="1" x:Uid="ListView_Orders_StartAmount"/>
+                                <TextBlock Grid.Column="2" x:Uid="ListView_Orders_TypeText"/>
+                                <TextBlock Grid.Column="3" x:Uid="ListView_Orders_Price"/>
+                                <TextBlock Grid.Column="4" x:Uid="ListView_Orders_Shushi"/>
+                                <TextBlock Grid.Column="5" x:Uid="ListView_Orders_AveragePrice"/>
+                                <TextBlock Grid.Column="6" x:Uid="ListView_Orders_RemainingAmount"/>
+                                <TextBlock Grid.Column="7" x:Uid="ListView_Orders_ActualPrice"/>
+                                <TextBlock Grid.Column="8" x:Uid="ListView_Orders_StatusText"/>
+                                <TextBlock Grid.Column="9" x:Uid="ListView_Orders_OrderID" />
+                                <TextBlock Grid.Column="10" x:Uid="ListView_Orders_OrderedAt"/>
                             </Grid>
                         </ListView.Header>
                         <ListView.ItemTemplate>
@@ -531,29 +467,29 @@
                                             </VisualStateGroup>
                                     </VisualStateManager.VisualStateGroups>
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="60" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="60" />
                                         <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="90" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="120" />
                                         <ColumnDefinition Width="140" />
-                                        <ColumnDefinition Width="80" />
-                                        <ColumnDefinition Width="80" />
-                                        <ColumnDefinition Width="80" />
-                                        <ColumnDefinition Width="80" />
-                                        <ColumnDefinition Width="80" />
-                                        <ColumnDefinition Width="80" />
-                                        <ColumnDefinition Width="80" />
-                                        <ColumnDefinition Width="80" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind OrderID, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="1" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind OrderdAtText, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="2" Foreground="{ThemeResource TextFillColorSecondaryBrush}" x:Name="TextBlockTest" Tag="{x:Bind Side, Mode=OneWay}" Text="{x:Bind SideText, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="3" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind TypeText, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="4" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind StartAmount, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="5" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind Price, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="6" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind Shushi, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="7" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind AveragePrice, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="8" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind RemainingAmount, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="9" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind ActualPrice, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="10" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind StatusText, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="0" Foreground="{ThemeResource TextFillColorSecondaryBrush}" x:Name="TextBlockTest" Tag="{x:Bind Side, Mode=OneWay}" Text="{x:Bind SideText, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="1" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind StartAmount, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="2" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind TypeText, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="3" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind Price, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="4" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind Shushi, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="5" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind AveragePrice, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="6" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind RemainingAmount, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="7" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind ActualPrice, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="8" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind StatusText, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="9" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind OrderID, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="10" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind OrderdAtText, Mode=OneWay}" />
 
                                 </Grid>
                             </DataTemplate>
@@ -577,30 +513,30 @@
                         <ListView.Header>
                             <Grid Padding="16,12" ColumnSpacing="8" Background="{ThemeResource NavigationViewContentBackground}">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="100" />
-                                    <ColumnDefinition Width="100" />
                                     <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="100" />
+                                    <ColumnDefinition Width="100" />
                                     <ColumnDefinition Width="140" />
-                                    <ColumnDefinition Width="80" />
-                                    <ColumnDefinition Width="80" />
-                                    <ColumnDefinition Width="80" />
-                                    <ColumnDefinition Width="80" />
-                                    <ColumnDefinition Width="80" />
-                                    <ColumnDefinition Width="80" />
-                                    <ColumnDefinition Width="80" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" x:Uid="ListView_TradeHistory_OrderID" />
-                                <TextBlock Grid.Column="1" x:Uid="ListView_TradeHistory_TradeID" />
-                                <TextBlock Grid.Column="2" x:Uid="ListView_TradeHistory_Pair" />
-                                <TextBlock Grid.Column="3" x:Uid="ListView_TradeHistory_ExecutedAt"/>
-                                <TextBlock Grid.Column="4" x:Uid="ListView_TradeHistory_SideText"/>
-                                <TextBlock Grid.Column="5" x:Uid="ListView_TradeHistory_TypeText"/>
-                                <TextBlock Grid.Column="6" x:Uid="ListView_TradeHistory_Amount"/>
-                                <TextBlock Grid.Column="7" x:Uid="ListView_TradeHistory_Price"/>
-                                <TextBlock Grid.Column="8" x:Uid="ListView_TradeHistory_FeeAmountQuote"/>
-                                <TextBlock Grid.Column="9" x:Uid="ListView_TradeHistory_FeeOccurredAmountQuote"/>
-                                <TextBlock Grid.Column="10" x:Uid="ListView_TradeHistory_MakerTaker"/>
+                                <TextBlock Grid.Column="0" x:Uid="ListView_TradeHistory_Pair" />
+                                <TextBlock Grid.Column="1" x:Uid="ListView_TradeHistory_SideText"/>
+                                <TextBlock Grid.Column="2" x:Uid="ListView_TradeHistory_Amount"/>
+                                <TextBlock Grid.Column="3" x:Uid="ListView_TradeHistory_TypeText"/>
+                                <TextBlock Grid.Column="4" x:Uid="ListView_TradeHistory_Price"/>
+                                <TextBlock Grid.Column="5" x:Uid="ListView_TradeHistory_FeeAmountQuote"/>
+                                <TextBlock Grid.Column="6" x:Uid="ListView_TradeHistory_FeeOccurredAmountQuote"/>
+                                <TextBlock Grid.Column="7" x:Uid="ListView_TradeHistory_MakerTaker"/>
+                                <TextBlock Grid.Column="8" x:Uid="ListView_TradeHistory_OrderID" />
+                                <TextBlock Grid.Column="9" x:Uid="ListView_TradeHistory_TradeID" />
+                                <TextBlock Grid.Column="10" x:Uid="ListView_TradeHistory_ExecutedAt"/>
                             </Grid>
                         </ListView.Header>
                         <ListView.ItemTemplate>
@@ -620,30 +556,30 @@
                                         </VisualStateGroup>
                                     </VisualStateManager.VisualStateGroups>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="100" />
-                                        <ColumnDefinition Width="100" />
                                         <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="80" />
+                                        <ColumnDefinition Width="100" />
+                                        <ColumnDefinition Width="100" />
                                         <ColumnDefinition Width="140" />
-                                        <ColumnDefinition Width="80" />
-                                        <ColumnDefinition Width="80" />
-                                        <ColumnDefinition Width="80" />
-                                        <ColumnDefinition Width="80" />
-                                        <ColumnDefinition Width="80" />
-                                        <ColumnDefinition Width="80" />
-                                        <ColumnDefinition Width="80" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind OrderID, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="1" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind TradeID, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="2" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind Pair, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="3" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind ExecutedAtText, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="4" Foreground="{ThemeResource TextFillColorSecondaryBrush}" x:Name="TextBlockTest" Tag="{x:Bind Side, Mode=OneWay}" Text="{x:Bind SideText, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="5" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind TypeText, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="6" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind Amount, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="7" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind Price, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="8" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind FeeAmountQuote, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="9" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind FeeOccurredAmountQuote, Mode=OneWay}" />
-                                    <TextBlock Grid.Column="10" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind MakerTaker, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="0" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind Pair, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="1" Foreground="{ThemeResource TextFillColorSecondaryBrush}" x:Name="TextBlockTest" Tag="{x:Bind Side, Mode=OneWay}" Text="{x:Bind SideText, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="2" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind Amount, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="3" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind TypeText, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="4" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind Price, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="5" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind FeeAmountQuote, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="6" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind FeeOccurredAmountQuote, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="7" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind MakerTaker, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="8" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind OrderID, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="9" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind TradeID, Mode=OneWay}" />
+                                    <TextBlock Grid.Column="10" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="{x:Bind ExecutedAtText, Mode=OneWay}" />
 
                                 </Grid>
                             </DataTemplate>

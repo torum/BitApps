@@ -149,6 +149,7 @@ public partial class PairViewModel : ObservableRecipient
 
             OnPropertyChanged(nameof(Ltp));
             OnPropertyChanged(nameof(LtpString));
+            OnPropertyChanged(nameof(AssetCurrentEstimateAmount));
             OnPropertyChanged(nameof(AssetCurrentEstimateAmountText));
             /*
             if (_ltp > BasePrice)
@@ -1083,8 +1084,9 @@ public partial class PairViewModel : ObservableRecipient
 
             _assetCurrentAmount = value;
             OnPropertyChanged(nameof(AssetCurrentAmount));
-
             OnPropertyChanged(nameof(AssetCurrentAmountText));
+            OnPropertyChanged(nameof(AssetCurrentEstimateAmount));
+            OnPropertyChanged(nameof(AssetCurrentEstimateAmountText));
         }
     }
 
@@ -1117,7 +1119,11 @@ public partial class PairViewModel : ObservableRecipient
     private decimal _assetCurrentEstimateAmount;
     public decimal AssetCurrentEstimateAmount
     {
-        get => Math.Floor((_assetCurrentEstimateAmount * 10000M)) / 10000M;
+        get
+        {
+            _assetCurrentEstimateAmount = _assetCurrentAmount * _ltp;
+            return Math.Floor((_assetCurrentEstimateAmount * 10000M)) / 10000M;
+        }
         set
         {
             if (_assetCurrentEstimateAmount == value)
@@ -1194,21 +1200,7 @@ public partial class PairViewModel : ObservableRecipient
 
     public string AssetJPYFreeAmountText => AssetJPYFreeAmount.ToString("C0");
 
-    private ObservableCollection<Models.Asset> _assets = [];
-    public ObservableCollection<Models.Asset> Assets
-    {
-        get => _assets;
-        set
-        {
-            if (_assets == value)
-            {
-                return;
-            }
 
-            _assets = value;
-            OnPropertyChanged(nameof(Assets));
-        }
-    }
 
     #endregion
 
@@ -1663,15 +1655,14 @@ public partial class PairViewModel : ObservableRecipient
     #region == HTTP Clients ==
 
     // HTTP Clients
-    private readonly PublicAPIClient _pubCandlestickApi = new();
-    private readonly PublicAPIClient _pubTransactionsApi = new();
-    private readonly PublicAPIClient _pubDepthApi = new();
+    //private readonly PublicAPIClient _pubCandlestickApi = new();
+    //private readonly PublicAPIClient _pubTransactionsApi = new();
+    //private readonly PublicAPIClient _pubDepthApi = new();
 
     #endregion
 
     #region == Timers ==
     // Timer
-    private readonly DispatcherTimer _dispatcherTimerAssets = new();
     private readonly DispatcherTimer _dispatcherTimerChart = new();
     private readonly DispatcherTimer _dispatcherTimerDepth = new();
     private readonly DispatcherTimer _dispatcherTimerTransaction = new();
@@ -1690,7 +1681,6 @@ public partial class PairViewModel : ObservableRecipient
 
     #endregion
 
-
     private readonly IModalDialogService _dlg;
 
     // 
@@ -1706,7 +1696,6 @@ public partial class PairViewModel : ObservableRecipient
         _depthGrouping100 = grouping100;
         _depthGrouping1000 = grouping1000;
 
-
         #region == RelayCommands ==
 
         ChangeCandleTypeCommand = new GenericRelayCommand<CandleTypes>(param => ChangeCandleTypeCommand_Execute(param), param => ChangeCandleTypeCommand_CanExecute());
@@ -1717,12 +1706,12 @@ public partial class PairViewModel : ObservableRecipient
 
         // Depth update timer
         _dispatcherTimerDepth.Tick += TickerTimerDepth;
-        _dispatcherTimerDepth.Interval = new TimeSpan(0, 0, 2);
+        _dispatcherTimerDepth.Interval = new TimeSpan(0, 0, 4);
         _dispatcherTimerDepth.Start();
 
         // Transaction update timer
         _dispatcherTimerTransaction.Tick += TickerTimerTransaction;
-        _dispatcherTimerTransaction.Interval = new TimeSpan(0, 0, 3);
+        _dispatcherTimerTransaction.Interval = new TimeSpan(0, 0, 6);
         _dispatcherTimerTransaction.Start();
 
         // Chart update timer
@@ -1730,14 +1719,11 @@ public partial class PairViewModel : ObservableRecipient
         _dispatcherTimerChart.Interval = chartUpdateInterval;
         _dispatcherTimerChart.Start();
 
-        // Assets update timer
-        _dispatcherTimerAssets.Tick += TickerTimerAssets;
-        _dispatcherTimerAssets.Interval = new TimeSpan(0, 0, 20);
-        _dispatcherTimerAssets.Start();
         // Orders update timer
         _dispatcherTimerOrders.Tick += TickerTimerOrders;
         _dispatcherTimerOrders.Interval = new TimeSpan(0, 0, 20);
         _dispatcherTimerOrders.Start();
+
         // TradeHistory update timer
         _dispatcherTimerTradeHistory.Tick += TickerTimerTradeHistory;
         _dispatcherTimerTradeHistory.Interval = new TimeSpan(0, 0, 20);
@@ -1783,7 +1769,7 @@ public partial class PairViewModel : ObservableRecipient
             LoadChart(SelectedCandleType);
         }
 
-        Task.Run(async () => await GetAssets());
+        //Task.Run(async () => await GetAssets());
         Task.Run(() => GetOrders());
         Task.Run(() => GetTradeHistory());
     }
@@ -1796,9 +1782,9 @@ public partial class PairViewModel : ObservableRecipient
             _dispatcherTimerDepth.Stop();
             _dispatcherTimerTransaction.Stop();
 
-            _pubCandlestickApi.Dispose();
-            _pubTransactionsApi.Dispose();
-            _pubDepthApi.Dispose();
+            //_pubCandlestickApi.Dispose();
+            //_pubTransactionsApi.Dispose();
+            //_pubDepthApi.Dispose();
         }
         catch(Exception ex)
         {
@@ -2371,10 +2357,17 @@ public partial class PairViewModel : ObservableRecipient
             return;
         }
 
-        Task.Run(() => GetOrders());
+        //Task.Run(() => GetOrders());
+        /*
+        App.CurrentDispatcherQueue?.TryEnqueue(async () =>
+        {
+            await GetOrders();
+        });
+        */
+        GetOrders();
     }
 
-    private async Task GetOrders()
+    private void GetOrders()
     {
         if (MainViewModel == null)
         {
@@ -2384,116 +2377,104 @@ public partial class PairViewModel : ObservableRecipient
         if (MainViewModel.OrdersApiKeyIsSet == false)
         {
             // TODO show message?
-            System.Diagnostics.Debug.WriteLine("■■■■■ GetOrders: (OrdersApiKeyIsSet == false)");
+            Debug.WriteLine("■■■■■ GetOrders: (OrdersApiKeyIsSet == false)");
             return;
         }
 
-        var ords = await MainViewModel.PriOrdersApi.GetOrderList(MainViewModel.OrdersApiKey, MainViewModel.OrdersSecret, PairCode.ToString());
-        if (ords == null) 
+        App.CurrentDispatcherQueue?.TryEnqueue(async () =>
         {
-            return;
-        }
-        if (ords.IsSuccess == false)
-        {
-            return;
-        }
-
-        try
-        {
-            // 逆順にする
-            ords.OrderList.Reverse();
+            var ords = await MainViewModel.PriOrdersApi.GetOrderList(MainViewModel.OrdersApiKey, MainViewModel.OrdersSecret, PairCode.ToString());
+            if (ords == null)
+            {
+                return;
+            }
+            if (ords.IsSuccess == false)
+            {
+                return;
+            }
 
             try
             {
-                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                // 逆順にする
+                ords.OrderList.Reverse();
+
+                foreach (var ord in ords.OrderList)
                 {
-                    foreach (var ord in ords.OrderList)
+                    var found = Orders.FirstOrDefault(x => x.OrderID == ord.OrderID);
+
+                    if (found != null)
                     {
+                        found.AveragePrice = ord.AveragePrice;
+                        found.OrderedAt = ord.OrderedAt;
+                        found.Pair = ord.Pair;
+                        found.Price = ord.Price;
+                        found.RemainingAmount = ord.RemainingAmount;
+                        found.ExecutedAmount = ord.ExecutedAmount;
+                        found.Side = ord.Side;
+                        found.StartAmount = ord.StartAmount;
+                        found.Type = ord.Type;
+                        found.Status = ord.Status;
 
-                        var found = Orders.FirstOrDefault(x => x.OrderID == ord.OrderID);
-                        if (found != null)
+                        // 現在値のセット
+                        // 投資金額
+                        if (found.Type == "limit")
                         {
-                            found.AveragePrice = ord.AveragePrice;
-                            found.OrderedAt = ord.OrderedAt;
-                            found.Pair = ord.Pair;
-                            found.Price = ord.Price;
-                            found.RemainingAmount = ord.RemainingAmount;
-                            found.ExecutedAmount = ord.ExecutedAmount;
-                            found.Side = ord.Side;
-                            found.StartAmount = ord.StartAmount;
-                            found.Type = ord.Type;
-                            found.Status = ord.Status;
-
-                            // 現在値のセット
-                            // 投資金額
-                            if (found.Type == "limit")
-                            {
-                                found.ActualPrice = (ord.Price * ord.StartAmount);
-                                // 一部約定の時は考えない？
-                            }
-                            else
-                            {
-                                found.ActualPrice = (ord.AveragePrice * ord.StartAmount);
-                            }
-
-                            // 現在値との差額
-                            if ((found.Status == "UNFILLED") || (found.Status == "PARTIALLY_FILLED"))
-                            {
-                                found.Shushi = (ord.Price - _ltp);
-                            }
-                            else
-                            {
-                                // 約定済みなので
-                                found.Shushi = 0;
-                            }
+                            found.ActualPrice = (ord.Price * ord.StartAmount);
+                            // 一部約定の時は考えない？
                         }
                         else
                         {
-                            // 現在値のセット
-                            // 投資金額
-                            if (ord.Type == "limit")
-                            {
-                                ord.ActualPrice = (ord.Price * ord.StartAmount);
-                            }
-                            else
-                            {
-                                ord.ActualPrice = (ord.AveragePrice * ord.StartAmount);
-                            }
+                            found.ActualPrice = (ord.AveragePrice * ord.StartAmount);
+                        }
 
-                            // 現在値との差額
-                            if ((ord.Status == "UNFILLED") || (ord.Status == "PARTIALLY_FILLED"))
-                            {
-                                //ord.Shushi = ((_ltp - ord.Price));
-                                ord.Shushi = (ord.Price - _ltp);
-
-                                // リスト追加
-                                Orders.Insert(0, ord);
-                            }
-                            else
-                            {
-                                // 約定済みなので
-                                //ord.Shushi = 0;
-
-                                // 追加しない。
-                            }
-
+                        // 現在値との差額
+                        if ((found.Status == "UNFILLED") || (found.Status == "PARTIALLY_FILLED"))
+                        {
+                            found.Shushi = (ord.Price - _ltp);
+                        }
+                        else
+                        {
+                            // 約定済みなので
+                            found.Shushi = 0;
                         }
                     }
-                });
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderList: Exception - " + ex.Message);
+                    else
+                    {
+                        // 現在値のセット
+                        // 投資金額
+                        if (ord.Type == "limit")
+                        {
+                            ord.ActualPrice = (ord.Price * ord.StartAmount);
+                        }
+                        else
+                        {
+                            ord.ActualPrice = (ord.AveragePrice * ord.StartAmount);
+                        }
 
-            }
+                        // 現在値との差額
+                        if ((ord.Status == "UNFILLED") || (ord.Status == "PARTIALLY_FILLED"))
+                        {
+                            //ord.Shushi = ((_ltp - ord.Price));
+                            ord.Shushi = (ord.Price - _ltp);
 
+                            // リスト追加
+                            Orders.Insert(0, ord);
+                        }
+                        else
+                        {
+                            // 約定済みなので
+                            //ord.Shushi = 0;
 
-            // 返ってきた注文リストに存在しない注文リスト
-            var lst = new List<ulong>();
+                            // 追加しない。
+                        }
 
-            // 返ってきた注文リストに存在しない注文を抽出
-            try
-            {
+                    }
+                }
+
+                // 返ってきた注文リストに存在しない注文リスト
+                var lst = new List<ulong>();
+
+                // 返ってきた注文リストに存在しない注文を抽出
                 foreach (var ors in Orders)
                 {
                     var found = ords.OrderList.FirstOrDefault(x => x.OrderID == ors.OrderID);
@@ -2507,57 +2488,50 @@ public partial class PairViewModel : ObservableRecipient
                     }
 
                 }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderList lst: Exception - " + ex.Message);
-            }
 
-            // 注文リスト更新
-            if (lst.Count > 0)
-            {
-                // リストのリスト（小分けにして分割取得用）
-                var ListOfList = new List<List<ulong>>();
-
-                // GetOrderListByIDs 40015 数が多いとエラーになるので、小分けにして。
-                var temp = new List<ulong>();
-                var c = 0;
-
-                for (var i = 0; i < lst.Count; i++)
+                // 注文リスト更新
+                if (lst.Count > 0)
                 {
+                    // リストのリスト（小分けにして分割取得用）
+                    var ListOfList = new List<List<ulong>>();
 
-                    temp.Add(lst[c]);
+                    // GetOrderListByIDs 40015 数が多いとエラーになるので、小分けにして。
+                    var temp = new List<ulong>();
+                    var c = 0;
 
-                    if (temp.Count == 5)
+                    for (var i = 0; i < lst.Count; i++)
                     {
-                        ListOfList.Add(temp);
 
-                        temp = [];
-                    }
+                        temp.Add(lst[c]);
 
-                    if (c == lst.Count - 1)
-                    {
-                        if (temp.Count > 0)
+                        if (temp.Count == 5)
                         {
                             ListOfList.Add(temp);
+
+                            temp = [];
                         }
 
-                        break;
+                        if (c == lst.Count - 1)
+                        {
+                            if (temp.Count > 0)
+                            {
+                                ListOfList.Add(temp);
+                            }
+
+                            break;
+                        }
+
+                        c += 1;
                     }
 
-                    c += 1;
-                }
-
-                foreach (var list in ListOfList)
-                {
-                    // 最新の注文情報をゲット
-                    Orders? oup = await MainViewModel.PriOrdersApi.GetOrderListByIDs(MainViewModel.OrdersApiKey, MainViewModel.OrdersSecret, PairCode.ToString(), list);
-                    if (oup != null)
+                    foreach (var list in ListOfList)
                     {
-                        // 注文をアップデート
-                        foreach (var ord in oup.OrderList)
+                        // 最新の注文情報をゲット
+                        Orders? oup = await MainViewModel.PriOrdersApi.GetOrderListByIDs(MainViewModel.OrdersApiKey, MainViewModel.OrdersSecret, PairCode.ToString(), list);
+                        if (oup != null)
                         {
-                            App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                            // 注文をアップデート
+                            foreach (var ord in oup.OrderList)
                             {
                                 try
                                 {
@@ -2609,659 +2583,30 @@ public partial class PairViewModel : ObservableRecipient
                                 }
                                 catch (Exception ex)
                                 {
-                                    System.Diagnostics.Debug.WriteLine("■■■■■ Order oup: Exception - " + ex.Message);
+                                    Debug.WriteLine("■■■■■ Order oup: Exception - " + ex.Message);
 
                                 }
-                            });
 
-                            await Task.Delay(400);
+                                await Task.Delay(400);
+                            }
                         }
                     }
                 }
+
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("■■■■■ GetOrders Exception: " + e);
+
+                return;
             }
 
-
-        }
-        catch (Exception e)
-        {
-            System.Diagnostics.Debug.WriteLine("■■■■■ GetOrders Exception: " + e);
-
-            return;
-        }
-
+        });
 
     }
 
     #endregion
 
-    #region == Assets ==
-
-    private void TickerTimerAssets(object? source, object e)
-    {
-        if (!IsEnabled)
-        {
-            return;
-        }
-
-        if (!IsSelectedActive)
-        {
-            return;
-        }
-
-        Task.Run(() => GetAssets());
-    }
-
-    private async Task<bool> GetAssets()
-    {
-        if (MainViewModel == null)
-        {
-            return false;
-        }
-
-        if (MainViewModel.AssetsApiKeyIsSet == false)
-        {
-            // TODO: show message?
-            System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets: (AssetsApiKeyIsSet == false)");
-            return false;
-        }
-
-        try
-        {
-            // TODO: Use AssetsResult
-            var asts = await MainViewModel.PriAssetsApi.GetAssetList(MainViewModel.AssetsApiKey, MainViewModel.AssetsSecret);
-
-            if (asts != null)
-            {
-                try
-                {
-                    var newAssets = new ObservableCollection<Models.Asset>();
-
-                    foreach (var ast in asts)
-                    {
-                        if (ast.Name == "jpy")
-                        {
-                            App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                            {
-                                AssetJPYName = ast.Name.ToUpper();
-                                AssetJPYAmount = ast.Amount;
-                                AssetJPYFreeAmount = ast.FreeAmount;
-                            });
-                            //Debug.WriteLine("AssetJPYFreeAmount :" + ast.FreeAmount.ToString());
-                            //Debug.WriteLine("AssetJPYAmount :" + ast.Amount.ToString());
-                        }
-                        else if (ast.Name == "btc")
-                        {
-                            if (PairCode.ToString() == "btc_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                    
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0) 
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);//new Models.Asset { Name = ast.Name.ToUpper(), Amount = ast.Amount, FreeAmount = ast.FreeAmount });
-                                }
-                            }
-                        }
-                        else if (ast.Name == "xrp")
-                        {
-                            if (PairCode.ToString() == "xrp_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                    //newAssets.Add(new Models.Asset { Name = ast.Name.ToUpper(), Amount = ast.Amount, FreeAmount = ast.FreeAmount });
-                                }
-                            }
-                        }
-                        else if (ast.Name == "eth")
-                        {
-                            if (PairCode.ToString() == "eth_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "ltc")
-                        {
-                            if (PairCode.ToString() == "ltc_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "mona")
-                        {
-                            if (PairCode.ToString() == "mona_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "bcc")
-                        {
-                            if (PairCode.ToString() == "bcc_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "xlm")
-                        {
-                            if (PairCode.ToString() == "xlm_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "qtum")
-                        {
-                            if (PairCode.ToString() == "qtum_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "bat")
-                        {
-                            if (PairCode.ToString() == "bat_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "omg")
-                        {
-                            if (PairCode.ToString() == "omg_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "xym")
-                        {
-                            if (PairCode.ToString() == "xym_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "link")
-                        {
-                            if (PairCode.ToString() == "link_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "mkr")
-                        {
-                            if (PairCode.ToString() == "mkr_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "boba")
-                        {
-                            if (PairCode.ToString() == "boba_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "enj")
-                        {
-                            if (PairCode.ToString() == "enj_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "matic")
-                        {
-                            if (PairCode.ToString() == "matic_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "dot")
-                        {
-                            if (PairCode.ToString() == "dot_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "doge")
-                        {
-                            if (PairCode.ToString() == "doge_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "astr")
-                        {
-                            if (PairCode.ToString() == "astr_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "ada")
-                        {
-                            if (PairCode.ToString() == "ada_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "avax")
-                        {
-                            if (PairCode.ToString() == "avax_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "axs")
-                        {
-                            if (PairCode.ToString() == "axs_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "flr")
-                        {
-                            if (PairCode.ToString() == "flr_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                        else if (ast.Name == "sand")
-                        {
-                            if (PairCode.ToString() == "sand_jpy")
-                            {
-                                App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                                {
-                                    AssetCurrentName = ast.Name.ToUpper();
-                                    AssetCurrentAmount = ast.Amount;
-                                    AssetCurrentFreeAmount = ast.FreeAmount;
-                                });
-                            }
-                            else
-                            {
-                                if (ast.Amount > 0)
-                                {
-                                    ast.Name = ast.Name.ToUpper();
-                                    newAssets.Add(ast);
-                                }
-                            }
-                        }
-                    }
-
-                    App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                    {
-                        AssetCurrentEstimateAmount = AssetCurrentAmount * _ltp;
-                    });
-                    
-
-                    App.CurrentDispatcherQueue?.TryEnqueue(() =>
-                    {
-                        //Assets = newAssets;
-                        foreach (var ors in newAssets)
-                        {
-                            var found = Assets.FirstOrDefault(x => x.Name == ors.Name); 
-                            if (found != null)
-                            {
-                                found = ors;
-                            }
-                            else
-                            {
-                                Assets.Add(ors);
-                            }
-                        }
-                        var lst = new List<Asset>();
-                        foreach (var ors in Assets)
-                        {
-                            var found = newAssets.FirstOrDefault(x => x.Name == ors.Name);
-                            if (found == null)
-                            {
-                                lst.Add(ors);
-                            }
-                        }
-
-                        foreach (var ff in lst)
-                        {
-                            var found = Assets.FirstOrDefault(x => x.Name == ff.Name);
-                            if (found != null)
-                            {
-                                Assets.Remove(ff);
-                            }
-                        }
-                    });
-
-                    //await Task.Delay(1000);
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    //System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets: Exception - " + ex.Message);
-                    if (ex.InnerException != null)
-                    {
-                        System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets InnerException1: " + ex.InnerException.Message);
-                    }
-                    else
-                    {
-                        System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets Exception1: " + ex.Message);
-                    }
-
-                    //await Task.Delay(1000);
-                    return false;
-                }
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets: 取得失敗");
-
-                //APIResultAssets = "<<取得失敗>>";
-
-                await Task.Delay(1000);
-                return false;
-            }
-
-        }
-        catch (Exception e)
-        {
-            if (e.InnerException != null)
-            {
-                System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets InnerException2: " + e.InnerException.Message);
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets Exception2: " + e.Message);
-            }
-
-            await Task.Delay(1000);
-            return false;
-        }
-
-    }
-
-    #endregion
 
     #region == Depth ==
 

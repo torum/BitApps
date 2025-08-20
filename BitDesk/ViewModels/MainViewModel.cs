@@ -5,6 +5,7 @@ using System.Windows.Input;
 using BitApps.Core.Helpers;
 using BitApps.Core.Models;
 using BitApps.Core.Models.APIClients;
+using BitDesk.Models;
 using BitDesk.Models.APIClients;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml;
@@ -1166,6 +1167,26 @@ public partial class MainViewModel : ObservableRecipient
 
     #endregion
 
+    #region == Assets ==
+
+    private ObservableCollection<Models.Asset> _assets = [];
+    public ObservableCollection<Models.Asset> Assets
+    {
+        get => _assets;
+        set
+        {
+            if (_assets == value)
+            {
+                return;
+            }
+
+            _assets = value;
+            OnPropertyChanged(nameof(Assets));
+        }
+    }
+
+    #endregion
+
     #region == API keys ==
 
     // Assets
@@ -1414,12 +1435,13 @@ public partial class MainViewModel : ObservableRecipient
     #endregion
 
     // HTTP Clients
-    private readonly PublicAPIClient _pubTickerApi = new(); // singelton
+    //private readonly PublicAPIClient _pubTickerApi = new(); // singelton
     public readonly PrivateAPIClient PriAssetsApi = new(); // not singelton
     public readonly PrivateAPIClient PriOrdersApi = new(); // not singelton
 
     // Timer
     private readonly DispatcherTimer _dispatcherTimerTickAllPairs = new();
+    private readonly DispatcherTimer _dispatcherTimerAssets = new();
 
     // Event
     public event EventHandler<ShowBalloonEventArgs>? ShowBalloon;
@@ -1430,11 +1452,17 @@ public partial class MainViewModel : ObservableRecipient
         //_pubTickerApi.ErrorOccured += new PrivateAPIClient.ClinetErrorEvent(OnError);
 
         GetTickers();
+        //Task.Run(GetTickers);
 
         // Ticker update timer
         _dispatcherTimerTickAllPairs.Tick += TickerTimerAllPairs;
         _dispatcherTimerTickAllPairs.Interval = new TimeSpan(0, 0, 2);
         _dispatcherTimerTickAllPairs.Start();
+
+        // Assets update timer
+        _dispatcherTimerAssets.Tick += TickerTimerAssets;
+        _dispatcherTimerAssets.Interval = new TimeSpan(0, 0, 20);
+        //_dispatcherTimerAssets.Start();
 
         // SystemBackdrop
         if (Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController.IsSupported())
@@ -1583,6 +1611,15 @@ public partial class MainViewModel : ObservableRecipient
         });
         */
         _selectedPair?.InitializeAndLoad(this);
+
+        if (!_dispatcherTimerAssets.IsEnabled)
+        {
+            App.CurrentDispatcherQueue?.TryEnqueue(async () =>
+            {
+                await GetAssets();
+            });
+            _dispatcherTimerAssets.Start();
+        }
     }
 
     public void CleanUp()
@@ -1591,7 +1628,7 @@ public partial class MainViewModel : ObservableRecipient
         {
             _dispatcherTimerTickAllPairs.Stop();
 
-            _pubTickerApi.Dispose();
+            //_pubTickerApi.Dispose();
 
         }
         catch (Exception ex)
@@ -1600,16 +1637,17 @@ public partial class MainViewModel : ObservableRecipient
         }
     }
 
+    #region == Ticker ==
+
     private void TickerTimerAllPairs(object? source, object e)
     {
-        try
+        /*
+        App.CurrentDispatcherQueue?.TryEnqueue(async () =>
         {
-            GetTickers();
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine("Error while GetTickers() : " + ex);
-        }
+            await GetTickers();
+        });
+        */
+        GetTickers();
     }
 
     private async void GetTickers()
@@ -2074,6 +2112,180 @@ public partial class MainViewModel : ObservableRecipient
 
     }
 
+    #endregion
+
+    #region == Assets ==
+
+    private void TickerTimerAssets(object? source, object e)
+    {
+        /*
+        if (!IsEnabled)
+        {
+            return;
+        }
+
+        if (!IsSelectedActive)
+        {
+            return;
+        }
+        */
+
+        //Task.Run(() => GetAssets());
+        App.CurrentDispatcherQueue?.TryEnqueue(async () =>
+        {
+            await GetAssets();
+        });
+    }
+
+    private async Task<bool> GetAssets()
+    {
+        if (AssetsApiKeyIsSet == false)
+        {
+            // TODO: show message?
+            System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets: (AssetsApiKeyIsSet == false)");
+            return false;
+        }
+
+        try
+        {
+            // TODO: Use AssetsResult
+            var asts = await PriAssetsApi.GetAssetList(AssetsApiKey, AssetsSecret);
+
+            if (asts != null)
+            {
+                try
+                {
+                    var newAssets = new ObservableCollection<Models.Asset>();
+
+                    foreach (var ast in asts)
+                    {
+                        if (ast.Name == "jpy")
+                        {
+                            /*
+                            App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                            {
+                                AssetJPYName = ast.Name.ToUpper();
+                                AssetJPYAmount = ast.Amount;
+                                AssetJPYFreeAmount = ast.FreeAmount;
+                            });
+                            //Debug.WriteLine("AssetJPYFreeAmount :" + ast.FreeAmount.ToString());
+                            //Debug.WriteLine("AssetJPYAmount :" + ast.Amount.ToString());
+                            */
+
+                            foreach (var ps in Pairs)
+                            {
+                                if (ps.IsEnabled)
+                                {
+                                    ps.AssetJPYName = ast.Name.ToUpper();
+                                    ps.AssetJPYAmount = ast.Amount;
+                                    ps.AssetJPYFreeAmount = ast.FreeAmount;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (ast.Amount > 0)
+                            {
+                                ast.Name = ast.Name.ToUpper();
+                                newAssets.Add(ast);
+                            }
+
+                            var pr = Pairs.FirstOrDefault(x => x.CurrencyUnitString.Equals(ast.Name, StringComparison.OrdinalIgnoreCase));
+                            if (pr is not null)
+                            {
+                                pr.AssetCurrentName = ast.Name.ToUpper();
+                                pr.AssetCurrentAmount = ast.Amount;
+                                pr.AssetCurrentFreeAmount = ast.FreeAmount;
+                            }
+                        }
+                    }
+
+                    App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                    {
+                        //Assets = newAssets;
+                        foreach (var ors in newAssets)
+                        {
+                            var found = Assets.FirstOrDefault(x => x.Name == ors.Name);
+                            if (found != null)
+                            {
+                                found = ors;
+                            }
+                            else
+                            {
+                                Assets.Add(ors);
+                            }
+                        }
+                        var lst = new List<Asset>();
+                        foreach (var ors in Assets)
+                        {
+                            var found = newAssets.FirstOrDefault(x => x.Name == ors.Name);
+                            if (found == null)
+                            {
+                                lst.Add(ors);
+                            }
+                        }
+
+                        foreach (var ff in lst)
+                        {
+                            var found = Assets.FirstOrDefault(x => x.Name == ff.Name);
+                            if (found != null)
+                            {
+                                Assets.Remove(ff);
+                            }
+                        }
+                    });
+
+                    //await Task.Delay(1000);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    //System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets: Exception - " + ex.Message);
+                    if (ex.InnerException != null)
+                    {
+                        System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets InnerException1: " + ex.InnerException.Message);
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets Exception1: " + ex.Message);
+                    }
+
+                    //await Task.Delay(1000);
+                    return false;
+                }
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets: 取得失敗");
+
+                //APIResultAssets = "<<取得失敗>>";
+
+                await Task.Delay(1000);
+                return false;
+            }
+
+        }
+        catch (Exception e)
+        {
+            if (e.InnerException != null)
+            {
+                System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets InnerException2: " + e.InnerException.Message);
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("■■■■■ GetAssets Exception2: " + e.Message);
+            }
+
+            await Task.Delay(1000);
+            return false;
+        }
+
+    }
+
+    #endregion
+
+    #region == Themes ==
+
     private static bool CanSwitchThemeExecute()
     {
         return true;
@@ -2142,5 +2354,7 @@ public partial class MainViewModel : ObservableRecipient
             }
         }
     }
+
+    #endregion
 
 }
