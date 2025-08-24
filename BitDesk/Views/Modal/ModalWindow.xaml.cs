@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using BitApps.Core.Helpers;
+using LiveChartsCore.Themes;
+using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -14,27 +17,30 @@ using Microsoft.UI.Xaml.Navigation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Graphics;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using Windows.Storage;
+using Windows.UI.ViewManagement;
+using Windows.UI.WindowManagement;
 
 namespace BitDesk.Views.Modal;
 
-/// <summary>
-/// An empty window that can be used on its own or navigated to within a Frame.
-/// </summary>
 public sealed partial class ModalWindow : Window
 {
     public ModalWindow()
     {
         InitializeComponent();
 
-        // TEMP: Resize the window to a specific size.
-        AppWindow.Resize(new Windows.Graphics.SizeInt32(1024, 768));
+        ExtendsContentIntoTitleBar = true;
+        //SetTitleBar(AppTitleBar);
+
         if (AppWindow.Presenter is OverlappedPresenter presenter)
         {
             presenter.IsResizable = false;
+            presenter.IsMaximizable = false;
+            presenter.IsMinimizable = false;
         }
+
+        // TEMP: Resize the window to a specific size.
+        AppWindow.Resize(new Windows.Graphics.SizeInt32(540, 820));
 
         // Center the window on the screen.
         CenterWindow();

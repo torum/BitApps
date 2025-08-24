@@ -4,11 +4,76 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:ui="using:CommunityToolkit.WinUI" 
+    xmlns:vm="using:BitDesk.ViewModels" 
+    xmlns:mod="using:BitDesk.Models" 
+    d:DataContext="{d:DesignInstance Type=vm:PairViewModel}"
     mc:Ignorable="d"
-    NavigationCacheMode="Required"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    NavigationCacheMode="Required">
 
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="32"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="68"/>
+        </Grid.RowDefinitions>
+        
+        <StackPanel Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock Margin="0" Text="{x:Bind Path=PairViewModel.PairString, Mode=OneWay}" Style="{StaticResource BaseTextBlockStyle}"/>
+        </StackPanel>
+
+        <controls:Segmented Grid.Row="1" x:Name="SegmentedControlOrder" HorizontalAlignment="Stretch" VerticalAlignment="Top" SelectedIndex="{x:Bind PairViewModel.OrderSideSelectedIndex, Mode=TwoWay}" Margin="24,12,24,0">
+            <controls:SegmentedItem x:Uid="TabHeader_Buy" Tag="buy" />
+            <controls:SegmentedItem x:Uid="TabHeader_Sell" Tag="sell" />
+        </controls:Segmented>
+
+        <ScrollViewer Grid.Row="2">
+
+            <StackPanel Margin="36,24,36,12" Spacing="12">
+
+                <ComboBox Header="注文タイプ" ItemsSource="{x:Bind PairViewModel.OrderTypesForComboBox, Mode=OneWay}" SelectedIndex="0" SelectedItem="{x:Bind PairViewModel.SelectedOrderTypeForComboBox, Mode=TwoWay}" Width="180">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="mod:OrderTypeSelectionForComboBox">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{x:Bind Label}" Margin="0,0,5,0"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <TextBox Header="指値価格" Text="{x:Bind PairViewModel.OrderPrice, Mode=TwoWay}" Visibility="{x:Bind PairViewModel.IsOrderPriceVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"></TextBox>
+
+                <controls:SwitchPresenter Value="{Binding SelectedItem.Tag, ElementName=SegmentedControlOrder, Mode=OneWay}">
+                    <controls:Case Value="buy">
+                        <StackPanel Orientation="Horizontal" Opacity="0.5">
+                            <TextBlock Text="利用可能: "/>
+                            <TextBlock Text="{x:Bind PairViewModel.AssetJPYFreeAmountText, Mode=OneWay}"/>
+                        </StackPanel>
+                    </controls:Case>
+                    <controls:Case Value="sell">
+                        <StackPanel Orientation="Horizontal" Opacity="0.5">
+                            <TextBlock Text="利用可能: "/>
+                            <TextBlock Text="{x:Bind PairViewModel.AssetCurrentFreeAmountText, Mode=OneWay}"/>
+                        </StackPanel>
+                    </controls:Case>
+                </controls:SwitchPresenter>
+
+                <TextBox Header="数量" Text="{x:Bind PairViewModel.OrderAmount, Mode=TwoWay}"></TextBox>
+
+                <TextBox Header="予想" Text="{x:Bind PairViewModel.OrderEstimatePrice, Mode=OneWay}"></TextBox>
+
+                <CheckBox IsChecked="{x:Bind PairViewModel.IsOrderPostOnly, Mode=TwoWay}" Content="Post Only"></CheckBox>
+
+            </StackPanel>
+
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,12,24,0" HorizontalAlignment="Right">
+            <TextBlock Text="{x:Bind PairViewModel.MakeOrderRresultText, Mode=TwoWay}" Margin="12,0,12,0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <Button Content="Order" Command="{x:Bind PairViewModel.MakeOrderCommand}" HorizontalAlignment="Right"></Button>
+        </StackPanel>
 
     </Grid>
 </Page>

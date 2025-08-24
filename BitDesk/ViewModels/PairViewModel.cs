@@ -21,6 +21,7 @@ using LiveChartsCore.SkiaSharpView.Painting.Effects;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.VisualBasic;
 using SkiaSharp;
 using static System.Net.WebRequestMethods;
 
@@ -1204,7 +1205,7 @@ public partial class PairViewModel : ObservableRecipient
 
     #endregion
 
-    #region == Orders TradeHistory ==
+    #region == Orders, TradeHistory ==
 
     private ObservableCollection<Order> _orders = [];
     public ObservableCollection<Order> Orders
@@ -1650,6 +1651,190 @@ public partial class PairViewModel : ObservableRecipient
         }
     }
 
+    private DateTime lastChartLoadedDateTime = DateTime.MinValue;
+
+    #endregion
+
+    #region == Order ==
+
+    private OrderSides _orderSide = OrderSides.buy;
+    public OrderSides OrderSide
+    {
+        get => _orderSide;
+        set
+        {
+            if (_orderSide == value)
+            {
+                return;
+            }
+
+            _orderSide = value;
+            OnPropertyChanged(nameof(OrderSide));
+        }
+    }
+
+    private int _orderSideSelectedIndex; // 0=Buy, 1=Sell
+    public int OrderSideSelectedIndex
+    {
+        get => _orderSideSelectedIndex;
+        set
+        {
+            if (_orderSideSelectedIndex == value)
+            {
+                return;
+            }
+
+            _orderSideSelectedIndex = value;
+            OnPropertyChanged(nameof(OrderSideSelectedIndex));
+
+            if (_orderSideSelectedIndex == 0)
+            {
+                OrderSide = OrderSides.buy;
+            }
+            else
+            {
+                OrderSide = OrderSides.sell;
+            }
+        }
+    }
+
+    public ObservableCollection<OrderTypeSelectionForComboBox> OrderTypesForComboBox =
+    [
+        new OrderTypeSelectionForComboBox(OrderTypes.limit, "指値"),
+        new OrderTypeSelectionForComboBox(OrderTypes.market, "成行")
+    ];
+
+    private OrderTypeSelectionForComboBox? _selectedOrderTypeSelectionForComboBox;
+    public OrderTypeSelectionForComboBox? SelectedOrderTypeForComboBox
+    {
+        get => _selectedOrderTypeSelectionForComboBox;
+        set
+        {
+            if (_selectedOrderTypeSelectionForComboBox == value)
+            {
+                return;
+            }
+
+             _selectedOrderTypeSelectionForComboBox = value;
+            OnPropertyChanged(nameof(SelectedOrderTypeForComboBox));
+
+            if (_selectedOrderTypeSelectionForComboBox?.Key == OrderTypes.limit)
+            {
+                IsOrderPriceVisible = true;
+            }
+            else if (_selectedOrderTypeSelectionForComboBox?.Key == OrderTypes.market)
+            {
+                IsOrderPriceVisible = false;
+            }
+        }
+    }
+
+    private decimal _orderAmount;// = 0.001M; // 通貨別デフォ指定 TODO
+    public string OrderAmount
+    {
+        get => _orderAmount.ToString();
+        set
+        {
+            decimal decimalValue;
+            if (decimal.TryParse(value, out decimalValue))
+            {
+                if (_orderAmount == decimalValue)
+                {
+                    return;
+                }
+                _orderAmount = decimalValue;
+                OnPropertyChanged(nameof(OrderAmount));
+                OnPropertyChanged(nameof(OrderEstimatePrice));
+            }
+        }
+    }
+
+    private decimal _orderPrice; // 通貨別デフォ指定 TODO
+    public string OrderPrice
+    {
+        get => _orderPrice.ToString();
+        set
+        {
+            decimal decimalValue;
+            if (decimal.TryParse(value, out decimalValue))
+            {
+                if (_orderPrice == decimalValue)
+                {
+                    return;
+                }
+                _orderPrice = decimalValue;
+                OnPropertyChanged(nameof(OrderPrice));
+                OnPropertyChanged(nameof(OrderEstimatePrice));
+            }
+        }
+    }
+
+    private bool _isOrderPriceVisible = true;
+    public bool IsOrderPriceVisible
+    {
+        get => _isOrderPriceVisible;
+        set
+        {
+            if (_isOrderPriceVisible == value)
+            {
+                return;
+            }
+
+            _isOrderPriceVisible = value;
+            OnPropertyChanged(nameof(IsOrderPriceVisible));
+        }
+    }
+
+    public string OrderEstimatePrice
+    {
+        get
+        {
+            decimal decimalValue;
+            // TODO:
+            if (_selectedOrderTypeSelectionForComboBox?.Key == OrderTypes.market)
+            {
+                decimalValue = _orderAmount * Bid;//_bid;
+            }
+            else
+            {
+                decimalValue = _orderAmount * _orderPrice;
+            }
+            return decimalValue.ToString();
+        }
+    }
+
+    private bool _isOrderPostOnly = true;
+    public bool IsOrderPostOnly
+    {
+        get => _isOrderPostOnly;
+        set
+        {
+            if (_isOrderPostOnly == value)
+            {
+                return;
+            }
+
+            _isOrderPostOnly = value;
+            OnPropertyChanged(nameof(IsOrderPostOnly));
+        }
+    }
+
+    private string _makeOrderResultText = string.Empty;
+    public string MakeOrderRresultText
+    {
+        get => _makeOrderResultText;
+        set
+        {
+            if (_makeOrderResultText == value)
+            {
+                return;
+            }
+
+            _makeOrderResultText = value;
+            OnPropertyChanged(nameof(MakeOrderRresultText));
+        }
+    }
+
     #endregion
 
     #region == HTTP Clients ==
@@ -1670,9 +1855,7 @@ public partial class PairViewModel : ObservableRecipient
     private readonly DispatcherTimer _dispatcherTimerTradeHistory = new(); 
     #endregion
 
-    private DateTime lastChartLoadedDateTime= DateTime.MinValue;
-
-    #region == Commands ==
+    #region == Events ==
 
     public delegate void DepthCenterEventHandler();
     public event DepthCenterEventHandler? DepthScrollCenter;
@@ -1696,9 +1879,13 @@ public partial class PairViewModel : ObservableRecipient
         _depthGrouping100 = grouping100;
         _depthGrouping1000 = grouping1000;
 
+        SelectedOrderTypeForComboBox = OrderTypesForComboBox[0];
+
+
         #region == RelayCommands ==
 
         ChangeCandleTypeCommand = new GenericRelayCommand<CandleTypes>(param => ChangeCandleTypeCommand_Execute(param), param => ChangeCandleTypeCommand_CanExecute());
+        CancelOrderCommand = new GenericRelayCommand<IList<object>>(param => CancelOrderCommand_Execute(param), param => CancelOrderCommand_CanExecute());
 
         #endregion
 
@@ -1706,12 +1893,12 @@ public partial class PairViewModel : ObservableRecipient
 
         // Depth update timer
         _dispatcherTimerDepth.Tick += TickerTimerDepth;
-        _dispatcherTimerDepth.Interval = new TimeSpan(0, 0, 4);
+        _dispatcherTimerDepth.Interval = new TimeSpan(0, 0, 5);
         _dispatcherTimerDepth.Start();
 
         // Transaction update timer
         _dispatcherTimerTransaction.Tick += TickerTimerTransaction;
-        _dispatcherTimerTransaction.Interval = new TimeSpan(0, 0, 6);
+        _dispatcherTimerTransaction.Interval = new TimeSpan(0, 0, 8);
         _dispatcherTimerTransaction.Start();
 
         // Chart update timer
@@ -1738,8 +1925,8 @@ public partial class PairViewModel : ObservableRecipient
     {
         MainViewModel = vm;
 
-        MainViewModel.PriAssetsApi.ErrorOccured += new PrivateAPIClient.ClinetErrorEvent(OnError);
-        MainViewModel.PriOrdersApi.ErrorOccured += new PrivateAPIClient.ClinetErrorEvent(OnError);
+        MainViewModel.PriAssetsApi.ErrorOccured += new PrivateAPIClient.ClinetErrorEvent(OnClientError);
+        MainViewModel.PriOrdersApi.ErrorOccured += new PrivateAPIClient.ClinetErrorEvent(OnClientError);
 
         if (IsChartInitAndLoaded) 
         {
@@ -1769,9 +1956,9 @@ public partial class PairViewModel : ObservableRecipient
             LoadChart(SelectedCandleType);
         }
 
-        //Task.Run(async () => await GetAssets());
         Task.Run(() => GetOrders());
         Task.Run(() => GetTradeHistory());
+        Task.Run(() => GetDepth());
     }
 
     public void CleanUp()
@@ -1780,7 +1967,9 @@ public partial class PairViewModel : ObservableRecipient
         {
             _dispatcherTimerChart.Stop();
             _dispatcherTimerDepth.Stop();
+            _dispatcherTimerOrders.Stop();
             _dispatcherTimerTransaction.Stop();
+            _dispatcherTimerTradeHistory.Start();
 
             //_pubCandlestickApi.Dispose();
             //_pubTransactionsApi.Dispose();
@@ -2252,10 +2441,11 @@ public partial class PairViewModel : ObservableRecipient
             return;
         }
 
-        Task.Run(() => GetTradeHistory());
+        //Task.Run(() => GetTradeHistory());
+        GetTradeHistory();
     }
 
-    private async Task GetTradeHistory()
+    private void GetTradeHistory()
     {
         if (MainViewModel == null)
         {
@@ -2269,76 +2459,79 @@ public partial class PairViewModel : ObservableRecipient
             return;
         }
 
-        try
+        App.CurrentDispatcherQueue?.TryEnqueue(async () =>
         {
-
-            var trd = await MainViewModel.PriOrdersApi.GetTradeHistory(MainViewModel.TradeHistoryApiKey, MainViewModel.TradeHistorySecret, PairCode.ToString());
-
-            if (trd != null)
+            try
             {
-                // 逆順にする
-                trd.TradeList.Reverse();
 
-                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                var trd = await MainViewModel.PriOrdersApi.GetTradeHistory(MainViewModel.TradeHistoryApiKey, MainViewModel.TradeHistorySecret, PairCode.ToString());
+
+                if (trd != null)
                 {
-                    foreach (var tr in trd.TradeList)
+                    // 逆順にする
+                    trd.TradeList.Reverse();
+
+                    App.CurrentDispatcherQueue?.TryEnqueue(() =>
                     {
-                        var found = TradeHistories.FirstOrDefault(x => x.TradeID == tr.TradeID);
-                        if (found == null)
+                        foreach (var tr in trd.TradeList)
                         {
-                            // "btc_jpy" を "BTC/JPY"に。
-                            if (GetPairCodes.TryGetValue(tr.Pair, out var value))
+                            var found = TradeHistories.FirstOrDefault(x => x.TradeID == tr.TradeID);
+                            if (found == null)
                             {
-                                tr.Pair = PairStrings[value];
+                                // "btc_jpy" を "BTC/JPY"に。
+                                if (GetPairCodes.TryGetValue(tr.Pair, out var value))
+                                {
+                                    tr.Pair = PairStrings[value];
+                                }
+
+                                found = new Trade
+                                {
+                                    TradeID = tr.TradeID,
+                                    OrderID = tr.OrderID,
+                                    Pair = tr.Pair,
+                                    Price = tr.Price,
+                                    ExecutedAt = tr.ExecutedAt,
+                                    Amount = tr.Amount,
+                                    Side = tr.Side,
+                                    Type = tr.Type,
+                                    //FeeAmountBase = tr.FeeAmountBase,
+                                    FeeOccurredAmountQuote = tr.FeeOccurredAmountQuote,
+                                    FeeAmountQuote = tr.FeeAmountQuote,
+                                    MakerTaker = tr.MakerTaker,
+                                };
+
+                                TradeHistories.Insert(0, found);
                             }
 
-                            found = new Trade
-                            {
-                                TradeID = tr.TradeID,
-                                OrderID = tr.OrderID,
-                                Pair = tr.Pair,
-                                Price = tr.Price,
-                                ExecutedAt = tr.ExecutedAt,
-                                Amount = tr.Amount,
-                                Side = tr.Side,
-                                Type = tr.Type,
-                                //FeeAmountBase = tr.FeeAmountBase,
-                                FeeOccurredAmountQuote = tr.FeeOccurredAmountQuote,
-                                FeeAmountQuote = tr.FeeAmountQuote,
-                                MakerTaker = tr.MakerTaker,
-                            };
-
-                            TradeHistories.Insert(0, found);
                         }
 
-                    }
+                    });
 
-                });
+                    return;
+                }
+                else
+                {
+                    // TODO:
+                    /*
+                    _tradeHistories = -1;
+                    NotifyPropertyChanged(nameof(TradeHistoryTitle));
 
-                return;
+                    APIResultTradeHistory = "<<取得失敗>>";
+                    */
+
+                    System.Diagnostics.Debug.WriteLine("■■■■■ GetTradeHistory is null.");
+
+                    return;
+                }
+
             }
-            else
+            catch (Exception e)
             {
-                // TODO:
-                /*
-                _tradeHistories = -1;
-                NotifyPropertyChanged(nameof(TradeHistoryTitle));
-
-                APIResultTradeHistory = "<<取得失敗>>";
-                */
-
-                System.Diagnostics.Debug.WriteLine("■■■■■ GetTradeHistory is null.");
+                System.Diagnostics.Debug.WriteLine("■■■■■ GetTradeHistory Exception: " + e);
 
                 return;
             }
-
-        }
-        catch (Exception e)
-        {
-            System.Diagnostics.Debug.WriteLine("■■■■■ GetTradeHistory Exception: " + e);
-
-            return;
-        }
+        });
     }
 
     #endregion
@@ -2607,7 +2800,6 @@ public partial class PairViewModel : ObservableRecipient
 
     #endregion
 
-
     #region == Depth ==
 
     private void TickerTimerDepth(object? source, object e)
@@ -2625,17 +2817,19 @@ public partial class PairViewModel : ObservableRecipient
         UpdateDepth();
     }
 
-    private async void UpdateDepth()
+    private void UpdateDepth()
     {
         // timer ver
         if (IsSelectedActive && IsPaneVisible && IsEnabled)
         {
-            await GetDepth(PairCode);
+            GetDepth();
         }
     }
 
-    private async Task<bool> GetDepth(PairCodes pair)
+    private void GetDepth()
     {
+        var pair = PairCode;
+
         // まとめグルーピング単位 
         var unit = DepthGrouping;
 
@@ -2645,219 +2839,219 @@ public partial class PairViewModel : ObservableRecipient
 
         if (_depth == null)
         {
-            return false;
+            return;
         }
-        /*
-(App.Current as App)?.CurrentDispatcherQueue?.TryEnqueue(() =>
-{
-});
-*/
-        // 初期化
-        if ((_depth.Count == 0) || (_depth.Count < listCount))
-        {
-            //_depth.Clear();
-            for (var i = 0; i < listCount; i++)
-            {
-                Depth dd = new(_ltpFormstString)
-                {
-                    DepthPrice = i,
-                    DepthBid = 0,
-                    DepthAsk = 0
-                };
-                //if (i == (half-1)) dd.IsLTP = true;
-                _depth.Add(dd);
-            }
 
-            // scroll center
-            App.CurrentDispatcherQueue?.TryEnqueue(() =>
-            {
-                DepthScrollCenter?.Invoke();
-            });
-        }
-        else
+
+        App.CurrentDispatcherQueue?.TryEnqueue(async () =>
         {
-            if (IsDepthGroupingChanged)
+
+
+            // 初期化
+            if ((_depth.Count == 0) || (_depth.Count < listCount))
             {
-                //グルーピング単位が変わったので、一旦クリアする。
-                for (var i = 0; i < _depth.Count - 1; i++)
+                //_depth.Clear();
+                for (var i = 0; i < listCount; i++)
                 {
-                    _depth[i].DepthPrice = 0;
-                    _depth[i].DepthBid = 0;
-                    _depth[i].DepthAsk = 0;
+                    Depth dd = new(_ltpFormstString)
+                    {
+                        DepthPrice = i,
+                        DepthBid = 0,
+                        DepthAsk = 0
+                    };
+                    //if (i == (half-1)) dd.IsLTP = true;
+                    _depth.Add(dd);
                 }
 
-                IsDepthGroupingChanged = false;
-            }
-        }
-
-        // LTP を追加
-        _depth[half].DepthPrice = Ltp;
-        _depth[half].IsLTP = true;
-
-        var dpr = await PublicAPIClient.GetDepth(pair.ToString());
-
-        if (!IsEnabled)
-        {
-            return false;
-        }
-
-        if (dpr != null)
-        {
-            if (_depth == null)
-            {
-                return false;
-            }
-            /*
-(App.Current as App)?.CurrentDispatcherQueue?.TryEnqueue(() =>
-{
-});
-*/
-
-            if (_depth.Count != 0)
-            {
-                var i = 1;
-
-                // 100円単位でまとめる
-                // まとめた時の価格
-                decimal c2 = 0;
-                // 100単位ごとにまとめたAsk数量を保持
-                decimal t = 0;
-                // 先送りするAsk
-                decimal d = 0;
-                // 先送りする価格
-                decimal e = 0;
-
-                // ask をループ
-                foreach (var dp in dpr.DepthAskList)
+                // scroll center
+                App.CurrentDispatcherQueue?.TryEnqueue(() =>
                 {
-                    // まとめ表示On
-                    if (unit > 0)
+                    DepthScrollCenter?.Invoke();
+                });
+            }
+            else
+            {
+                if (IsDepthGroupingChanged)
+                {
+                    //グルーピング単位が変わったので、一旦クリアする。
+                    for (var i = 0; i < _depth.Count - 1; i++)
                     {
+                        _depth[i].DepthPrice = 0;
+                        _depth[i].DepthBid = 0;
+                        _depth[i].DepthAsk = 0;
+                    }
 
-                        if (c2 == 0)
-                        {
-                            c2 = Math.Ceiling(dp.DepthPrice / unit);
-                        }
+                    IsDepthGroupingChanged = false;
+                }
+            }
 
-                        // 100円単位でまとめる
-                        if (Math.Ceiling(dp.DepthPrice / unit) == c2)
+            // LTP を追加
+            _depth[half].DepthPrice = Ltp;
+            _depth[half].IsLTP = true;
+
+            var dpr = await PublicAPIClient.GetDepth(pair.ToString());
+
+            if (!IsEnabled)
+            {
+                return;
+            }
+
+            if (dpr != null)
+            {
+                if (_depth == null)
+                {
+                    return;
+                }
+
+
+                if (_depth.Count != 0)
+                {
+                    var i = 1;
+
+                    // 100円単位でまとめる
+                    // まとめた時の価格
+                    decimal c2 = 0;
+                    // 100単位ごとにまとめたAsk数量を保持
+                    decimal t = 0;
+                    // 先送りするAsk
+                    decimal d = 0;
+                    // 先送りする価格
+                    decimal e = 0;
+
+                    // ask をループ
+                    foreach (var dp in dpr.DepthAskList)
+                    {
+                        // まとめ表示On
+                        if (unit > 0)
                         {
-                            t += dp.DepthAsk;
+
+                            if (c2 == 0)
+                            {
+                                c2 = Math.Ceiling(dp.DepthPrice / unit);
+                            }
+
+                            // 100円単位でまとめる
+                            if (Math.Ceiling(dp.DepthPrice / unit) == c2)
+                            {
+                                t += dp.DepthAsk;
+                            }
+                            else
+                            {
+                                //Debug.WriteLine(System.Math.Ceiling(dp.DepthPrice / unit).ToString() + " " + System.Math.Ceiling(c / unit).ToString());
+
+                                // 一時保存
+                                e = dp.DepthPrice;
+                                dp.DepthPrice = c2 * unit;
+
+                                // 一時保存
+                                d = dp.DepthAsk;
+                                dp.DepthAsk = t;
+
+                                _depth[half - i].DepthAsk = dp.DepthAsk;
+                                _depth[half - i].DepthBid = dp.DepthBid;
+                                _depth[half - i].DepthPrice = dp.DepthPrice;
+                                _depth[half - i].PriceFormat = _ltpFormstString;
+
+                                // 今回のAskは先送り
+                                t = d;
+                                // 今回のPriceが基準になる
+                                c2 = Math.Ceiling(e / unit);
+
+                                i++;
+                            }
+
                         }
                         else
                         {
-                            //Debug.WriteLine(System.Math.Ceiling(dp.DepthPrice / unit).ToString() + " " + System.Math.Ceiling(c / unit).ToString());
-
-                            // 一時保存
-                            e = dp.DepthPrice;
-                            dp.DepthPrice = c2 * unit;
-
-                            // 一時保存
-                            d = dp.DepthAsk;
-                            dp.DepthAsk = t;
-
-                            _depth[half - i].DepthAsk = dp.DepthAsk;
-                            _depth[half - i].DepthBid = dp.DepthBid;
+                            //dp.PriceFormat = this._ltpFormstString;
+                            //_depth[half - i] = dp;
                             _depth[half - i].DepthPrice = dp.DepthPrice;
+                            _depth[half - i].DepthBid = dp.DepthBid;
+                            _depth[half - i].DepthAsk = dp.DepthAsk;
                             _depth[half - i].PriceFormat = _ltpFormstString;
 
-                            // 今回のAskは先送り
-                            t = d;
-                            // 今回のPriceが基準になる
-                            c2 = Math.Ceiling(e / unit);
-
                             i++;
                         }
-
                     }
-                    else
+
+                    _depth[half - 1].IsAskBest = true;
+
+                    i = half + 1;
+
+                    // 100円単位でまとめる
+                    // まとめた時の価格
+                    decimal c = 0;
+                    // 100単位ごとにまとめた数量を保持
+                    t = 0;
+                    // 先送りするBid
+                    d = 0;
+                    // 先送りする価格
+                    e = 0;
+
+                    // bid をループ
+                    foreach (var dp in dpr.DepthBidList)
                     {
-                        //dp.PriceFormat = this._ltpFormstString;
-                        //_depth[half - i] = dp;
-                        _depth[half - i].DepthPrice = dp.DepthPrice;
-                        _depth[half - i].DepthBid = dp.DepthBid;
-                        _depth[half - i].DepthAsk = dp.DepthAsk;
-                        _depth[half - i].PriceFormat = _ltpFormstString;
-
-                        i++;
-                    }
-                }
-
-                _depth[half - 1].IsAskBest = true;
-
-                i = half + 1;
-
-                // 100円単位でまとめる
-                // まとめた時の価格
-                decimal c = 0;
-                // 100単位ごとにまとめた数量を保持
-                t = 0;
-                // 先送りするBid
-                d = 0;
-                // 先送りする価格
-                e = 0;
-
-                // bid をループ
-                foreach (var dp in dpr.DepthBidList)
-                {
-                    if (unit > 0)
-                    {
-
-                        if (c == 0)
+                        if (unit > 0)
                         {
-                            c = Math.Ceiling(dp.DepthPrice / unit);
-                        }
 
-                        // 100円単位でまとめる
-                        if (Math.Ceiling(dp.DepthPrice / unit) == c)
-                        {
-                            t += dp.DepthBid;
+                            if (c == 0)
+                            {
+                                c = Math.Ceiling(dp.DepthPrice / unit);
+                            }
+
+                            // 100円単位でまとめる
+                            if (Math.Ceiling(dp.DepthPrice / unit) == c)
+                            {
+                                t += dp.DepthBid;
+                            }
+                            else
+                            {
+                                // 一時保存
+                                e = dp.DepthPrice;
+                                dp.DepthPrice = c * unit;
+
+                                // 一時保存
+                                d = dp.DepthBid;
+                                dp.DepthBid = t;
+
+                                // 追加
+                                _depth[i].DepthAsk = dp.DepthAsk;
+                                _depth[i].DepthBid = dp.DepthBid;
+                                _depth[i].DepthPrice = dp.DepthPrice;
+
+                                // 今回のBidは先送り
+                                t = d;
+                                // 今回のPriceが基準になる
+                                c = Math.Ceiling(e / unit);
+
+                                i++;
+                            }
                         }
                         else
                         {
-                            // 一時保存
-                            e = dp.DepthPrice;
-                            dp.DepthPrice = c * unit;
+                            //dp.PriceFormat = this._ltpFormstString;
+                            //_depth[i] = dp;
 
-                            // 一時保存
-                            d = dp.DepthBid;
-                            dp.DepthBid = t;
-
-                            // 追加
-                            _depth[i].DepthAsk = dp.DepthAsk;
-                            _depth[i].DepthBid = dp.DepthBid;
                             _depth[i].DepthPrice = dp.DepthPrice;
-
-                            // 今回のBidは先送り
-                            t = d;
-                            // 今回のPriceが基準になる
-                            c = Math.Ceiling(e / unit);
-
+                            _depth[i].DepthBid = dp.DepthBid;
+                            _depth[i].DepthAsk = dp.DepthAsk;
+                            _depth[i].PriceFormat = _ltpFormstString;
                             i++;
                         }
                     }
-                    else
-                    {
-                        //dp.PriceFormat = this._ltpFormstString;
-                        //_depth[i] = dp;
 
-                        _depth[i].DepthPrice = dp.DepthPrice;
-                        _depth[i].DepthBid = dp.DepthBid;
-                        _depth[i].DepthAsk = dp.DepthAsk;
-                        _depth[i].PriceFormat = _ltpFormstString;
-                        i++;
-                    }
+                    _depth[half + 1].IsBidBest = true;
                 }
 
-                _depth[half + 1].IsBidBest = true;
+                return;
+            }
+            else
+            {
+                return;
             }
 
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        });
+
     }
 
     #endregion
@@ -2972,6 +3166,32 @@ while (true)
 
     #endregion
 
+    #region == Error ==
+
+    private void OnClientError(BaseClient sender, ClientError err)
+    {
+        if (err == null) { return; }
+        /*
+        // TODO
+        err.ErrPlaceParent = "";
+
+        _errors.Insert(0, err);
+
+        if (Application.Current == null) { return; }
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            // タブの「エラー（＊）」を更新
+            ErrorsCount = _errors.Count;
+
+        });
+
+        // ついでにAPI client からのエラーもログ保存の方に追加する。
+        mylogs.AddMyErrorLogs("ClientError: " + "Type " + err.ErrType + ", Error code " + err.ErrCode + ", Error path " + err.ErrPlace + ", Error text " + err.ErrText + ", Error description " + err.ErrEx + " - " + err.ErrDatetime.ToString());
+    */
+    }
+
+    #endregion
+
     #region == Commands ==
 
     private RelayCommand? togglePaneVisibilityCommand;
@@ -2996,46 +3216,153 @@ while (true)
     public IRelayCommand ShowNewModalCommand => showNewModalCommand ??= new RelayCommand(ShowNewModal);
     private void ShowNewModal()
     {
-        Debug.WriteLine("ShowNewModal command executed.");
-        //EventShowNewModal?.Invoke(this, EventArgs.Empty);
         _dlg.ShowOrderDialog(this);
-        /*
-        _dlg.Test().ContinueWith(result =>
+    }
+
+    private RelayCommand? makeOrderCommand;
+    public IRelayCommand MakeOrderCommand => makeOrderCommand ??= new RelayCommand(MakeOrder);
+    private void MakeOrder()
+    {
+        MakeOrderRresultText = string.Empty;
+
+        if (MainViewModel == null)
         {
-            if (result.Result)
+            return;
+        }
+
+        if (!MainViewModel.MakeOrderApiKeyIsSet)
+        {
+            // TODO:  show msg;
+            MakeOrderRresultText = "(MakeOrderApiKeyIsSet == false)";
+            Debug.WriteLine("■■■■■ MakeOrder: (MakeOrderApiKeyIsSet == false)");
+            return;
+        }
+
+        //Debug.WriteLine("MakeOrderCommand");
+
+        var orderSide = OrderSide;
+        var orderType = SelectedOrderTypeForComboBox?.Key ?? OrderTypes.limit;
+        var amount = _orderAmount;
+        var price = _orderPrice;
+        var isPostOnly = IsOrderPostOnly;
+
+        if (orderType == OrderTypes.limit)
+        {
+            if (amount <= 0)
             {
-                Debug.WriteLine("Modal dialog closed successfully.");
+                // TODO:  show msg;
+                MakeOrderRresultText = "(amount <= 0)";
+                return;
             }
-            else
+        }
+        if (price <= 0)
+        {
+            // TODO:  show msg;
+            MakeOrderRresultText = "(price <= 0)";
+            return;
+        }
+
+        App.CurrentDispatcherQueue?.TryEnqueue(async () =>
+        {
+            var ord = await MainViewModel.PriOrdersApi.MakeOrder(MainViewModel.MakeOrderApiKey, MainViewModel.MakeOrderSecret, PairCode.ToString(),amount,price, orderSide.ToString(), orderType.ToString(), isPostOnly);
+            if (ord == null)
             {
-                Debug.WriteLine("Modal dialog was not closed successfully.");
+                // TODO:  show msg;
+                MakeOrderRresultText = "Fail:(ord == null)";
+                return;
             }
+            if (ord.IsSuccess == false)
+            {
+                // TODO:  show msg;
+                MakeOrderRresultText = "Fail:ord.IsSuccess == false";
+                return;
+            }
+
+            MakeOrderRresultText = "Success";
+
         });
-        */
+    }
+
+
+    public ICommand CancelOrderCommand
+    {
+        get; set;
+    }
+    public static bool CancelOrderCommand_CanExecute()
+    {
+        return true;
+    }
+    public void CancelOrderCommand_Execute(IList<object> selectedOrders)
+    {
+        MakeOrderRresultText = string.Empty;
+
+        if (MainViewModel == null)
+        {
+            return;
+        }
+
+        if (!MainViewModel.MakeOrderApiKeyIsSet)
+        {
+            // TODO:  show msg;
+            MakeOrderRresultText = "(MakeOrderApiKeyIsSet == false)";
+            Debug.WriteLine("■■■■■ CancelOrders: (MakeOrderApiKeyIsSet == false)");
+            return;
+        }
+
+        if (selectedOrders is null)
+        {
+            return;
+        }
+
+        if (selectedOrders.Count == 0)
+        {
+            return;
+        }
+
+        var orderIDs = new List<ulong>();
+
+        foreach (var o in selectedOrders) 
+        {
+            if (o is Order ord)
+            {
+                Debug.WriteLine("CancelOrder: "+ ord.OrderID);
+                orderIDs.Add(ord.OrderID);
+            }
+        }
+
+        //CancelOrders
+        App.CurrentDispatcherQueue?.TryEnqueue(async () =>
+        {
+            var ord = await MainViewModel.PriOrdersApi.CancelOrders(MainViewModel.MakeOrderApiKey, MainViewModel.MakeOrderSecret, PairCode.ToString(), orderIDs);
+
+            // Update indivistual order status.
+            if (ord is null)
+            {
+                // show err or rewrite api 
+                return;
+            }
+
+            if (!ord.IsSuccess)
+            {
+                // show err 
+                return;
+            }
+
+            foreach (var order in ord.OrderList)
+            {
+                var pos = Orders.FirstOrDefault(x => x.OrderID == order.OrderID);
+                if (pos is null)
+                {
+                    continue;
+                }
+
+                pos.Status = order.Status;
+
+            }
+
+        });
     }
 
     #endregion
-
-    private void OnError(BaseClient sender, ClientError err)
-    {
-        if (err == null) { return; }
-        /*
-        // TODO
-        err.ErrPlaceParent = "";
-
-        _errors.Insert(0, err);
-
-        if (Application.Current == null) { return; }
-        Application.Current.Dispatcher.Invoke(() =>
-        {
-            // タブの「エラー（＊）」を更新
-            ErrorsCount = _errors.Count;
-
-        });
-
-        // ついでにAPI client からのエラーもログ保存の方に追加する。
-        mylogs.AddMyErrorLogs("ClientError: " + "Type " + err.ErrType + ", Error code " + err.ErrCode + ", Error path " + err.ErrPlace + ", Error text " + err.ErrText + ", Error description " + err.ErrEx + " - " + err.ErrDatetime.ToString());
-    */
-    }
 
 }

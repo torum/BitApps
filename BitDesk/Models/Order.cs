@@ -5,13 +5,31 @@ using Newtonsoft.Json;
 
 namespace BitDesk.Models;
 
+// 注文　指値・成行
+public enum OrderTypes
+{
+    limit, market
+}
+
+public enum OrderSides
+{
+    buy, sell
+}
+
+public class OrderTypeSelectionForComboBox(OrderTypes key, string label)
+{
+    public string Label { get; set; } = label;
+    public OrderTypes Key { get; set; } = key;
+};
+
 // 注文情報クラス（JsonOrderClassから）
 public partial class Order : ViewModelBase
-{
+{    
     public ulong OrderID
     {
         get; set;
     }
+
     public string? Pair
     {
         get; set;
@@ -393,7 +411,7 @@ public partial class OrderResult : Order
 
 // 発注時クエリパラメーター用クラス Jsonシリアライズ用
 [JsonObject]
-public class OrderParam(string pair, string amount, string price, string side, string type)
+public class OrderParam(string pair, string amount, string price, string side, string type, bool postOnly)
 {
     [JsonProperty("pair")]
     public string Pair
@@ -424,6 +442,12 @@ public class OrderParam(string pair, string amount, string price, string side, s
     {
         get; set;
     } = type;
+
+    [JsonProperty("post_only")]
+    public bool Post_Only // Post Only (true can be specified only if type = limit. default false)
+    {
+        get; set;
+    } = postOnly;
 }
 
 // パラメーター用クラス Jsonシリアライズ用

@@ -19,8 +19,6 @@ public class ModalDialogService : IModalDialogService
 
     public void ShowOrderDialog(ViewModels.PairViewModel vm)
     {
-        Debug.WriteLine("ModalDialogService: Test method called.");
-
         var modalShell = new Views.Modal.ModalShell(vm)
         {
             DataContext = vm
@@ -46,7 +44,10 @@ public class ModalDialogService : IModalDialogService
 
                 modalWindow.Closed += (sender, e) =>
                 {
-                    EnableWindow(hWndParent, true);
+                    // This causes all sorts of problems. (as of WinAppSDK 1.7.25)
+                    //EnableWindow(hWndParent, true);
+
+                    mainWindow.Activate();
                 };
 
                 if (mainWindow != null)
@@ -57,14 +58,16 @@ public class ModalDialogService : IModalDialogService
                     };
                 }
 
-                EnableWindow(hWndParent, false);
+                // This causes all sorts of problems. (as of WinAppSDK 1.7.25)
+                //EnableWindow(hWndParent, false);
 
-                //modalWindow.Show();// not working. This Show() does not re-enable the editor window.
+                //appWindow.Show(true);// Same as EnableWindow. This causes all sorts of problems. (as of WinAppSDK 1.7.25)
+
                 modalWindow.Activate();
+                //modalWindow.Show();
             }
         }
     }
-
 
     #region == TEMP code for modal window(for setting an owner) ==
 

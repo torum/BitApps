@@ -8,12 +8,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Title="ModalWindow">
-<!--
     <Window.SystemBackdrop>
-        <MicaBackdrop />
+        <DesktopAcrylicBackdrop/>
+        <!--
+        <MicaBackdrop Kind="Base"/>
+        -->
     </Window.SystemBackdrop>
--->
-    <Grid>
-
-    </Grid>
 </Window>

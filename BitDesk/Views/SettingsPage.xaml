@@ -221,6 +221,14 @@
                                 <TextBox Header="APIキー：" Text="{x:Bind ViewModel.TradeHistoryApiKey, Mode=TwoWay}"></TextBox>
                                 <TextBox Header="APIシークレット：" Text="{x:Bind ViewModel.TradeHistorySecret, Mode=TwoWay}"></TextBox>
 
+                                <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,24,0,0">
+                                    <TextBlock Text="注文用：" FontWeight="SemiBold"></TextBlock>
+                                    <TextBlock Text="権限"></TextBlock>
+                                    <TextBlock VerticalAlignment="Center"><Run Foreground="Orange" FontWeight="Bold">[参照][取引]</Run></TextBlock>
+                                </StackPanel>
+                                <TextBox Header="APIキー：" Text="{x:Bind ViewModel.MakeOrderApiKey, Mode=TwoWay}"></TextBox>
+                                <TextBox Header="APIシークレット：" Text="{x:Bind ViewModel.MakeOrderSecret, Mode=TwoWay}"></TextBox>
+
                             </StackPanel>
                             
                         </StackPanel>

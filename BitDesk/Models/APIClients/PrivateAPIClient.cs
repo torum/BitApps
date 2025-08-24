@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Diagnostics;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using BitApps.Core.Models;
@@ -10,6 +11,7 @@ namespace BitDesk.Models.APIClients;
 
 public partial class PrivateAPIClient : BaseClient
 {
+
     // プライベートAPI　エラーコード
     public Dictionary<int, string> ApiErrorCodesDictionary = new()
             {
@@ -55,6 +57,8 @@ public partial class PrivateAPIClient : BaseClient
                 {40025, "アセット名が不正です"},
                 {40028, "uuidが不正です"},
                 {40048, "出金額が不正です"},
+                {40112, "トリガー価格が不正です"},
+                {40113, "post_only値が不正です"},
                 {50003, "現在、このアカウントはご指定の操作を実行できない状態となっております。サポートにお問い合わせ下さい"},
                 {50004, "現在、このアカウントは仮登録の状態となっております。アカウント登録完了後、再度お試し下さい"},
                 {50005, "現在、このアカウントはロックされております。サポートにお問い合わせ下さい"},
@@ -96,7 +100,7 @@ public partial class PrivateAPIClient : BaseClient
             };
 
     // プライベートAPIのベースURL
-    private readonly Uri PrivateAPIUri = new("https://api.bitbank.cc/v1");
+    private readonly Uri _privateAPIUri = new("https://api.bitbank.cc/v1");
 
     // デリゲート
     public delegate void ClinetErrorEvent(PrivateAPIClient sender, ClientError err);
@@ -107,18 +111,17 @@ public partial class PrivateAPIClient : BaseClient
     // コンストラクタ
     public PrivateAPIClient()
     {
-        Client.BaseAddress = PrivateAPIUri;
+        Client.BaseAddress = _privateAPIUri;
     }
 
     #region == メソッド ==
 
     // 資産残高取得メソッド
-    public async Task<List<Asset>?> GetAssetList(string _ApiKey, string _ApiSecret)
+    public async Task<List<Asset>?> GetAssetList(string apiKey, string apiSecret)
     {
         var path = new Uri("/user/assets", UriKind.Relative);
 
-        //string json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get);
-        var resbo = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get);
+        var resbo = await Send(path, apiKey, apiSecret, HttpMethod.Get);
         if (resbo == null)
         {
             System.Diagnostics.Debug.WriteLine("■■■■■ GetAssetList: Send returned NULL.");
@@ -191,65 +194,47 @@ public partial class PrivateAPIClient : BaseClient
     }
 
     // 注文発注メソッド
-    public async Task<OrderResult?> MakeOrder(string _ApiKey, string _ApiSecret, string pair, decimal amount, decimal price, string side, string type)
+    public async Task<OrderResult> MakeOrder(string apiKey, string apiSecret, string pair, decimal amount, decimal price, string side, string type, bool postOnly)
     {
-        //パラメータ 
-        // https://docs.bitbank.cc/#/Order
-        /*
-            { "pair", "btc_jpy" },//取引する通貨の種類
-            { "amount", "0.01" },//ビットコインの注文量
-            { "price", "100000" },//ビットコインのレート
-            { "side", "buy" },//注文の売買の種類（買い:buy, 売り:sell）
-            { "type", "limit" },//指値注文の場合はlimit、成行注文の場合はmarket）
-        */
-        //System.Diagnostics.Debug.WriteLine("MakingOrder...");
+        var ord = new OrderResult();
 
-        /*
-        ///////////////////////////////////
-        // test data
-        Order ord = new Order();
-        ord.orderID = 1234;
-        ord.pair = pair;
-        ord.side = side;
-        ord.type = type;
-        ord.startAmount = amount;
-        ord.remainingAmount = 0.001M;
-        ord.executedAmount = 0.001M;
-        ord.price = price;
-        ord.averagePrice = 840001M;
-        ord.orderedAt = DateTime.Now;
-        ord.status = "UNFILLED";
+        var path = new Uri("/user/spot/order", UriKind.Relative);
 
-        return ord;
-        ///////////////////////////////////
-        */
-
-        var path = new Uri("/user/spot/order", UriKind.Relative);//APIの通信URL
-
-        var orderParam = new OrderParam(pair, amount.ToString(), price.ToString(), side, type);
+        var orderParam = new OrderParam(pair, amount.ToString(), price.ToString(), side, type, postOnly);
 
         var body = JsonConvert.SerializeObject(orderParam);
 
-        //System.Diagnostics.Debug.WriteLine("MakingOrder... resquest body = " + body);
+        //Debug.WriteLine("MakingOrder... resquest body = " + body);
 
         try
         {
-            //string json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body, null);
-            var resbo = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body);
+            var resbo = await Send(path, apiKey, apiSecret, HttpMethod.Post, body);
             if (resbo == null)
             {
-                System.Diagnostics.Debug.WriteLine("■■■■■ MakeOrder: Send returned NULL.");
-                return null;
+                // This should not happen.
+                Debug.WriteLine("■■■■■ MakeOrder: Send returned NULL.");
+
+                return ord;
             }
+            if ((!resbo.IsSuccess) && (resbo.HTTPError != null))
+            {
+                ord.IsSuccess = false;
+                ord.HasErrorInfo = true;
+
+                ord.Err.ErrorCode = resbo.HTTPError.ErrCode;
+                ord.Err.ErrorTitle = resbo.HTTPError.ErrType ?? "HTTP error/exception";
+                ord.Err.ErrorDescription = resbo.HTTPError.ErrText ?? "";
+
+                return ord;
+            }
+
             var json = resbo.BodyText;
 
             if (!string.IsNullOrEmpty(json))
             {
-                //System.Diagnostics.Debug.WriteLine("MakeOrder result: " + json);
+                //Debug.WriteLine("MakeOrder result: " + json);
 
                 var deserialized = JsonConvert.DeserializeObject<JsonOrderObject>(json);
-
-                var ord = new OrderResult();
 
                 if (deserialized?.Success > 0)
                 {
@@ -278,8 +263,28 @@ public partial class PrivateAPIClient : BaseClient
                         ord.IsSuccess = true;
                         ord.HasErrorInfo = false;
                     }
+                    else
+                    {
+                        ord.IsSuccess = false;
+                        ord.HasErrorInfo = true;
+                        ord.Err.ErrorCode = -1;
+                        ord.Err.ErrorTitle = "@MakeOrder";
+                        ord.Err.ErrorDescription = "JsonOrderObject deserialized.Data != null";
 
-                    return ord;
+                        // エラーイベント発火
+                        var er = new ClientError
+                        {
+                            ErrType = "Data",
+                            ErrCode = 0,
+                            ErrText = "JsonOrderObject deserialized.Data != null @MakeOrder",
+                            ErrDatetime = DateTime.Now,
+                            ErrPlace = path.ToString()
+                        };
+
+                        ErrorOccured?.Invoke(this, er);
+                    }
+
+                    //return ord;
                 }
                 else
                 {
@@ -288,7 +293,7 @@ public partial class PrivateAPIClient : BaseClient
                     ord.IsSuccess = false;
                     ord.ApiErrorCode = jsonResult?.Data?.Code ?? 0;
 
-                    System.Diagnostics.Debug.WriteLine("■■■■■ MakingOrder: API error code - " + jsonResult?.Data?.Code.ToString() + " ■■■■■");
+                    Debug.WriteLine("■■■■■ MakingOrder: API error code - " + jsonResult?.Data?.Code.ToString() + " ■■■■■");
 
                     // ユーザに表示するエラー情報
                     ord.HasErrorInfo = true;
@@ -316,49 +321,54 @@ public partial class PrivateAPIClient : BaseClient
 
                     ErrorOccured?.Invoke(this, er);
 
-                    return ord;
+                    //return ord;
                 }
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("■■■■■ MakeOrder: Send returned Empty String...Could be HTTP error");
+                Debug.WriteLine("■■■■■ MakeOrder: Send returned Empty String...Could be HTTP error");
 
-                var ord = new OrderResult
+                ord.IsSuccess = false;
+                ord.ApiErrorCode = -1;
+                ord.HasErrorInfo = true;
+
+                ord.Err.ErrorTitle = "発注処理で空のBodyTextが返りました。";
+                ord.Err.ErrorCode = 0;
+                ord.Err.ErrorDescription = "/user/spot/order への発注処理で、空のBodyTextが返りました。";
+
+                // エラーイベント発火
+                var er = new ClientError
                 {
-                    IsSuccess = false,
-                    ApiErrorCode = -1,
-                    HasErrorInfo = true
+                    ErrType = "Data",
+                    ErrCode = 0,
+                    ErrText = "発注処理で、空のBodyTextが返りました。",
+                    ErrDatetime = DateTime.Now,
+                    ErrPlace = path.ToString()
                 };
 
-                ord.Err.ErrorTitle = "発注処理でHTTPエラーが返りました。";
-                ord.Err.ErrorCode = resbo.HTTPError.ErrCode;
-                ord.Err.ErrorDescription = "/user/spot/order への発注処理で、HTTPエラー（" + resbo.HTTPError.ErrCode.ToString() + "）が返りました。";
+                ErrorOccured?.Invoke(this, er);
 
-                return ord;
+                //return ord;
             }
         }
         catch (Exception e)
         {
-            System.Diagnostics.Debug.WriteLine("■■■■■ MakeOrder Exception: " + e + " ■■■■■");
+            Debug.WriteLine("■■■■■ MakeOrder Exception: " + e + " ■■■■■");
 
-            // TODO: これはClientErrorの方を発火すべきでは？
-            var ord = new OrderResult
-            {
-                IsSuccess = false,
-                ApiErrorCode = -1,
-                HasErrorInfo = true
-            };
+            ord.IsSuccess = false;
+            ord.ApiErrorCode = -1;
+            ord.HasErrorInfo = true;
 
             ord.Err.ErrorTitle = "発注処理で例外処理が発生しました。";
             ord.Err.ErrorCode = -1;
             ord.Err.ErrorDescription = "/user/spot/order への発注処理で、Exception（" + e + "）発生しました。";
-
-            return ord;
         }
+
+        return ord;
     }
 
     // 注文情報をIDから取得メソッド
-    public async Task<OrderResult?> GetOrderByID(string _ApiKey, string _ApiSecret, string pair, ulong orderID)
+    public async Task<OrderResult?> GetOrderByID(string apiKey, string apiSecret, string pair, ulong orderID)
     {
         var path = new Uri("/user/spot/order", UriKind.Relative);
 
@@ -367,11 +377,10 @@ public partial class PrivateAPIClient : BaseClient
                 { "order_id", orderID.ToString() },
             };
 
-        //string json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get, "", param);
-        var resbo = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get, "", param);
+        var resbo = await Send(path, apiKey, apiSecret, HttpMethod.Get, "", param);
         if (resbo == null)
         {
-            System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderByID: Send returned NULL.");
+            Debug.WriteLine("■■■■■ GetOrderByID: Send returned NULL.");
             return null;
         }
         var json = resbo.BodyText;
@@ -423,7 +432,7 @@ public partial class PrivateAPIClient : BaseClient
                 ord.IsSuccess = false;
                 ord.ApiErrorCode = jsonResult?.Data?.Code ?? 0;
 
-                System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderByID: API error code - " + jsonResult?.Data?.Code.ToString() + " ■■■■■");
+                Debug.WriteLine("■■■■■ GetOrderByID: API error code - " + jsonResult?.Data?.Code.ToString() + " ■■■■■");
 
                 // ユーザに表示するエラー情報
                 ord.HasErrorInfo = true;
@@ -456,7 +465,7 @@ public partial class PrivateAPIClient : BaseClient
         }
         else
         {
-            System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderByID: Send returned empty string. Could be a HTTP error.");
+            Debug.WriteLine("■■■■■ GetOrderByID: Send returned empty string. Could be a HTTP error.");
 
             var ord = new OrderResult
             {
@@ -474,20 +483,20 @@ public partial class PrivateAPIClient : BaseClient
     }
 
     // 注文情報を複数のIDから取得メソッド
-    public async Task<OrderListResult?> GetOrderListByIDs(string _ApiKey, string _ApiSecret, string pair, List<ulong> orderIDs)
+    public async Task<OrderListResult?> GetOrderListByIDs(string apiKey, string apiSecret, string pair, List<ulong> orderIDs)
     {
         var path = new Uri("/user/spot/orders_info", UriKind.Relative);
 
         var idParam = new PairOrderIdList(pair, orderIDs);
         var body = JsonConvert.SerializeObject(idParam);
 
-        //string json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body);
-        var resbo = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body);
+        var resbo = await Send(path, apiKey, apiSecret, HttpMethod.Post, body);
         if (resbo == null)
         {
-            System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderListByIDs: Send returned NULL.");
+            Debug.WriteLine("■■■■■ GetOrderListByIDs: Send returned NULL.");
             return null;
         }
+
         var json = resbo.BodyText;
 
         try
@@ -625,20 +634,22 @@ public partial class PrivateAPIClient : BaseClient
     }
 
     // 注文キャンセルメソッド
-    public async Task<OrderResult?> CancelOrder(string _ApiKey, string _ApiSecret, string pair, ulong orderID)
+    public async Task<OrderResult> CancelOrder(string apiKey, string apiSecret, string pair, ulong orderID)
     {
+        var ord = new OrderResult();
+
         var path = new Uri("/user/spot/cancel_order", UriKind.Relative);
 
         var cancelOrderParam = new PairOrderIdParam(pair, orderID);
 
         var body = JsonConvert.SerializeObject(cancelOrderParam);
 
-        //string json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body);
-        var resbo = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body);
+        //string json = await Send(path, apiKey, apiSecret, HttpMethod.Post, body);
+        var resbo = await Send(path, apiKey, apiSecret, HttpMethod.Post, body);
         if (resbo == null)
         {
-            System.Diagnostics.Debug.WriteLine("■■■■■ CancelOrder: Send returned NULL.");
-            return null;
+            Debug.WriteLine("■■■■■ CancelOrder: Send returned NULL.");
+            return ord;
         }
         var json = resbo.BodyText;
 
@@ -647,8 +658,6 @@ public partial class PrivateAPIClient : BaseClient
             //System.Diagnostics.Debug.WriteLine("CancelOrder: " + json);
 
             var deserialized = JsonConvert.DeserializeObject<JsonOrderObject>(json);
-
-            var ord = new OrderResult();
 
             if (deserialized?.Success > 0)
             {
@@ -675,8 +684,28 @@ public partial class PrivateAPIClient : BaseClient
                     ord.IsSuccess = true;
                     ord.HasErrorInfo = false;
                 }
+                else
+                {
+                    ord.IsSuccess = false;
+                    ord.HasErrorInfo = true;
+                    ord.Err.ErrorCode = -1;
+                    ord.Err.ErrorTitle = "@CancelOrder";
+                    ord.Err.ErrorDescription = "JsonOrderObject deserialized.Data != null";
 
-                return ord;
+                    // エラーイベント発火
+                    var er = new ClientError
+                    {
+                        ErrType = "Data",
+                        ErrCode = 0,
+                        ErrText = "JsonOrderObject deserialized.Data != null @CancelOrder",
+                        ErrDatetime = DateTime.Now,
+                        ErrPlace = path.ToString()
+                    };
+
+                    ErrorOccured?.Invoke(this, er);
+                }
+
+                //return ord;
             }
             else
             {
@@ -712,40 +741,51 @@ public partial class PrivateAPIClient : BaseClient
 
                 ErrorOccured?.Invoke(this, er);
 
-                System.Diagnostics.Debug.WriteLine("■■■■■ CancelOrder: API error code - " + jsonResult?.Data?.Code.ToString() + " ■■■■■");
+                Debug.WriteLine("■■■■■ CancelOrder: API error code - " + jsonResult?.Data?.Code.ToString() + " ■■■■■");
 
-                return ord;
+                //return ord;
             }
         }
         else
         {
-            System.Diagnostics.Debug.WriteLine("■■■■■ CancelOrder: Send returned NULL.");
+            Debug.WriteLine("■■■■■ CancelOrder: Send returned NULL.");
 
-            var ord = new OrderResult
-            {
-                IsSuccess = false,
-                ApiErrorCode = -1,
-                HasErrorInfo = true
-            };
+            ord.IsSuccess = false;
+            ord.ApiErrorCode = -1;
+            ord.HasErrorInfo = true;
 
             ord.Err.ErrorTitle = "注文キャンセル処理でHTTPエラーが返りました。";
             ord.Err.ErrorCode = resbo.HTTPError.ErrCode;
             ord.Err.ErrorDescription = "/user/spot/cancel_order への注文キャンセル処理で、HTTPエラー（" + resbo.HTTPError.ErrCode.ToString() + "）が返りました。";
 
-            return ord;
+            // エラーイベント発火
+            var er = new ClientError
+            {
+                ErrType = "Data",
+                ErrCode = 0,
+                ErrText = "注文キャンセル処理で、空のBodyTextが返りました。",
+                ErrDatetime = DateTime.Now,
+                ErrPlace = path.ToString()
+            };
+
+            ErrorOccured?.Invoke(this, er);
+
+            //return ord;
         }
+
+        return ord;
     }
 
     // 文キャンセル（複数）メソッド
-    public async Task<OrderListResult?> CancelOrders(string _ApiKey, string _ApiSecret, string pair, List<ulong> orderIDs)
+    public async Task<OrderListResult?> CancelOrders(string apiKey, string apiSecret, string pair, List<ulong> orderIDs)
     {
         var path = new Uri("/user/spot/cancel_orders", UriKind.Relative);
 
         var idParam = new PairOrderIdList(pair, orderIDs);
         var body = JsonConvert.SerializeObject(idParam);
 
-        //string json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body);
-        var resbo = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Post, body);
+        //string json = await Send(path, apiKey, apiSecret, HttpMethod.Post, body);
+        var resbo = await Send(path, apiKey, apiSecret, HttpMethod.Post, body);
         if (resbo == null)
         {
             System.Diagnostics.Debug.WriteLine("■■■■■ CancelOrders: Send returned NULL.");
@@ -886,7 +926,7 @@ public partial class PrivateAPIClient : BaseClient
     }
 
     // 注文リスト取得メソッド
-    public async Task<OrderListResult?> GetOrderList(string _ApiKey, string _ApiSecret, string pair)
+    public async Task<OrderListResult?> GetOrderList(string apiKey, string apiSecret, string pair)
     {
         var path = new Uri("/user/spot/active_orders", UriKind.Relative);
 
@@ -899,8 +939,8 @@ public partial class PrivateAPIClient : BaseClient
                 //{ "end", "0.01" },//終了UNIXタイムスタンプ
             };
 
-        //string json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get,"", param);
-        var resbo = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get, "", param);
+        //string json = await Send(path, apiKey, apiSecret, HttpMethod.Get,"", param);
+        var resbo = await Send(path, apiKey, apiSecret, HttpMethod.Get, "", param);
         if (resbo == null)
         {
             System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderList: Send returned NULL.");
@@ -1020,7 +1060,7 @@ public partial class PrivateAPIClient : BaseClient
     }
 
     // 取引履歴取得メソッド
-    public async Task<TradeHistory?> GetTradeHistory(string _ApiKey, string _ApiSecret, string pair)
+    public async Task<TradeHistory?> GetTradeHistory(string apiKey, string apiSecret, string pair)
     {
 
         var path = new Uri("/user/spot/trade_history", UriKind.Relative);
@@ -1034,8 +1074,8 @@ public partial class PrivateAPIClient : BaseClient
                 //{ "order", "asc" },//約定時刻順序(asc: 昇順、desc: 降順、デフォルト降順)
             };
 
-        //string json = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get, "", param);
-        var resbo = await Send(path, _ApiKey, _ApiSecret, HttpMethod.Get, "", param);
+        //string json = await Send(path, apiKey, apiSecret, HttpMethod.Get, "", param);
+        var resbo = await Send(path, apiKey, apiSecret, HttpMethod.Get, "", param);
         if (resbo == null)
         {
             System.Diagnostics.Debug.WriteLine("■■■■■ GetTradeHistory: Send returned NULL.");
@@ -1125,8 +1165,9 @@ public partial class PrivateAPIClient : BaseClient
     }
 
     // HTTPリクエスト送信メソッド
-    internal async Task<ResponseBodyWrapper?> Send(Uri path, string apiKey, string secret, HttpMethod method, string body = "", Dictionary<string, string>? queries = null)
+    internal async Task<ResponseBodyWrapper> Send(Uri path, string apiKey, string secret, HttpMethod method, string body = "", Dictionary<string, string>? queries = null)
     {
+        var resbowrap = new ResponseBodyWrapper();
         try
         {
             //ACCESS-NONCE
@@ -1157,12 +1198,11 @@ public partial class PrivateAPIClient : BaseClient
             // メッセージをHMACSHA256で署名
             var hash = new HMACSHA256(Encoding.UTF8.GetBytes(secret)).ComputeHash(Encoding.UTF8.GetBytes(message));
             //ACCESS-SIGNATURE
-            var _accessSignature = BitConverter.ToString(hash).ToLower().Replace("-", "");//バイト配列をを16進文字列へ
+            var _accessSignature = BitConverter.ToString(hash).ToLower().Replace("-", "");//バイト配列をを16進文字列へ << CA1872
 
             //System.Diagnostics.Debug.WriteLine("Sending..." + Environment.NewLine + _HTTPConn.Client.DefaultRequestHeaders.ToString());
 
             HttpResponseMessage res;
-            var resbowrap = new ResponseBodyWrapper();
             try
             {
                 if (method == HttpMethod.Post)
@@ -1227,66 +1267,129 @@ public partial class PrivateAPIClient : BaseClient
                     ErrorOccured?.Invoke(this, er);
 
                     //ラッパー
-                    resbowrap.BodyText = "";
+                    resbowrap.BodyText = text;
                     resbowrap.HTTPError = er;
 
                     return resbowrap;
-                    //return "";
                 }
 
+                resbowrap.IsSuccess = true;
                 resbowrap.BodyText = text;
-                return resbowrap;
-                //return text;
             }
             catch (System.Net.Sockets.SocketException ex)
             {
+                string errtext;
                 if (ex.InnerException != null)
                 {
-                    System.Diagnostics.Debug.WriteLine("HTTP Send: SocketException - " + ex.Message + " + 内部例外: " + ex.InnerException.Message);
+                    Debug.WriteLine("HTTP SocketException - " + ex.Message + " + 内部例外: " + ex.InnerException.Message);
+                    errtext = "HTTP SocketException - " + ex.Message + " + InnerException: " + ex.InnerException.Message;
                 }
                 else
                 {
-
-                    System.Diagnostics.Debug.WriteLine("HTTP Send: SocketException - " + ex.Message);
+                    Debug.WriteLine("HTTP SocketException - " + ex.Message);
+                    errtext = "HTTP SocketException - " + ex.Message;
                 }
-                return null;
+
+                var er = new ClientError
+                {
+                    ErrType = "HTTP " + method,
+                    ErrCode = 0,
+                    ErrText = errtext,
+                    ErrDatetime = DateTime.Now,
+                    ErrPlace = path.ToString()
+                };
+                // 
+                ErrorOccured?.Invoke(this, er);
+
+                //
+                resbowrap.BodyText = "";
+                resbowrap.HTTPError = er;
+
             }
             catch (System.IO.IOException ex)
             {
+                string errtext;
                 if (ex.InnerException != null)
                 {
-                    System.Diagnostics.Debug.WriteLine("HTTP Send: IOException - " + ex.Message + " + 内部例外: " + ex.InnerException.Message);
+                    Debug.WriteLine("HTTP IOException - " + ex.Message + " + 内部例外: " + ex.InnerException.Message);
+                    errtext = "HTTP IOException - " + ex.Message + " + InnerException: " + ex.InnerException.Message;
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine("HTTP Send: IOException - " + ex.Message);
+                    Debug.WriteLine("HTTP IOException - " + ex.Message);
+                    errtext = "HTTP IOException - " + ex.Message;
                 }
-                    return null;
+
+                var er = new ClientError
+                {
+                    ErrType = "HTTP " + method,
+                    ErrCode = 0,
+                    ErrText = errtext,
+                    ErrDatetime = DateTime.Now,
+                    ErrPlace = path.ToString()
+                };
+                // 
+                ErrorOccured?.Invoke(this, er);
+
+                //
+                resbowrap.BodyText = "";
+                resbowrap.HTTPError = er;
             }
             catch (HttpRequestException ex)
             {
+                string errtext;
                 if (ex.InnerException != null)
                 {
-                    System.Diagnostics.Debug.WriteLine("HTTP Send: HttpRequestException - " + ex.Message + " + 内部例外: " + ex.InnerException.Message);
+                    Debug.WriteLine("HTTP HttpRequestException - " + ex.Message + " + 内部例外: " + ex.InnerException.Message);
+                    errtext = "HTTP HttpRequestException - " + ex.Message + " + InnerException: " + ex.InnerException.Message;
                 }
                 else
                 {
-                    System.Diagnostics.Debug.WriteLine("HTTP Send: HttpRequestException - " + ex.Message);
-
+                    Debug.WriteLine("HTTP HttpRequestException - " + ex.Message);
+                    errtext = "HTTP HttpRequestException - " + ex.Message;
                 }
-                return null;
+
+                var er = new ClientError
+                {
+                    ErrType = "HTTP " + method,
+                    ErrCode = 0,
+                    ErrText = errtext,
+                    ErrDatetime = DateTime.Now,
+                    ErrPlace = path.ToString()
+                };
+                // 
+                ErrorOccured?.Invoke(this, er);
+
+                //
+                resbowrap.BodyText = "";
+                resbowrap.HTTPError = er;
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine("■■■■■ HTTP GET/POST Error - Exception : " + ex.Message);
-            return null;
+            Debug.WriteLine("■■■■■ HTTP GET/POST Error - Exception : " + ex.Message);
+
+            var er = new ClientError
+            {
+                ErrType = "HTTP " + method,
+                ErrCode = 0,
+                ErrText = "Exception@Send: " + ex.Message,
+                ErrDatetime = DateTime.Now,
+                ErrPlace = path.ToString()
+            };
+            // 
+            ErrorOccured?.Invoke(this, er);
+
+            //
+            resbowrap.BodyText = "";
+            resbowrap.HTTPError = er;
         }
         finally
         {
             //_httpClientIsBusy = false;
         }
 
+        return resbowrap;
     }
 
     #endregion

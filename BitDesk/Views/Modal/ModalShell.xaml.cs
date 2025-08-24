@@ -17,10 +17,14 @@ namespace BitDesk.Views.Modal;
 
 public sealed partial class ModalShell : Page
 {
+    public PairViewModel PairViewModel;
+
     public ModalShell(ViewModels.PairViewModel vm)
     {
+        PairViewModel = vm;
+        DataContext = vm;
+
         InitializeComponent();
 
-        DataContext = vm;
     }
 }

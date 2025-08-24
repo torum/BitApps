@@ -232,6 +232,29 @@ public sealed partial class ShellPage : Page
                             }
                         }
                     }
+
+                    key = keys.Element("MakeOrder");
+
+                    if (key != null)
+                    {
+                        var xvalue = key.Attribute("Key");
+                        if (xvalue != null)
+                        {
+                            if (!string.IsNullOrEmpty(xvalue.Value))
+                            {
+                                MainViewModel.MakeOrderApiKey = xvalue.Value;
+                            }
+                        }
+
+                        xvalue = key.Attribute("Secret");
+                        if (xvalue != null)
+                        {
+                            if (!string.IsNullOrEmpty(xvalue.Value))
+                            {
+                                MainViewModel.MakeOrderSecret = xvalue.Value;
+                            }
+                        }
+                    }
                 }
 
                 // Pairs
@@ -622,6 +645,19 @@ public sealed partial class ShellPage : Page
         xTradeHistory.SetAttributeNode(attrs);
 
         xAPIKeys.AppendChild(xTradeHistory);
+
+        var xMakeOrder = doc.CreateElement(string.Empty, "MakeOrder", string.Empty);
+
+        attrs = doc.CreateAttribute("Key");
+        attrs.Value = MainViewModel.MakeOrderApiKey;
+        xMakeOrder.SetAttributeNode(attrs);
+
+        attrs = doc.CreateAttribute("Secret");
+        attrs.Value = MainViewModel.MakeOrderSecret;
+        xMakeOrder.SetAttributeNode(attrs);
+
+        xAPIKeys.AppendChild(xMakeOrder);
+
 
         root.AppendChild(xAPIKeys);
 

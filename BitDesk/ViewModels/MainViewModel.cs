@@ -1375,6 +1375,71 @@ public partial class MainViewModel : ObservableRecipient
         }
     }
 
+
+    // Make order
+
+    private string _makeOrderApiKey = string.Empty;
+    public string MakeOrderApiKey
+    {
+        get => _makeOrderApiKey;
+        set
+        {
+            if (_makeOrderApiKey == value.Trim())
+            {
+                return;
+            }
+
+            _makeOrderApiKey = value.Trim();
+            OnPropertyChanged(nameof(MakeOrderApiKey));
+
+            if (!string.IsNullOrEmpty(_makeOrderApiKey) && !string.IsNullOrEmpty(_makeOrderSecret))
+            {
+                MakeOrderApiKeyIsSet = true;
+            }
+        }
+    }
+
+    // TODO: encrypt
+    private string _makeOrderSecret = string.Empty;
+    public string MakeOrderSecret
+    {
+        get => _makeOrderSecret;
+        set
+        {
+            if (_makeOrderSecret == value.Trim())
+            {
+                return;
+            }
+
+            _makeOrderSecret = value.Trim();
+            OnPropertyChanged(nameof(MakeOrderSecret));
+
+            if (!string.IsNullOrEmpty(_makeOrderApiKey) && !string.IsNullOrEmpty(_makeOrderSecret))
+            {
+                MakeOrderApiKeyIsSet = true;
+            }
+        }
+    }
+
+    private bool _makeOrderApiKeyIsSet;
+    public bool MakeOrderApiKeyIsSet
+    {
+        get => _makeOrderApiKeyIsSet;
+        set
+        {
+            if (_makeOrderApiKeyIsSet == value)
+            {
+                return;
+            }
+
+            _makeOrderApiKeyIsSet = value;
+            OnPropertyChanged(nameof(MakeOrderApiKeyIsSet));
+
+            //this.NotifyPropertyChanged("ShowAsset");
+            //this.NotifyPropertyChanged("ShowAssetApiSet");
+        }
+    }
+
     #endregion
 
     #region == Options ==
@@ -1668,331 +1733,416 @@ public partial class MainViewModel : ObservableRecipient
 
                 if (tick != null)
                 {
-                    if (hoge.PairCode == PairCodes.btc_jpy)
+                    App.CurrentDispatcherQueue?.TryEnqueue(() =>
                     {
-                        LtpBtcJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.xrp_jpy)
-                    {
-                        LtpXrpJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.eth_jpy)
-                    {
-                        LtpEthJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.ltc_jpy)
-                    {
-                        LtpLtcJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.mona_jpy)
-                    {
-                        LtpMonaJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.bcc_jpy)
-                    {
-                        LtpBccJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.xlm_jpy)
-                    {
-                        LtpXlmJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.qtum_jpy)
-                    {
-                        LtpQtumJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.bat_jpy)
-                    {
-                        LtpBatJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.omg_jpy)
-                    {
-                        LtpOmgJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.xym_jpy)
-                    {
-                        LtpXymJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.link_jpy)
-                    {
-                        LtpLinkJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.mkr_jpy)
-                    {
-                        LtpMkrJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.boba_jpy)
-                    {
-                        LtpBobaJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.enj_jpy)
-                    {
-                        LtpEnjJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.matic_jpy)
-                    {
-                        LtpMaticJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.dot_jpy)
-                    {
-                        LtpDotJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.doge_jpy)
-                    {
-                        LtpDogeJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.astr_jpy)
-                    {
-                        LtpAstrJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.ada_jpy)
-                    {
-                        LtpAdaJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.avax_jpy)
-                    {
-                        LtpAvaxJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.axs_jpy)
-                    {
-                        LtpAxsJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.flr_jpy)
-                    {
-                        LtpFlrJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else if (hoge.PairCode == PairCodes.sand_jpy)
-                    {
-                        LtpSandJpy = string.Format(hoge.LtpFormstString, tick.LTP);
-                    }
-                    else
-                    {
-                        throw new NotImplementedException();
-                    }
-                    // TODO: more
 
-
-                    /*
-                    // Up/down flag. 一旦前の値を保存
-                    var prevLtp = hoge.Ltp;
-
-                    if (tick.LTP > prevLtp)
-                    {
-                        hoge.LtpUpFlag = true;
-                    }
-                    else if (tick.LTP < prevLtp)
-                    {
-                        hoge.LtpUpFlag = false;
-                    }
-                    */
-
-
-                    // 最新の価格をセット
-                    hoge.Ltp = tick.LTP;
-                    hoge.Bid = tick.Bid;
-                    hoge.Ask = tick.Ask;
-                    hoge.TickTimeStamp = tick.TimeStamp;
-                    hoge.LowestIn24Price = tick.Low;
-                    hoge.HighestIn24Price = tick.High;
-                    /*
-
-                    // 起動時価格セット
-                    if (hoge.BasePrice == 0) hoge.BasePrice = tick.LTP;
-
-                    // 最安値登録
-                    if (hoge.LowestPrice == 0)
-                    {
-                        hoge.LowestPrice = tick.LTP;
-                    }
-                    if (tick.LTP < hoge.LowestPrice)
-                    {
-                        hoge.LowestPrice = tick.LTP;
-                    }
-
-                    // 最高値登録
-                    if (hoge.HighestPrice == 0)
-                    {
-                        hoge.HighestPrice = tick.LTP;
-                    }
-                    if (tick.LTP > hoge.HighestPrice)
-                    {
-                        hoge.HighestPrice = tick.LTP;
-                    }
-                    */
-
-                    #region == チック履歴 ==
-                    /*
-                    TickHistory aym = new TickHistory();
-                    aym.Price = tick.LTP;
-                    aym.TimeAt = tick.TimeStamp;
-                    if (hoge.TickHistories.Count > 0)
-                    {
-                        if (hoge.TickHistories[0].Price > aym.Price)
+                        if (hoge.PairCode == PairCodes.btc_jpy)
                         {
-                            aym.TickHistoryPriceUp = true;
-                            hoge.TickHistories.Insert(0, aym);
-
+                            LtpBtcJpy = string.Format(hoge.LtpFormstString, tick.LTP);
                         }
-                        else if (hoge.TickHistories[0].Price < aym.Price)
+                        else if (hoge.PairCode == PairCodes.xrp_jpy)
                         {
-                            aym.TickHistoryPriceUp = false;
-                            hoge.TickHistories.Insert(0, aym);
+                            LtpXrpJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.eth_jpy)
+                        {
+                            LtpEthJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.ltc_jpy)
+                        {
+                            LtpLtcJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.mona_jpy)
+                        {
+                            LtpMonaJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.bcc_jpy)
+                        {
+                            LtpBccJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.xlm_jpy)
+                        {
+                            LtpXlmJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.qtum_jpy)
+                        {
+                            LtpQtumJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.bat_jpy)
+                        {
+                            LtpBatJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.omg_jpy)
+                        {
+                            LtpOmgJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.xym_jpy)
+                        {
+                            LtpXymJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.link_jpy)
+                        {
+                            LtpLinkJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.mkr_jpy)
+                        {
+                            LtpMkrJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.boba_jpy)
+                        {
+                            LtpBobaJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.enj_jpy)
+                        {
+                            LtpEnjJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.matic_jpy)
+                        {
+                            LtpMaticJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.dot_jpy)
+                        {
+                            LtpDotJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.doge_jpy)
+                        {
+                            LtpDogeJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.astr_jpy)
+                        {
+                            LtpAstrJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.ada_jpy)
+                        {
+                            LtpAdaJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.avax_jpy)
+                        {
+                            LtpAvaxJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.axs_jpy)
+                        {
+                            LtpAxsJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.flr_jpy)
+                        {
+                            LtpFlrJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else if (hoge.PairCode == PairCodes.sand_jpy)
+                        {
+                            LtpSandJpy = string.Format(hoge.LtpFormstString, tick.LTP);
+                        }
+                        else
+                        {
+                            throw new NotImplementedException();
+                        }
+                        // TODO: more
+
+
+                        /*
+                        // Up/down flag. 一旦前の値を保存
+                        var prevLtp = hoge.Ltp;
+
+                        if (tick.LTP > prevLtp)
+                        {
+                            hoge.LtpUpFlag = true;
+                        }
+                        else if (tick.LTP < prevLtp)
+                        {
+                            hoge.LtpUpFlag = false;
+                        }
+                        */
+
+
+                        // 最新の価格をセット
+                        hoge.Ltp = tick.LTP;
+                        hoge.Bid = tick.Bid;
+                        hoge.Ask = tick.Ask;
+                        hoge.TickTimeStamp = tick.TimeStamp;
+                        hoge.LowestIn24Price = tick.Low;
+                        hoge.HighestIn24Price = tick.High;
+                        /*
+
+                        // 起動時価格セット
+                        if (hoge.BasePrice == 0) hoge.BasePrice = tick.LTP;
+
+                        // 最安値登録
+                        if (hoge.LowestPrice == 0)
+                        {
+                            hoge.LowestPrice = tick.LTP;
+                        }
+                        if (tick.LTP < hoge.LowestPrice)
+                        {
+                            hoge.LowestPrice = tick.LTP;
+                        }
+
+                        // 最高値登録
+                        if (hoge.HighestPrice == 0)
+                        {
+                            hoge.HighestPrice = tick.LTP;
+                        }
+                        if (tick.LTP > hoge.HighestPrice)
+                        {
+                            hoge.HighestPrice = tick.LTP;
+                        }
+                        */
+
+                        #region == チック履歴 ==
+                        /*
+                        TickHistory aym = new TickHistory();
+                        aym.Price = tick.LTP;
+                        aym.TimeAt = tick.TimeStamp;
+                        if (hoge.TickHistories.Count > 0)
+                        {
+                            if (hoge.TickHistories[0].Price > aym.Price)
+                            {
+                                aym.TickHistoryPriceUp = true;
+                                hoge.TickHistories.Insert(0, aym);
+
+                            }
+                            else if (hoge.TickHistories[0].Price < aym.Price)
+                            {
+                                aym.TickHistoryPriceUp = false;
+                                hoge.TickHistories.Insert(0, aym);
+                            }
+                            else
+                            {
+                                //aym.TickHistoryPriceColor = Colors.Gainsboro;
+                                hoge.TickHistories.Insert(0, aym);
+                            }
                         }
                         else
                         {
                             //aym.TickHistoryPriceColor = Colors.Gainsboro;
                             hoge.TickHistories.Insert(0, aym);
                         }
-                    }
-                    else
-                    {
-                        //aym.TickHistoryPriceColor = Colors.Gainsboro;
-                        hoge.TickHistories.Insert(0, aym);
-                    }
 
-                    // limit the number of the list.
-                    if (hoge.TickHistories.Count > 60)
-                    {
-                        hoge.TickHistories.RemoveAt(60);
-                    }
-
-                    // 60(1分)の平均値を求める
-                    decimal aSum = 0;
-                    int c = 0;
-                    if (hoge.TickHistories.Count > 0)
-                    {
-
+                        // limit the number of the list.
                         if (hoge.TickHistories.Count > 60)
                         {
-                            c = 59;
-                        }
-                        else
-                        {
-                            c = hoge.TickHistories.Count - 1;
+                            hoge.TickHistories.RemoveAt(60);
                         }
 
-                        if (c == 0)
+                        // 60(1分)の平均値を求める
+                        decimal aSum = 0;
+                        int c = 0;
+                        if (hoge.TickHistories.Count > 0)
+                        {
+
+                            if (hoge.TickHistories.Count > 60)
+                            {
+                                c = 59;
+                            }
+                            else
+                            {
+                                c = hoge.TickHistories.Count - 1;
+                            }
+
+                            if (c == 0)
+                            {
+                                hoge.AveragePrice = hoge.TickHistories[0].Price;
+                            }
+                            else
+                            {
+                                for (int i = 0; i < c; i++)
+                                {
+                                    aSum = aSum + hoge.TickHistories[i].Price;
+                                }
+                                hoge.AveragePrice = aSum / c;
+                            }
+
+                        }
+                        else if (hoge.TickHistories.Count == 1)
                         {
                             hoge.AveragePrice = hoge.TickHistories[0].Price;
                         }
+                        */
+                        #endregion
+
+                        #region == アラーム ==
+
+                        if (hoge.AlarmPlus > 0)
+                        {
+                            if (hoge.Ltp >= hoge.AlarmPlus)
+                            {
+                                hoge.HighLowInfoTextColorFlag = true;
+                                hoge.HighLowInfoText = hoge.PairString + "Alarm";
+
+                                ShowBalloonEventArgs ag = new((hoge.PairString + " High Price Alarm"), hoge.AlarmPlusString);
+
+                                // クリア
+                                hoge.AlarmPlus = 0;
+
+                                // バルーン表示
+                                ShowBalloon?.Invoke(this, ag);
+                            }
+                        }
+
+                        if (hoge.AlarmMinus > 0)
+                        {
+                            if (hoge.Ltp <= hoge.AlarmMinus)
+                            {
+                                hoge.HighLowInfoTextColorFlag = false;
+                                hoge.HighLowInfoText = hoge.PairString + "Alarm";
+
+                                ShowBalloonEventArgs ag = new(hoge.PairString + " Low Price Alarm", hoge.AlarmMinusString);
+
+                                // クリア
+                                hoge.AlarmMinus = 0;
+
+                                // バルーン表示
+                                ShowBalloon?.Invoke(this, ag);
+                            }
+                        }
+
+                        /*
+                        bool isPlayed = false;
+
+                        // カスタムアラーム
+                        if (hoge.AlarmPlus > 0)
+                        {
+                            if (tick.LTP >= hoge.AlarmPlus)
+                            {
+                                hoge.HighLowInfoTextColorFlag = true;
+                                hoge.HighLowInfoText = hoge.PairString + " ⇑⇑⇑　高値アラーム ";
+
+                                //ShowBalloonEventArgs ag = new ShowBalloonEventArgs
+                                //{
+                                //    Title = PairBtcJpy.PairString + " 高値アラーム",
+                                //    Text = PairBtcJpy.AlarmPlus.ToString("#,0") + " に達しました。"
+                                //};
+                                // バルーン表示
+                                //ShowBalloon?.Invoke(this, ag);
+
+                                // クリア
+                                hoge.AlarmPlus = 0;
+
+                            }
+                        }
+
+                        if (hoge.AlarmMinus > 0)
+                        {
+                            if (tick.LTP <= hoge.AlarmMinus)
+                            {
+                                hoge.HighLowInfoTextColorFlag = false;
+                                hoge.HighLowInfoText = hoge.PairString + " ⇓⇓⇓　安値アラーム ";
+
+                                //ShowBalloonEventArgs ag = new ShowBalloonEventArgs
+                                //{
+                                //    Title = hoge.PairString + " 安値アラーム",
+                                //    Text = hoge.AlarmMinus.ToString("#,0") + " に達しました。"
+                                //};
+                                // バルーン表示
+                                //ShowBalloon?.Invoke(this, ag);
+
+                                // クリア
+                                hoge.AlarmMinus = 0;
+
+                            }
+                        }
+
+                        // 起動後最高値
+                        if ((tick.LTP >= hoge.HighestPrice) && (prevLtp != tick.LTP))
+                        {
+                            if ((hoge.TickHistories.Count > waitTime) && ((hoge.BasePrice + 100M) < tick.LTP))
+                            {
+
+                                // 値を点滅させるフラグ
+                                if (hoge.PlaySoundHighest)
+                                    hoge.HighestPriceAlart = true;
+
+                                // 音を鳴らす
+                                if ((isPlayed == false) && (hoge.PlaySoundHighest == true))
+                                {
+
+                                    // 色を変える
+                                    hoge.HighLowInfoTextColorFlag = true;
+                                    // テキストを点滅させる為、一旦クリア
+                                    hoge.HighLowInfoText = "";
+                                    hoge.HighLowInfoText = hoge.PairString + " ⇑⇑⇑　起動後最高値 ";
+
+
+                                    //if (PlaySound)
+                                    //{
+                                    //    SystemSounds.Hand.Play();
+                                    //    isPlayed = true;
+                                    //}
+
+                                }
+                            }
+                        }
                         else
                         {
-                            for (int i = 0; i < c; i++)
+                            hoge.HighestPriceAlart = false;
+                        }
+
+                        // 起動後最安値
+                        if ((tick.LTP <= hoge.LowestPrice) && (prevLtp != tick.LTP))
+                        {
+                            if ((hoge.TickHistories.Count > waitTime) && ((hoge.BasePrice - 100M) > tick.LTP))
                             {
-                                aSum = aSum + hoge.TickHistories[i].Price;
+
+                                if (hoge.PlaySoundLowest)
+                                    hoge.LowestPriceAlart = true;
+
+                                if ((isPlayed == false) && (hoge.PlaySoundLowest == true))
+                                {
+                                    hoge.HighLowInfoTextColorFlag = false;
+                                    hoge.HighLowInfoText = "";
+                                    hoge.HighLowInfoText = hoge.PairString + " ⇓⇓⇓　起動後最安値 ";
+
+                                    //if (PlaySound)
+                                    //{
+                                    //    SystemSounds.Beep.Play();
+                                    //    isPlayed = true;
+                                    //}
+
+                                }
+
                             }
-                            hoge.AveragePrice = aSum / c;
+                        }
+                        else
+                        {
+                            hoge.LowestPriceAlart = false;
                         }
 
-                    }
-                    else if (hoge.TickHistories.Count == 1)
-                    {
-                        hoge.AveragePrice = hoge.TickHistories[0].Price;
-                    }
-                    */
-                    #endregion
-
-                    #region == アラーム ==
-
-                    if (hoge.AlarmPlus > 0)
-                    {
-                        if (hoge.Ltp >= hoge.AlarmPlus)
+                        // 過去24時間最高値
+                        if ((tick.LTP >= hoge.HighestIn24Price) && (prevLtp != tick.LTP) && (hoge.TickHistories.Count > waitTime))
                         {
-                            hoge.HighLowInfoTextColorFlag = true;
-                            hoge.HighLowInfoText = hoge.PairString + "Alarm";
+                            if (hoge.PlaySoundHighest24h)
+                                hoge.HighestIn24PriceAlart = true;
 
-                            ShowBalloonEventArgs ag = new((hoge.PairString + " High Price Alarm"), hoge.AlarmPlusString);
-
-                            // クリア
-                            hoge.AlarmPlus = 0;
-
-                            // バルーン表示
-                            ShowBalloon?.Invoke(this, ag);
-                        }
-                    }
-
-                    if (hoge.AlarmMinus > 0)
-                    {
-                        if (hoge.Ltp <= hoge.AlarmMinus)
-                        {
-                            hoge.HighLowInfoTextColorFlag = false;
-                            hoge.HighLowInfoText = hoge.PairString + "Alarm";
-
-                            ShowBalloonEventArgs ag = new(hoge.PairString + " Low Price Alarm", hoge.AlarmMinusString);
-
-                            // クリア
-                            hoge.AlarmMinus = 0;
-
-                            // バルーン表示
-                            ShowBalloon?.Invoke(this, ag);
-                        }
-                    }
-
-                    /*
-                    bool isPlayed = false;
-
-                    // カスタムアラーム
-                    if (hoge.AlarmPlus > 0)
-                    {
-                        if (tick.LTP >= hoge.AlarmPlus)
-                        {
-                            hoge.HighLowInfoTextColorFlag = true;
-                            hoge.HighLowInfoText = hoge.PairString + " ⇑⇑⇑　高値アラーム ";
-
-                            //ShowBalloonEventArgs ag = new ShowBalloonEventArgs
-                            //{
-                            //    Title = PairBtcJpy.PairString + " 高値アラーム",
-                            //    Text = PairBtcJpy.AlarmPlus.ToString("#,0") + " に達しました。"
-                            //};
-                            // バルーン表示
-                            //ShowBalloon?.Invoke(this, ag);
-
-                            // クリア
-                            hoge.AlarmPlus = 0;
-
-                        }
-                    }
-
-                    if (hoge.AlarmMinus > 0)
-                    {
-                        if (tick.LTP <= hoge.AlarmMinus)
-                        {
-                            hoge.HighLowInfoTextColorFlag = false;
-                            hoge.HighLowInfoText = hoge.PairString + " ⇓⇓⇓　安値アラーム ";
-
-                            //ShowBalloonEventArgs ag = new ShowBalloonEventArgs
-                            //{
-                            //    Title = hoge.PairString + " 安値アラーム",
-                            //    Text = hoge.AlarmMinus.ToString("#,0") + " に達しました。"
-                            //};
-                            // バルーン表示
-                            //ShowBalloon?.Invoke(this, ag);
-
-                            // クリア
-                            hoge.AlarmMinus = 0;
-
-                        }
-                    }
-
-                    // 起動後最高値
-                    if ((tick.LTP >= hoge.HighestPrice) && (prevLtp != tick.LTP))
-                    {
-                        if ((hoge.TickHistories.Count > waitTime) && ((hoge.BasePrice + 100M) < tick.LTP))
-                        {
-
-                            // 値を点滅させるフラグ
-                            if (hoge.PlaySoundHighest)
-                                hoge.HighestPriceAlart = true;
-
-                            // 音を鳴らす
-                            if ((isPlayed == false) && (hoge.PlaySoundHighest == true))
+                            if ((isPlayed == false) && (hoge.PlaySoundHighest24h == true))
                             {
-
-                                // 色を変える
                                 hoge.HighLowInfoTextColorFlag = true;
-                                // テキストを点滅させる為、一旦クリア
                                 hoge.HighLowInfoText = "";
-                                hoge.HighLowInfoText = hoge.PairString + " ⇑⇑⇑　起動後最高値 ";
+                                hoge.HighLowInfoText = hoge.PairString + " ⇑⇑⇑⇑⇑⇑　24時間最高値 ";
 
+                                //if (PlaySound)
+                                //{
+                                //    SystemSounds.Hand.Play();
+                                //isPlayed = true;
+                                //}
+
+                            }
+                        }
+                        else
+                        {
+                            hoge.HighestIn24PriceAlart = false;
+                        }
+
+                        // 過去24時間最安値
+                        if ((tick.LTP <= hoge.LowestIn24Price) && (prevLtp != tick.LTP) && (hoge.TickHistories.Count > waitTime))
+                        {
+
+                            if (hoge.PlaySoundLowest24h)
+                                hoge.LowestIn24PriceAlart = true;
+
+                            if ((isPlayed == false) && (hoge.PlaySoundLowest24h == true))
+                            {
+                                hoge.HighLowInfoTextColorFlag = false;
+                                hoge.HighLowInfoText = "";
+                                hoge.HighLowInfoText = hoge.PairString + " ⇓⇓⇓⇓⇓⇓　24時間最安値 ";
 
                                 //if (PlaySound)
                                 //{
@@ -2002,95 +2152,13 @@ public partial class MainViewModel : ObservableRecipient
 
                             }
                         }
-                    }
-                    else
-                    {
-                        hoge.HighestPriceAlart = false;
-                    }
-
-                    // 起動後最安値
-                    if ((tick.LTP <= hoge.LowestPrice) && (prevLtp != tick.LTP))
-                    {
-                        if ((hoge.TickHistories.Count > waitTime) && ((hoge.BasePrice - 100M) > tick.LTP))
+                        else
                         {
-
-                            if (hoge.PlaySoundLowest)
-                                hoge.LowestPriceAlart = true;
-
-                            if ((isPlayed == false) && (hoge.PlaySoundLowest == true))
-                            {
-                                hoge.HighLowInfoTextColorFlag = false;
-                                hoge.HighLowInfoText = "";
-                                hoge.HighLowInfoText = hoge.PairString + " ⇓⇓⇓　起動後最安値 ";
-
-                                //if (PlaySound)
-                                //{
-                                //    SystemSounds.Beep.Play();
-                                //    isPlayed = true;
-                                //}
-
-                            }
-
+                            hoge.LowestIn24PriceAlart = false;
                         }
-                    }
-                    else
-                    {
-                        hoge.LowestPriceAlart = false;
-                    }
-
-                    // 過去24時間最高値
-                    if ((tick.LTP >= hoge.HighestIn24Price) && (prevLtp != tick.LTP) && (hoge.TickHistories.Count > waitTime))
-                    {
-                        if (hoge.PlaySoundHighest24h)
-                            hoge.HighestIn24PriceAlart = true;
-
-                        if ((isPlayed == false) && (hoge.PlaySoundHighest24h == true))
-                        {
-                            hoge.HighLowInfoTextColorFlag = true;
-                            hoge.HighLowInfoText = "";
-                            hoge.HighLowInfoText = hoge.PairString + " ⇑⇑⇑⇑⇑⇑　24時間最高値 ";
-
-                            //if (PlaySound)
-                            //{
-                            //    SystemSounds.Hand.Play();
-                            //isPlayed = true;
-                            //}
-
-                        }
-                    }
-                    else
-                    {
-                        hoge.HighestIn24PriceAlart = false;
-                    }
-
-                    // 過去24時間最安値
-                    if ((tick.LTP <= hoge.LowestIn24Price) && (prevLtp != tick.LTP) && (hoge.TickHistories.Count > waitTime))
-                    {
-
-                        if (hoge.PlaySoundLowest24h)
-                            hoge.LowestIn24PriceAlart = true;
-
-                        if ((isPlayed == false) && (hoge.PlaySoundLowest24h == true))
-                        {
-                            hoge.HighLowInfoTextColorFlag = false;
-                            hoge.HighLowInfoText = "";
-                            hoge.HighLowInfoText = hoge.PairString + " ⇓⇓⇓⇓⇓⇓　24時間最安値 ";
-
-                            //if (PlaySound)
-                            //{
-                            //    SystemSounds.Hand.Play();
-                            //    isPlayed = true;
-                            //}
-
-                        }
-                    }
-                    else
-                    {
-                        hoge.LowestIn24PriceAlart = false;
-                    }
-                    */
-                    #endregion
-
+                        */
+                        #endregion
+                    });
                 }
                 else
                 {

@@ -344,7 +344,7 @@
 
                 </StackPanel>
 
-                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="24" Margin="12,0,0,0" Opacity="{StaticResource CustumTextOpacity}">
+                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="24" Margin="12,8,0,0" Opacity="{StaticResource CustumTextOpacity}">
                     <TextBlock>
 						<Run Text="BID:"/>
 						<Run Text="{x:Bind PairViewModel.Bid, Mode=OneWay}"/>
@@ -419,9 +419,9 @@
                 <controls:Case Value="Orders">
 
                     <!-- Orders -->
-                    <ListView ItemsSource="{x:Bind Path=PairViewModel.Orders, Mode=OneWay}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    <ListView x:Name="OrdersListview" ItemsSource="{x:Bind Path=PairViewModel.Orders, Mode=OneWay}" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                   ScrollViewer.VerticalScrollBarVisibility="Visible" animations:Implicit.HideAnimations="{StaticResource HideTransitions}"
-                            animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}">
+                            animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}" SelectionMode="Extended" IsMultiSelectCheckBoxEnabled="False">
                         <ListView.Header>
                             <Grid Padding="16,12" ColumnSpacing="8" Background="{ThemeResource NavigationViewContentBackground}">
                                 <Grid.ColumnDefinitions>
@@ -450,6 +450,18 @@
                                 <TextBlock Grid.Column="10" x:Uid="ListView_Orders_OrderedAt"/>
                             </Grid>
                         </ListView.Header>
+                        <ListView.ContextFlyout>
+                            <!--  x:Key="ListItemContextMenu" -->
+                            <MenuFlyout>
+                                <MenuFlyoutItem x:Uid="OrdersListview_CancelOrder" Command="{x:Bind PairViewModel.CancelOrderCommand}" CommandParameter="{x:Bind OrdersListview.SelectedItems}">
+                                    <MenuFlyoutItem.Icon>
+                                        <PathIcon Margin="0,0,0,0" Data="M14,3V5H17.59L7.76,14.83L9.17,16.24L19,6.41V10H21V3M19,19H5V5H12V3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V12H19V19Z">
+                                        </PathIcon>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+
+                            </MenuFlyout>
+                        </ListView.ContextFlyout>
                         <ListView.ItemTemplate>
                             <DataTemplate x:DataType="localmodel:Order">
                                 <Grid ColumnSpacing="8">
@@ -461,10 +473,10 @@
                                                     <triggers:CompareStateTrigger Comparison="Equal" Value="{Binding Tag, ElementName=TextBlockTest, Mode=OneWay}" To="buy" />
                                                 </VisualState.StateTriggers>
                                                 <VisualState.Setters>
-                                                        <Setter Target="TextBlockTest.Foreground" Value="Red" />
-                                                    </VisualState.Setters>
-                                                </VisualState>
-                                            </VisualStateGroup>
+                                                    <Setter Target="TextBlockTest.Foreground" Value="Red" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                        </VisualStateGroup>
                                     </VisualStateManager.VisualStateGroups>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="60" />
@@ -592,16 +604,6 @@
                             </Style>
                         </ListView.ItemContainerStyle>
                     </ListView>
-
-                </controls:Case>
-                <controls:Case Value="Errors">
-                    
-                    <!-- Errors  -->
-                    <StackPanel animations:Implicit.HideAnimations="{StaticResource HideTransitions}"
-                            animations:Implicit.ShowAnimations="{StaticResource ShowTransitions}"
-                            Style="{StaticResource PrivatePanelStyle}">
-
-                    </StackPanel>
 
                 </controls:Case>
             </controls:SwitchPresenter>
