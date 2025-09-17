@@ -1,68 +1,77 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
+//using Newtonsoft.Json;
+//using Newtonsoft.Json.Converters;
+using System.Text.Json.Serialization;
 
 namespace BitDesk.Models;
 
-// To parse this JSON data, add NuGet 'Newtonsoft.Json' then do:
-//
-//    using QuickType;
-//
-//    var jsonAsset = JsonAsset.FromJson(jsonString);
+[JsonSourceGenerationOptions(
+    PropertyNameCaseInsensitive = true
+)]
+[JsonSerializable(typeof(List<JsonAsset>))]
+[JsonSerializable(typeof(JsonAssetResult))]
+[JsonSerializable(typeof(JsonAssetData))]
+[JsonSerializable(typeof(JsonAsset))]
+internal partial class AssetJsonSerializerContext : JsonSerializerContext
+{
+}
 
 public partial class JsonAssetResult
 {
-    [JsonProperty("success")]
+    [JsonPropertyName("success")]
     public long Success { get; set; }
 
-    [JsonProperty("data")]
-    public Data? Data { get; set; }
+    [JsonPropertyName("data")]
+    public JsonAssetData? Data { get; set; }
 }
 
-public partial class Data
+public partial class JsonAssetData
 {
-    [JsonProperty("assets")]
+    [JsonPropertyName("assets")]
     public List<JsonAsset>? Assets { get; set; }
 }
 
 public partial class JsonAsset
 {
-    [JsonProperty("asset")]
+    [JsonPropertyName("asset")]
     public string? AssetAsset { get; set; }
 
-    [JsonProperty("amount_precision")]
+    [JsonPropertyName("amount_precision")]
     public long AmountPrecision { get; set; }
 
-    [JsonProperty("onhand_amount")]
+    [JsonPropertyName("onhand_amount")]
     public string? OnhandAmount { get; set; }
 
-    [JsonProperty("locked_amount")]
+    [JsonPropertyName("locked_amount")]
     public string? LockedAmount { get; set; }
 
-    [JsonProperty("free_amount")]
+    [JsonPropertyName("free_amount")]
     public string? FreeAmount { get; set; }
 
-    [JsonProperty("stop_deposit")]
+    [JsonPropertyName("stop_deposit")]
     public bool StopDeposit { get; set; }
 
-    [JsonProperty("stop_withdrawal")]
+    [JsonPropertyName("stop_withdrawal")]
     public bool StopWithdrawal { get; set; }
-
-    [JsonProperty("withdrawal_fee")]
+    
+    /*
+    [JsonPropertyName("withdrawal_fee")]
     public WithdrawalFeeUnion WithdrawalFee { get; set; }
+    */
 }
 
+/*
 public partial class WithdrawalFeeClass
 {
-    [JsonProperty("threshold")]
+    [JsonPropertyName("threshold")]
     public string? Threshold { get; set; }
 
-    [JsonProperty("under")]
+    [JsonPropertyName("under")]
     public string? Under { get; set; }
 
-    [JsonProperty("over")]
+    [JsonPropertyName("over")]
     public string? Over { get; set; }
 }
 
@@ -138,4 +147,6 @@ internal class WithdrawalFeeUnionConverter : JsonConverter
 
     public static readonly WithdrawalFeeUnionConverter Singleton = new();
 }
+
+*/
 

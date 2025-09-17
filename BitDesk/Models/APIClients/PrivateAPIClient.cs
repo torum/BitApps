@@ -5,7 +5,7 @@ using System.Text;
 using BitApps.Core.Models;
 using BitApps.Core.Models.APIClients;
 using BitDesk.Models;
-using Newtonsoft.Json;
+using Windows.System;
 
 namespace BitDesk.Models.APIClients;
 
@@ -131,7 +131,8 @@ public partial class PrivateAPIClient : BaseClient
 
         if (!string.IsNullOrEmpty(json))
         {
-            var deserialized = JsonAssetResult.FromJson(json);
+            //var deserialized = JsonAssetResult.FromJson(json);
+            var deserialized  = System.Text.Json.JsonSerializer.Deserialize<JsonAssetResult>(json, AssetJsonSerializerContext.Default.JsonAssetResult);
 
             if (deserialized?.Success > 0)
             {
@@ -156,11 +157,11 @@ public partial class PrivateAPIClient : BaseClient
                 {
                     return null;
                 }
-
             }
             else
             {
-                var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                //var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                var jsonResult = System.Text.Json.JsonSerializer.Deserialize(json, ErrorJsonSerializerContext.Default.JsonErrorObject);
 
                 System.Diagnostics.Debug.WriteLine("■■■■■ GetAssetList: API error code - " + jsonResult?.Data?.Code.ToString() + " ■■■■■");
 
@@ -202,7 +203,8 @@ public partial class PrivateAPIClient : BaseClient
 
         var orderParam = new OrderParam(pair, amount.ToString(), price.ToString(), side, type, postOnly);
 
-        var body = JsonConvert.SerializeObject(orderParam);
+        //var body = JsonConvert.SerializeObject(orderParam);
+        var body = System.Text.Json.JsonSerializer.Serialize(orderParam, OrderJsonSerializerContext.Default.OrderParam);
 
         //Debug.WriteLine("MakingOrder... resquest body = " + body);
 
@@ -234,7 +236,8 @@ public partial class PrivateAPIClient : BaseClient
             {
                 //Debug.WriteLine("MakeOrder result: " + json);
 
-                var deserialized = JsonConvert.DeserializeObject<JsonOrderObject>(json);
+                //var deserialized = JsonConvert.DeserializeObject<JsonOrderObject>(json);
+                var deserialized = System.Text.Json.JsonSerializer.Deserialize<JsonOrderObject>(json, OrderJsonSerializerContext.Default.JsonOrderObject);
 
                 if (deserialized?.Success > 0)
                 {
@@ -288,7 +291,8 @@ public partial class PrivateAPIClient : BaseClient
                 }
                 else
                 {
-                    var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                    //var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                    var jsonResult = System.Text.Json.JsonSerializer.Deserialize(json, ErrorJsonSerializerContext.Default.JsonErrorObject);
 
                     ord.IsSuccess = false;
                     ord.ApiErrorCode = jsonResult?.Data?.Code ?? 0;
@@ -389,7 +393,8 @@ public partial class PrivateAPIClient : BaseClient
         {
             //System.Diagnostics.Debug.WriteLine("GetOrderByID: " + json);
 
-            var deserialized = JsonConvert.DeserializeObject<JsonOrderObject>(json);
+            //var deserialized = JsonConvert.DeserializeObject<JsonOrderObject>(json);
+            var deserialized = System.Text.Json.JsonSerializer.Deserialize<JsonOrderObject>(json, OrderJsonSerializerContext.Default.JsonOrderObject);
 
             if (deserialized?.Success > 0)
             {
@@ -427,7 +432,8 @@ public partial class PrivateAPIClient : BaseClient
             {
                 var ord = new OrderResult();
 
-                var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                //var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                var jsonResult = System.Text.Json.JsonSerializer.Deserialize(json, ErrorJsonSerializerContext.Default.JsonErrorObject);
 
                 ord.IsSuccess = false;
                 ord.ApiErrorCode = jsonResult?.Data?.Code ?? 0;
@@ -488,7 +494,8 @@ public partial class PrivateAPIClient : BaseClient
         var path = new Uri("/user/spot/orders_info", UriKind.Relative);
 
         var idParam = new PairOrderIdList(pair, orderIDs);
-        var body = JsonConvert.SerializeObject(idParam);
+        //var body = JsonConvert.SerializeObject(idParam);
+        var body = System.Text.Json.JsonSerializer.Serialize(idParam, OrderJsonSerializerContext.Default.PairOrderIdList);
 
         var resbo = await Send(path, apiKey, apiSecret, HttpMethod.Post, body);
         if (resbo == null)
@@ -505,7 +512,8 @@ public partial class PrivateAPIClient : BaseClient
             {
                 //System.Diagnostics.Debug.WriteLine("GetOrderListByIDs: " + json);
 
-                var deserialized = JsonConvert.DeserializeObject<JsonOrderInfoObject>(json);
+                //var deserialized = JsonConvert.DeserializeObject<JsonOrderInfoObject>(json);
+                var deserialized = System.Text.Json.JsonSerializer.Deserialize<JsonOrderInfoObject>(json, OrderJsonSerializerContext.Default.JsonOrderInfoObject);
 
                 if (deserialized?.Success > 0)
                 {
@@ -573,7 +581,8 @@ public partial class PrivateAPIClient : BaseClient
                 }
                 else
                 {
-                    var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                    //var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                    var jsonResult = System.Text.Json.JsonSerializer.Deserialize(json, ErrorJsonSerializerContext.Default.JsonErrorObject);
 
                     System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderListByIDs: API error code - " + jsonResult?.Data?.Code.ToString() + " ■■■■■");
 
@@ -642,7 +651,8 @@ public partial class PrivateAPIClient : BaseClient
 
         var cancelOrderParam = new PairOrderIdParam(pair, orderID);
 
-        var body = JsonConvert.SerializeObject(cancelOrderParam);
+        //var body = JsonConvert.SerializeObject(cancelOrderParam);
+        var body = System.Text.Json.JsonSerializer.Serialize(cancelOrderParam, OrderJsonSerializerContext.Default.PairOrderIdList);
 
         //string json = await Send(path, apiKey, apiSecret, HttpMethod.Post, body);
         var resbo = await Send(path, apiKey, apiSecret, HttpMethod.Post, body);
@@ -657,7 +667,8 @@ public partial class PrivateAPIClient : BaseClient
         {
             //System.Diagnostics.Debug.WriteLine("CancelOrder: " + json);
 
-            var deserialized = JsonConvert.DeserializeObject<JsonOrderObject>(json);
+            //var deserialized = JsonConvert.DeserializeObject<JsonOrderObject>(json);
+            var deserialized = System.Text.Json.JsonSerializer.Deserialize<JsonOrderObject>(json, OrderJsonSerializerContext.Default.JsonOrderObject);
 
             if (deserialized?.Success > 0)
             {
@@ -709,7 +720,8 @@ public partial class PrivateAPIClient : BaseClient
             }
             else
             {
-                var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                //var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                var jsonResult = System.Text.Json.JsonSerializer.Deserialize(json, ErrorJsonSerializerContext.Default.JsonErrorObject);
 
                 ord.IsSuccess = false;
                 ord.ApiErrorCode = jsonResult?.Data?.Code ?? 0;
@@ -782,7 +794,8 @@ public partial class PrivateAPIClient : BaseClient
         var path = new Uri("/user/spot/cancel_orders", UriKind.Relative);
 
         var idParam = new PairOrderIdList(pair, orderIDs);
-        var body = JsonConvert.SerializeObject(idParam);
+        //var body = JsonConvert.SerializeObject(idParam);
+        var body = System.Text.Json.JsonSerializer.Serialize(idParam, OrderJsonSerializerContext.Default.PairOrderIdList);
 
         //string json = await Send(path, apiKey, apiSecret, HttpMethod.Post, body);
         var resbo = await Send(path, apiKey, apiSecret, HttpMethod.Post, body);
@@ -799,7 +812,8 @@ public partial class PrivateAPIClient : BaseClient
             {
                 //System.Diagnostics.Debug.WriteLine("CancelOrders: " + json);
 
-                var deserialized = JsonConvert.DeserializeObject<JsonOrderInfoObject>(json);
+                //var deserialized = JsonConvert.DeserializeObject<JsonOrderInfoObject>(json);
+                var deserialized = System.Text.Json.JsonSerializer.Deserialize<JsonOrderInfoObject>(json, OrderJsonSerializerContext.Default.JsonOrderInfoObject);
 
                 if (deserialized?.Success > 0)
                 {
@@ -867,7 +881,8 @@ public partial class PrivateAPIClient : BaseClient
                 }
                 else
                 {
-                    var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                    //var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                    var jsonResult = System.Text.Json.JsonSerializer.Deserialize(json, ErrorJsonSerializerContext.Default.JsonErrorObject);
 
                     System.Diagnostics.Debug.WriteLine("■■■■■ CancelOrders: API error code - " + jsonResult?.Data?.Code.ToString() + " ■■■■■");
 
@@ -966,7 +981,8 @@ public partial class PrivateAPIClient : BaseClient
         {
             //System.Diagnostics.Debug.WriteLine("■■■■■ ■■■■■ ■■■■■ GetOrderList: " + json);
 
-            var deserialized = JsonConvert.DeserializeObject<JsonOrderInfoObject>(json);
+            //var deserialized = JsonConvert.DeserializeObject<JsonOrderInfoObject>(json);
+            var deserialized = System.Text.Json.JsonSerializer.Deserialize<JsonOrderInfoObject>(json, OrderJsonSerializerContext.Default.JsonOrderInfoObject);
 
             if (deserialized?.Success > 0)
             {
@@ -1017,7 +1033,8 @@ public partial class PrivateAPIClient : BaseClient
             }
             else
             {
-                var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                //var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                var jsonResult = System.Text.Json.JsonSerializer.Deserialize(json, ErrorJsonSerializerContext.Default.JsonErrorObject);
 
                 System.Diagnostics.Debug.WriteLine("■■■■■ GetOrderList: API error code - " + jsonResult?.Data?.Code.ToString() + " ■■■■■");
 
@@ -1087,7 +1104,8 @@ public partial class PrivateAPIClient : BaseClient
         {
             //System.Diagnostics.Debug.WriteLine("GetTradeHistory: " + json);
 
-            var deserialized = JsonConvert.DeserializeObject<JsonTradeHistoryObject>(json);
+            //var deserialized = JsonConvert.DeserializeObject<JsonTradeHistoryObject>(json);
+            var deserialized = System.Text.Json.JsonSerializer.Deserialize<JsonTradeHistoryObject>(json, TradeHistoryJsonSerializerContext.Default.JsonTradeHistoryObject);
 
             if (deserialized?.Success > 0)
             {
@@ -1130,7 +1148,8 @@ public partial class PrivateAPIClient : BaseClient
             }
             else
             {
-                var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                //var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                var jsonResult = System.Text.Json.JsonSerializer.Deserialize(json, ErrorJsonSerializerContext.Default.JsonErrorObject);
 
                 System.Diagnostics.Debug.WriteLine("■■■■■ GetTradeHistory: API error code - " + jsonResult?.Data?.Code.ToString() + " ■■■■■");
 

@@ -1,7 +1,6 @@
 ﻿using BitApps.Core.Models;
 using BitDesk.Models.APIClients;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Newtonsoft.Json;
 
 namespace BitDesk.Models;
 
@@ -407,81 +406,6 @@ public partial class OrderResult : Order
     {
         get; set;
     }
-}
-
-// 発注時クエリパラメーター用クラス Jsonシリアライズ用
-[JsonObject]
-public class OrderParam(string pair, string amount, string price, string side, string type, bool postOnly)
-{
-    [JsonProperty("pair")]
-    public string Pair
-    {
-        get; set;
-    } = pair;
-
-    [JsonProperty("amount")]
-    public string Amount
-    {
-        get; set;
-    } = amount;
-
-    [JsonProperty("price")]
-    public string Price
-    {
-        get; set;
-    } = price;
-
-    [JsonProperty("side")]
-    public string Side
-    {
-        get; set;
-    } = side;
-
-    [JsonProperty("type")]
-    public string Type
-    {
-        get; set;
-    } = type;
-
-    [JsonProperty("post_only")]
-    public bool Post_Only // Post Only (true can be specified only if type = limit. default false)
-    {
-        get; set;
-    } = postOnly;
-}
-
-// パラメーター用クラス Jsonシリアライズ用
-[JsonObject]
-public class PairOrderIdParam(string pair, ulong orderID)
-{
-    [JsonProperty("pair")]
-    public string Pair
-    {
-        get; set;
-    } = pair;
-
-    [JsonProperty("order_id")]
-    public ulong Order_id
-    {
-        get; set;
-    } = orderID;
-}
-
-// パラメーター用クラス Jsonシリアライズ用
-[JsonObject]
-public class PairOrderIdList(string pair, List<ulong> orderIds)
-{
-    [JsonProperty("pair")]
-    public string Pair
-    {
-        get; set;
-    } = pair;
-
-    [JsonProperty("order_ids")]
-    public List<ulong> OrderIds
-    {
-        get; set;
-    } = orderIds;
 }
 
 
