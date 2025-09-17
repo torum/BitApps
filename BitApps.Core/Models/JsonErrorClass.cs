@@ -2,9 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace BitApps.Core.Models;
+
+[JsonSerializable(typeof(JsonData))]
+[JsonSerializable(typeof(JsonErrorObject))]
+[JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true)]
+internal partial class ErrorJsonSerializerContext : JsonSerializerContext
+{
+}
 
 public class JsonErrorData
 {

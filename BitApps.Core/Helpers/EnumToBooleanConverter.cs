@@ -3,7 +3,7 @@ using Microsoft.UI.Xaml.Data;
 
 namespace BitApps.Core.Helpers;
 
-public class ElementThemeEnumToBooleanConverter : IValueConverter
+public partial class ElementThemeEnumToBooleanConverter : IValueConverter
 {
     public ElementThemeEnumToBooleanConverter()
     {
@@ -18,7 +18,7 @@ public class ElementThemeEnumToBooleanConverter : IValueConverter
                 throw new ArgumentException("ExceptionEnumToBooleanConverterValueMustBeAnEnum");
             }
 
-            var enumValue = Enum.Parse(typeof(ElementTheme), enumString);
+            var enumValue = Enum.Parse<ElementTheme>(enumString);
 
             return enumValue.Equals(value);
         }
@@ -30,7 +30,7 @@ public class ElementThemeEnumToBooleanConverter : IValueConverter
     {
         if (parameter is string enumString)
         {
-            return Enum.Parse(typeof(ElementTheme), enumString);
+            return Enum.Parse<ElementTheme>(enumString);
         }
 
         throw new ArgumentException("ExceptionEnumToBooleanConverterParameterMustBeAnEnumName");
@@ -43,7 +43,7 @@ public enum SystemBackdropOption
     Mica, Acrylic
 }
 
-public class SystemBackdropEnumToBooleanConverter : IValueConverter
+public partial class SystemBackdropEnumToBooleanConverter : IValueConverter
 {
     public SystemBackdropEnumToBooleanConverter()
     {
@@ -58,7 +58,7 @@ public class SystemBackdropEnumToBooleanConverter : IValueConverter
                 throw new ArgumentException("ExceptionEnumToBooleanConverterValueMustBeAnEnum");
             }
 
-            var enumValue = Enum.Parse(typeof(SystemBackdropOption), enumString);
+            var enumValue = Enum.Parse<SystemBackdropOption>(enumString);
 
             return enumValue.Equals(value);
         }
@@ -70,7 +70,7 @@ public class SystemBackdropEnumToBooleanConverter : IValueConverter
     {
         if (parameter is string enumString)
         {
-            return Enum.Parse(typeof(SystemBackdropOption), enumString);
+            return Enum.Parse<SystemBackdropOption>(enumString);
         }
 
         throw new ArgumentException("ExceptionEnumToBooleanConverterParameterMustBeAnEnumName");

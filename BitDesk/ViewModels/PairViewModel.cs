@@ -14,6 +14,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LiveChartsCore;
 using LiveChartsCore.Defaults;
+using LiveChartsCore.Kernel;
 using LiveChartsCore.Kernel.Sketches;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
@@ -198,9 +199,11 @@ public partial class PairViewModel : ObservableRecipient
             {
                 App.CurrentDispatcherQueue?.TryEnqueue(() =>
                 {
-                    Sections[0].Yi = (double)_ltp;
-                    Sections[0].Yj = (double)_ltp;
+
                 });
+                SectionYi = (double)_ltp;
+                SectionYj = (double)_ltp;
+
 
                 // a little hack to update Section...
                 App.CurrentDispatcherQueue?.TryEnqueue(() =>
@@ -217,7 +220,7 @@ public partial class PairViewModel : ObservableRecipient
                             return;
                         }
 
-                        oc[0].Close =
+                        //oc[0].Close =
                             oc[0].Close = (double)_ltp;
                     }
                 });
@@ -329,7 +332,6 @@ public partial class PairViewModel : ObservableRecipient
             _tickTimeStamp = value;
             OnPropertyChanged(nameof(TickTimeStamp));
             OnPropertyChanged(nameof(TickTimeStampString));
-
         }
     }
     public string TickTimeStampString => _tickTimeStamp.ToLocalTime().ToString("HH:mm:ss");//("G", System.Globalization.CultureInfo.CurrentUICulture);//"yyyy/MM/dd HH:mm:ss"
@@ -1138,7 +1140,7 @@ public partial class PairViewModel : ObservableRecipient
         }
     }
 
-    public string AssetCurrentEstimateAmountText => AssetCurrentEstimateAmount.ToString("C0")+"";
+    public string AssetCurrentEstimateAmountText => AssetCurrentEstimateAmount.ToString("C0") + "";
 
     // 円資産名
     private string _assetJPYName = string.Empty;
@@ -1213,7 +1215,7 @@ public partial class PairViewModel : ObservableRecipient
         get => _orders;
         set
         {
-            if (_orders== value)
+            if (_orders == value)
             {
                 return;
             }
@@ -1420,7 +1422,74 @@ public partial class PairViewModel : ObservableRecipient
 
     #region == Charts ==
 
-    public Section<LiveChartsCore.SkiaSharpView.Drawing.SkiaSharpDrawingContext>[] Sections { get; set; } =
+    private double _sectionYi = 0;
+    public double SectionYi
+    {
+        get => _sectionYi;
+        set
+        {
+            //Debug.WriteLine($"{_sectionYi}");
+            if (_sectionYi == value)
+            {
+                return;
+            }
+
+            _sectionYi = value;
+            OnPropertyChanged(nameof(SectionYi));
+        }
+    }
+
+    private double _sectionYj = 0;
+    public double SectionYj
+    {
+        get => _sectionYj;
+        set
+        {
+            if (_sectionYj == value)
+            {
+                return;
+            }
+
+            _sectionYj = value;
+            OnPropertyChanged(nameof(SectionYj));
+        }
+    }
+
+    private double _sectionXi = double.NaN;
+    public double SectionXi
+    {
+        get => _sectionXi;
+        set
+        {
+            if (_sectionXi == value)
+            {
+                return;
+            }
+
+            _sectionXi = value;
+            OnPropertyChanged(nameof(SectionXi));
+        }
+    }
+
+    private double _sectionXj = double.NaN;
+    public double SectionXj
+    {
+        get => _sectionXj;
+        set
+        {
+            if (_sectionXj == value)
+            {
+                return;
+            }
+
+            _sectionXj = value;
+            OnPropertyChanged(nameof(_sectionXj));
+        }
+    }
+
+
+    /*
+    public IChartElement[] Sections { get; set; } =
     [
         new RectangularSection
         {
@@ -1431,10 +1500,11 @@ public partial class PairViewModel : ObservableRecipient
             {
                 Color = SKColors.Silver.WithAlpha(80),
                 StrokeThickness = 1,
-                //PathEffect = new DashEffect(new float[] { 6, 6 })
+                PathEffect = new DashEffect(new float[] { 6, 6 })
             }
         }
     ];
+    */
 
     public ICartesianAxis[] XAxes {get; set;} =
     [
@@ -1446,7 +1516,7 @@ public partial class PairViewModel : ObservableRecipient
             Labeler = value => new DateTime((long) value).ToString("M/d"), //TODO: localize aware
             //UnitWidth = TimeSpan.FromHours(0.5).Ticks,
             UnitWidth = TimeSpan.FromDays(1).Ticks,
-            //MinStep = TimeSpan.FromDays(1).Ticks,
+            MinStep = TimeSpan.FromDays(0.4).Ticks,
             MaxLimit = null,
             MinLimit= DateTime.Now.Ticks - TimeSpan.FromDays(2.8).Ticks,
             SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray.WithAlpha(80)) { StrokeThickness = 1,PathEffect = new DashEffect([3, 3]) }
@@ -1512,6 +1582,7 @@ public partial class PairViewModel : ObservableRecipient
             }
         }
     ];
+
     public ISeries[] Series
     {
         get => _series;
@@ -1939,8 +2010,9 @@ public partial class PairViewModel : ObservableRecipient
         }
         else
         {
-            Sections[0].Yi = 0;
-            Sections[0].Yj = 0;
+            /*
+            SectionYi = 10;
+            SectionYj = 10;
 
             // Little hack to init. This is required after upgrading Livechart2 to 2.0 rc.
             // clear chart data.
@@ -1952,7 +2024,7 @@ public partial class PairViewModel : ObservableRecipient
             {
                 new(DateTime.Now, 100, 0, 0, 0)
             };
-
+            */
             LoadChart(SelectedCandleType);
         }
 
@@ -2065,8 +2137,8 @@ public partial class PairViewModel : ObservableRecipient
         {
             DoLoadChart(res, ct);
 
-            Sections[0].Yi = (double)_ltp;
-            Sections[0].Yj = (double)_ltp;
+            SectionYi = (double)_ltp;
+            SectionYj = (double)_ltp;
         }
     }
 
@@ -2130,7 +2202,7 @@ public partial class PairViewModel : ObservableRecipient
         {
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("M/d H:mm");
             XAxes[0].UnitWidth = TimeSpan.FromHours(0.5).Ticks;
-            //XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
+            XAxes[0].MinStep = TimeSpan.FromDays(0.4).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(3).Ticks;
             XAxes[0].MaxLimit = null;
         }

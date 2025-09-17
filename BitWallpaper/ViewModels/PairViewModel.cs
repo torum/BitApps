@@ -1182,7 +1182,7 @@ public partial class PairViewModel : ViewModelBase
 
     #region == Charts ==
 
-    public Section<LiveChartsCore.SkiaSharpView.Drawing.SkiaSharpDrawingContext>[] Sections { get; set; } =
+    public RectangularSection[] Sections { get; set; } =
     [
         new RectangularSection
         {
@@ -1207,7 +1207,7 @@ public partial class PairViewModel : ViewModelBase
             LabelsPaint = new SolidColorPaint(SKColors.Gray.WithAlpha(80)),
             Labeler = value => new DateTime((long)value).ToString("MM/dd"), //TODO: localize aware
             UnitWidth = TimeSpan.FromHours(0.5).Ticks,
-            //MinStep = TimeSpan.FromDays(1).Ticks,
+            MinStep = TimeSpan.FromDays(0.4).Ticks,
             MaxLimit = null,
             MinLimit= DateTime.Now.Ticks - TimeSpan.FromDays(2.8).Ticks,
             SeparatorsPaint = new SolidColorPaint(SKColors.LightSlateGray.WithAlpha(80)) { StrokeThickness = 1,PathEffect = new DashEffect([3, 3]) }
@@ -1698,13 +1698,11 @@ public partial class PairViewModel : ViewModelBase
         }
         else if (ct == CandleTypes.OneHour)
         {
-            
             XAxes[0].Labeler = value => new DateTime((long)value).ToString("M/d H:mm");
             //XAxes[0].Labeler = value => new DateTime((long)value).ToString("yyyy MMM dd");
             XAxes[0].UnitWidth = TimeSpan.FromHours(0.5).Ticks;
             XAxes[0].MinStep = 0;
-            // Bad:
-            //XAxes[0].MinStep = TimeSpan.FromDays(1).Ticks;
+            XAxes[0].MinStep = TimeSpan.FromDays(0.4).Ticks;
             XAxes[0].MinLimit = DateTime.Now.Ticks - TimeSpan.FromDays(3).Ticks;
             XAxes[0].MaxLimit = null;
         }

@@ -1198,7 +1198,7 @@ public partial class PrivateAPIClient : BaseClient
             // メッセージをHMACSHA256で署名
             var hash = new HMACSHA256(Encoding.UTF8.GetBytes(secret)).ComputeHash(Encoding.UTF8.GetBytes(message));
             //ACCESS-SIGNATURE
-            var _accessSignature = BitConverter.ToString(hash).ToLower().Replace("-", "");//バイト配列をを16進文字列へ << CA1872
+            var _accessSignature = Convert.ToHexStringLower(hash);//バイト配列をを16進文字列へ << CA1872
 
             //System.Diagnostics.Debug.WriteLine("Sending..." + Environment.NewLine + _HTTPConn.Client.DefaultRequestHeaders.ToString());
 

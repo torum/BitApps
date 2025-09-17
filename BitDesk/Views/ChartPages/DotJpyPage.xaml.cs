@@ -15,19 +15,7 @@ public sealed partial class DotJpyPage : Page
 
     public DotJpyPage()
     {
-        try
-        {
-            InitializeComponent();
-        }
-        catch (XamlParseException parseException)
-        {
-            Debug.WriteLine($"Unhandled XamlParseException in DotJpyPage: {parseException.Message}");
-            foreach (var key in parseException.Data.Keys)
-            {
-                Debug.WriteLine("{Key}:{Value}", key.ToString(), parseException.Data[key]?.ToString());
-            }
-            throw;
-        }
+        InitializeComponent();
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)

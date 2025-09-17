@@ -147,7 +147,7 @@
                 </VisualState>
             </VisualStateGroup>
 
-
+<!--
             <VisualStateGroup>
                 <VisualState x:Name="Equal">
                     <VisualState.StateTriggers>
@@ -160,7 +160,7 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
-
+-->
 
 
         </VisualStateManager.VisualStateGroups>
@@ -374,14 +374,38 @@
                 <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
 
                     <!-- Chart -->
-                    <lvc:CartesianChart x:Name="LiveChart"
-                                        Margin="0,0,0,0"
+                    <lvc:CartesianChart x:Name="LiveChart" Background="Transparent"
+                                        Margin="0,0,0,0" 
                                     Series="{x:Bind PairViewModel.Series, Mode=OneWay}" 
                                     XAxes="{x:Bind PairViewModel.XAxes, Mode=OneWay}" 
                                     YAxes="{x:Bind PairViewModel.YAxes, Mode=OneWay}" 
-                                    Sections="{x:Bind PairViewModel.Sections, Mode=OneWay}" 
                                     TooltipPosition="{x:Bind PairViewModel.IsChartTooltipVisibleTemp, Mode=OneWay}"
-                                    ZoomMode="X"/>
+                                    ZoomMode="X">
+                        <!--
+                        <lvc:CartesianChart.Sections>
+                            <lvc:SectionsCollection>
+                                <lvc:XamlRectangularSection 
+                                    Yi="{x:Bind PairViewModel.SectionYi, Mode=OneWay}" Yj="{x:Bind PairViewModel.SectionYj, Mode=OneWay}"
+                                                            Stroke="{lvc:SolidColorPaint Color='#F00', StrokeWidth=3, PathEffect={lvc:Dashed Array='6, 6'}}"/>
+
+                            </lvc:SectionsCollection>
+                        </lvc:CartesianChart.Sections>
+                        -->
+                        
+                        <!--   
+
+                                    Xi="{x:Bind PairViewModel.SectionXi, Mode=OneWay}" Xj="{x:Bind PairViewModel.SectionXj, Mode=OneWay}"
+                                -->
+                        <!--
+                                <lvc:XamlRectangularSection Yi="{x:Bind PairViewModel.SectionYi, Mode=OneWay}" Yj="{x:Bind PairViewModel.SectionYj, Mode=OneWay}" Fill="{lvc:SolidColorPaint Color='#FFCDD2'}" 
+                                                            Stroke="{lvc:SolidColorPaint Color='#F00', StrokeWidth=3, PathEffect={lvc:Dashed Array='6, 6'}}"/>
+                                -->
+                        <!--
+                                <lvc:XamlRectangularSection Yi="8" Yj="8" Fill="{lvc:SolidColorPaint Color='#DDDDDD'}" 
+                                                            Stroke="{lvc:SolidColorPaint Color='#EEE', StrokeWidth=3, PathEffect={lvc:Dashed Array='6, 6'}}"/>
+                                -->
+
+                    </lvc:CartesianChart>
 
                 </Grid>
                 

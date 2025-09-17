@@ -1213,7 +1213,7 @@ public partial class MainViewModel : ViewModelBase
     #endregion
 
     // HTTP Clients
-    private readonly PublicAPIClient _pubTickerApi = new();
+    //private readonly PublicAPIClient _pubTickerApi = new();
 
     //_pubTickerApi.ErrorOccured += new PrivateAPIClient.ClinetErrorEvent(OnError);
 
@@ -1315,7 +1315,7 @@ public partial class MainViewModel : ViewModelBase
         {
             _dispatcherTimerTickAllPairs.Stop();
 
-            _pubTickerApi.Dispose();
+            //_pubTickerApi.Dispose();
         }
         catch (Exception ex)
         {

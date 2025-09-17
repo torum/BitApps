@@ -57,7 +57,7 @@ public abstract class ViewModelBase : INotifyPropertyChanged, IDataErrorInfo
 
     #region == IDataErrorInfo ==
 
-    private readonly Dictionary<string, string> _ErrorMessages = new();
+    private readonly Dictionary<string, string> _ErrorMessages = [];
 
     string IDataErrorInfo.Error => (_ErrorMessages.Count > 0) ? "Has Error" : "";
 

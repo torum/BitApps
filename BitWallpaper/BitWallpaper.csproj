@@ -1,23 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
+		<TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
 		<!-- <WindowsSdkPackageVersion>10.0.26100.38</WindowsSdkPackageVersion> -->
 		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
-		<SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
 		<RootNamespace>BitWallpaper</RootNamespace>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<Platforms>x86;x64;ARM64</Platforms>
 		<!-- 
 		 -->
-
+		<PlatformTarget>x64</PlatformTarget>
+		<RuntimeIdentifier>win-x64</RuntimeIdentifier>
+		<!-- 
 		<RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &gt;= 8">win-x86;win-x64;win-arm64</RuntimeIdentifiers>
 		<RuntimeIdentifiers Condition="$([MSBuild]::GetTargetFrameworkVersion('$(TargetFramework)')) &lt; 8">win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
-		
-		<!-- <RuntimeIdentifiers>win-x86;win-x64</RuntimeIdentifiers>
 		<RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
-		-->
 		<PublishProfile>win10-$(Platform).pubxml</PublishProfile>
+		-->
 		<PublishProfile>Properties\PublishProfiles\win10-$(Platform).pubxml</PublishProfile>
 		
 		<EnableMsixTooling>true</EnableMsixTooling>
@@ -27,6 +26,7 @@
 		-->
 		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<PublishAot>True</PublishAot>
 		
 		<NeutralLanguage>en</NeutralLanguage>
 		<DefaultLanguage>en-US</DefaultLanguage>
@@ -53,9 +53,10 @@
 		<Description>Cryptocurrency charting app</Description>
 		<SymbolPackageFormat>symbols.nupkg</SymbolPackageFormat>
 		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
-		<PlatformTarget>AnyCPU</PlatformTarget>
+		<PlatformTarget>x64</PlatformTarget>
 		<AppxPackageSigningEnabled>False</AppxPackageSigningEnabled>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+		
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="Styles\Colors.xaml" />
@@ -136,16 +137,16 @@
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="HarfBuzzSharp" Version="8.3.1.1" />
-		<PackageReference Include="LiveChartsCore.SkiaSharpView.WinUI" Version="2.0.0-rc4.5" />
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4188" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250606001">
+		<PackageReference Include="LiveChartsCore.SkiaSharpView.WinUI" Version="2.0.0-rc6.1" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4948" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250907003">
 		</PackageReference>
 		<PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.3" />
 		<PackageReference Include="SkiaSharp" Version="3.119.0" />
 		<PackageReference Include="SkiaSharp.HarfBuzz" Version="3.119.0" />
 		<PackageReference Include="SkiaSharp.NativeAssets.WinUI" Version="3.119.0" />
 		<PackageReference Include="SkiaSharp.Views.WinUI" Version="3.119.0" />
-		<PackageReference Include="WinUIEx" Version="2.5.1" />
+		<PackageReference Include="WinUIEx" Version="2.8.0" />
 		<Manifest Include="$(ApplicationManifest)" />
 	</ItemGroup>
 

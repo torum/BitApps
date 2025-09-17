@@ -1,22 +1,26 @@
-﻿using Newtonsoft.Json;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net.Http.Headers;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Windows.System;
 
 namespace BitApps.Core.Models.APIClients;
 
 public partial class PublicAPIClient : BaseSingletonClient
 {
-    private readonly Uri PublicAPIUri = new("https://public.bitbank.cc");
+    //private readonly Uri PublicAPIUri = new("https://public.bitbank.cc");
 
     // コンストラクタ
     public PublicAPIClient()
     {
+        /*
         Client.BaseAddress = PublicAPIUri;
 
         Client.DefaultRequestHeaders.Clear();
         Client.DefaultRequestHeaders.ConnectionClose = false;
         //Client.DefaultRequestHeaders.ConnectionClose = true;
         Client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        */
     }
 
     // Ticker取得メソッド
@@ -48,7 +52,9 @@ public partial class PublicAPIClient : BaseSingletonClient
 
             var s = await response.Content.ReadAsStringAsync();
 
-            var deserialized = JsonConvert.DeserializeObject<JsonTickerObject>(s);
+            //var deserialized = JsonConvert.DeserializeObject<JsonTickerObject>(s);
+            var deserialized = JsonSerializer.Deserialize(s, TickerJsonSerializerContext.Default.JsonTickerObject);
+
             if (deserialized == null)
             {
                 Debug.WriteLine("GetTicker: DeserializeObject is null.");
@@ -172,7 +178,9 @@ public partial class PublicAPIClient : BaseSingletonClient
                 var json = await response.Content.ReadAsStringAsync();
                 //System.Diagnostics.Debug.WriteLine("GetTicker: " + s);
 
-                var deserialized = JsonConvert.DeserializeObject<JsonDepthObject>(json);
+                //var deserialized = JsonConvert.DeserializeObject<JsonDepthObject>(json);
+                var deserialized = JsonSerializer.Deserialize(json, DepthJsonSerializerContext.Default.JsonDepthObject);
+
                 if (deserialized == null)
                 {
                     return null;
@@ -231,7 +239,8 @@ public partial class PublicAPIClient : BaseSingletonClient
                 }
                 else
                 {
-                    var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                    //var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                    var jsonResult = JsonSerializer.Deserialize(json, ErrorJsonSerializerContext.Default.JsonErrorObject);
 
                     if (jsonResult?.Data is not null)
                     {
@@ -302,7 +311,8 @@ public partial class PublicAPIClient : BaseSingletonClient
                 var json = await response.Content.ReadAsStringAsync();
                 //System.Diagnostics.Debug.WriteLine("GetTicker: " + s);
 
-                var deserialized = JsonConvert.DeserializeObject<JsonTransactions>(json);
+                //var deserialized = JsonConvert.DeserializeObject<JsonTransactions>(json);
+                var deserialized = JsonSerializer.Deserialize(json, TransactionsJsonSerializerContext.Default.JsonTransactions);
 
                 if (deserialized?.Success > 0)
                 {
@@ -352,7 +362,9 @@ public partial class PublicAPIClient : BaseSingletonClient
                 }
                 else
                 {
-                    var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                    //var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                    var jsonResult = JsonSerializer.Deserialize(json, ErrorJsonSerializerContext.Default.JsonErrorObject);
+
                     if (jsonResult?.Data is not null)
                     {
                         Debug.WriteLine("GetTransactions: API error code - " + jsonResult.Data.Code.ToString());
@@ -425,7 +437,8 @@ public partial class PublicAPIClient : BaseSingletonClient
                 var json = await response.Content.ReadAsStringAsync();
                 //System.Diagnostics.Debug.WriteLine("GetCandlestick: " + json);
 
-                var deserialized = JsonConvert.DeserializeObject<JsonCandlestick>(json);
+                //var deserialized = JsonConvert.DeserializeObject<JsonCandlestick>(json);
+                var deserialized = JsonSerializer.Deserialize(json, CandlestickJsonSerializerContext.Default.JsonCandlestick);
 
                 if (deserialized != null)
                 {
@@ -485,7 +498,7 @@ public partial class PublicAPIClient : BaseSingletonClient
                                     {
                                         csr.CandleType = CandleTypes.OneMonth;
                                     }
-
+                                    /*
                                     if (deserialized.Data.Candlestick[0].Ohlcv is not null)
                                     {
                                         if (deserialized.Data.Candlestick[0]?.Ohlcv?.Count > 0)
@@ -509,6 +522,48 @@ public partial class PublicAPIClient : BaseSingletonClient
                                                 //System.Diagnostics.Debug.WriteLine("GetCandlestick: " + oh.TimeStamp.ToString("dd日 hh:mm:ss"));
                                                 //System.Diagnostics.Debug.WriteLine(jcs[4].String);
                                                 csr.Candlesticks.Add(oh);
+                                            }
+                                        }
+                                    }
+                                    */
+
+                                    if (deserialized?.Data?.Candlestick != null)
+                                    {
+                                        foreach (var candlestick in deserialized.Data.Candlestick)
+                                        {
+                                            if (candlestick.Ohlcv != null)
+                                            {
+                                                foreach (var ohlcv in candlestick.Ohlcv)
+                                                {
+                                                    Console.WriteLine($"  Open: {ohlcv.Open}, High: {ohlcv.High}, Low: {ohlcv.Low}, Close: {ohlcv.Close}, Volume: {ohlcv.Volume}, Timestamp: {ohlcv.Timestamp}");
+
+                                                    var oh = new Ohlcv();
+                                                    if (decimal.TryParse(ohlcv.Open, out var decimalOpen))
+                                                    {
+                                                        oh.Open = decimalOpen;
+                                                    }
+                                                    if (decimal.TryParse(ohlcv.High, out var decimalHigh))
+                                                    {
+                                                        oh.High = decimalHigh;
+                                                    }
+                                                    if (decimal.TryParse(ohlcv.Low, out var decimalLow))
+                                                    {
+                                                        oh.Low = decimalLow;
+                                                    }
+                                                    if (decimal.TryParse(ohlcv.Close, out var decimalClose))
+                                                    {
+                                                        oh.Close = decimalClose;
+                                                    }
+                                                    if (decimal.TryParse(ohlcv.Volume, out var decimalVolume))
+                                                    {
+                                                        oh.Volume = decimalVolume;
+                                                    }
+                                                    oh.TimeStamp = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddMilliseconds((double)ohlcv.Timestamp).ToLocalTime();
+                                                    //oh.TimeStamp = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Unspecified)).AddMilliseconds((double)jcs[5].Double);
+                                                    //oh.TimeStamp = (new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).AddMilliseconds((double)jcs[5].Long).ToLocalTime();
+
+                                                    csr.Candlesticks.Add(oh);
+                                                }
                                             }
                                         }
                                     }
@@ -538,7 +593,8 @@ public partial class PublicAPIClient : BaseSingletonClient
                     }
                     else
                     {
-                        var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                        //var jsonResult = JsonConvert.DeserializeObject<JsonErrorObject>(json);
+                        var jsonResult = JsonSerializer.Deserialize(json, ErrorJsonSerializerContext.Default.JsonErrorObject);
                         System.Diagnostics.Debug.WriteLine("GetCandlestick: API error code - " + jsonResult?.Data?.Code.ToString());
 
                         // TODO

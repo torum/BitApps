@@ -15,19 +15,7 @@ public sealed partial class MaticJpyPage : Page
 
     public MaticJpyPage()
     {
-        try
-        {
-            InitializeComponent();
-        }
-        catch (XamlParseException parseException)
-        {
-            Debug.WriteLine($"Unhandled XamlParseException in MaticJpyPage: {parseException.Message}");
-            foreach (var key in parseException.Data.Keys)
-            {
-                Debug.WriteLine("{Key}:{Value}", key.ToString(), parseException.Data[key]?.ToString());
-            }
-            throw;
-        }
+        InitializeComponent();
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)

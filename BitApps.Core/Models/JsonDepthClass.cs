@@ -2,29 +2,35 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace BitApps.Core.Models;
 
+[JsonSerializable(typeof(JsonDepthData))]
+[JsonSerializable(typeof(JsonDepthObject))]
+[JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true)]
+internal partial class DepthJsonSerializerContext : JsonSerializerContext
+{
+}
+
 public partial class JsonDepthObject
 {
-    [JsonProperty("success")]
+    //[JsonProperty("success")]
     public long Success { get; set; }
 
-    [JsonProperty("data")]
+    //[JsonProperty("data")]
     public JsonDepthData? Data { get; set; }
 }
 
 public partial class JsonDepthData
 {
-    [JsonProperty("asks")]
+    //[JsonProperty("asks")]
     public List<List<string>>? Asks { get; set; }
 
-    [JsonProperty("bids")]
+    //[JsonProperty("bids")]
     public List<List<string>>? Bids { get; set; }
 
-    [JsonProperty("timestamp")]
+    //[JsonProperty("timestamp")]
     public long Timestamp { get; set; }
 }

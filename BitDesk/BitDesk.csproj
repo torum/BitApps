@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-	  <TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
+	  <TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
 	  <!-- <WindowsSdkPackageVersion>10.0.26100.38</WindowsSdkPackageVersion> -->
 	  <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     
@@ -19,7 +19,9 @@
     <EnableMsixTooling>true</EnableMsixTooling>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
 	  <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x64</PlatformTarget>
+    <PublishAot>True</PublishAot>
+    <PublishTrimmed>True</PublishTrimmed>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Icons\**" />
@@ -96,15 +98,15 @@
     <PackageReference Include="CommunityToolkit.WinUI.Converters" Version="8.2.250402" />
     <PackageReference Include="CommunityToolkit.WinUI.Triggers" Version="8.2.250402" />
     <PackageReference Include="HarfBuzzSharp" Version="8.3.1.1" />
-    <PackageReference Include="LiveChartsCore.SkiaSharpView.WinUI" Version="2.0.0-rc4.5" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.8" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250606001" />
+    <PackageReference Include="LiveChartsCore.SkiaSharpView.WinUI" Version="2.0.0-rc6.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.9" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250907003" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="3.0.0" />
     <PackageReference Include="SkiaSharp" Version="3.119.0" />
     <PackageReference Include="SkiaSharp.HarfBuzz" Version="3.119.0" />
     <PackageReference Include="SkiaSharp.NativeAssets.WinUI" Version="3.119.0" />
     <PackageReference Include="SkiaSharp.Views.WinUI" Version="3.119.0" />
-    <PackageReference Include="WinUIEx" Version="2.6.0" />
+    <PackageReference Include="WinUIEx" Version="2.8.0" />
   </ItemGroup>
 
   <ItemGroup>
