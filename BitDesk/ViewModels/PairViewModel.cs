@@ -24,6 +24,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.VisualBasic;
 using SkiaSharp;
+using static System.Collections.Specialized.BitVector32;
 using static System.Net.WebRequestMethods;
 
 namespace BitDesk.ViewModels;
@@ -197,33 +198,37 @@ public partial class PairViewModel : ObservableRecipient
 
             if (IsSelectedActive && IsEnabled) // 
             {
-                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                if (App.CurrentDispatcherQueue.HasThreadAccess)
                 {
+                    Debug.WriteLine("Do have UI ThreadAccess @Ltp");
+                }
+                else
+                {
+                    Debug.WriteLine("No UI ThreadAccess @Ltp");
+                }
 
-                });
-                SectionYi = (double)_ltp;
-                SectionYj = (double)_ltp;
-
+                if (Sections[0] is RectangularSection secn)
+                {
+                    secn.Yi = (double)_ltp;
+                    secn.Yj = (double)_ltp;
+                }
 
                 // a little hack to update Section...
-                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                if (Series[1].Values == null)
                 {
-                    if (Series[1].Values == null)
+                    return;
+                }
+
+                if (Series[1].Values is ObservableCollection<FinancialPoint> oc)
+                {
+                    if (oc.Count < 1)
                     {
                         return;
                     }
 
-                    if (Series[1].Values is ObservableCollection<FinancialPoint> oc)
-                    {
-                        if (oc.Count < 1)
-                        {
-                            return;
-                        }
-
-                        //oc[0].Close =
-                            oc[0].Close = (double)_ltp;
-                    }
-                });
+                    //oc[0].Close =
+                    oc[0].Close = (double)_ltp;
+                }
             }
         }
     }
@@ -864,7 +869,7 @@ public partial class PairViewModel : ObservableRecipient
             // チャートの最高値をセット
             //ChartAxisY[0].MaxValue = (double)_highestIn24Price + 3000;
             // チャートの２４最高値ポイントを更新
-            //(ChartSeries[1].Values[0] as ObservableValue).Value = (double)_highestIn24Price;
+            //(ChartSeries[0].Values[0] as ObservableValue).Value = (double)_highestIn24Price;
 
         }
     }
@@ -1421,14 +1426,13 @@ public partial class PairViewModel : ObservableRecipient
     #endregion
 
     #region == Charts ==
-
-    private double _sectionYi = 0;
+    /*
+    private double _sectionYi = double.NaN;
     public double SectionYi
     {
         get => _sectionYi;
         set
         {
-            //Debug.WriteLine($"{_sectionYi}");
             if (_sectionYi == value)
             {
                 return;
@@ -1439,7 +1443,7 @@ public partial class PairViewModel : ObservableRecipient
         }
     }
 
-    private double _sectionYj = 0;
+    private double _sectionYj = double.NaN;
     public double SectionYj
     {
         get => _sectionYj;
@@ -1486,10 +1490,9 @@ public partial class PairViewModel : ObservableRecipient
             OnPropertyChanged(nameof(_sectionXj));
         }
     }
+    */
 
-
-    /*
-    public IChartElement[] Sections { get; set; } =
+    private IChartElement[] _sections =
     [
         new RectangularSection
         {
@@ -1504,7 +1507,20 @@ public partial class PairViewModel : ObservableRecipient
             }
         }
     ];
-    */
+    public IChartElement[] Sections
+    {
+        get => _sections;
+        set
+        {
+            if (_sections == value)
+            {
+                return;
+            }
+
+            _sections = value;
+            OnPropertyChanged(nameof(Sections));
+        }
+    }
 
     public ICartesianAxis[] XAxes {get; set;} =
     [
@@ -1575,6 +1591,7 @@ public partial class PairViewModel : ObservableRecipient
         {
             Name = "Price",
             ScalesYAt = 1,
+          
             //TooltipLabelFormatter = (chartPoint) => $"Price: {new DateTime((long) chartPoint.SecondaryValue):yyy/MM/dd HH}: {chartPoint.PrimaryValue}",
             Values = new ObservableCollection<FinancialPoint>
             {
@@ -2010,27 +2027,36 @@ public partial class PairViewModel : ObservableRecipient
         }
         else
         {
-            /*
-            SectionYi = 10;
-            SectionYj = 10;
-
             // Little hack to init. This is required after upgrading Livechart2 to 2.0 rc.
             // clear chart data.
+            /*
             Series[0].Values = new ObservableCollection<DateTimePoint>
             {
                 new(DateTime.Now, 1)
             };
             Series[1].Values = new ObservableCollection<FinancialPoint>
             {
-                new(DateTime.Now, 100, 0, 0, 0)
+                new(DateTime.Now, 100, 60, 0, 0)
             };
             */
+
+            //SectionYi = 5;
+            //SectionYj = 5;
+            //Debug.WriteLine($"InitializeAndLoad SectionYi{SectionYi} SectionYj{SectionYj}");
+
             LoadChart(SelectedCandleType);
         }
 
+
+        GetOrders();
+        GetTradeHistory();
+        GetDepth();
+
+        /*
         Task.Run(() => GetOrders());
         Task.Run(() => GetTradeHistory());
         Task.Run(() => GetDepth());
+        */
     }
 
     public void CleanUp()
@@ -2097,6 +2123,14 @@ public partial class PairViewModel : ObservableRecipient
         }
         */
 
+        //SectionYi = (double)_ltp;
+        //SectionYj = (double)_ltp;
+        if (Sections[0] is RectangularSection secn)
+        {
+            secn.Yi = (double)_ltp;
+            secn.Yj = (double)_ltp;
+        }
+
         LoadChart(SelectedCandleType);
     }
 
@@ -2137,8 +2171,23 @@ public partial class PairViewModel : ObservableRecipient
         {
             DoLoadChart(res, ct);
 
-            SectionYi = (double)_ltp;
-            SectionYj = (double)_ltp;
+            if (App.CurrentDispatcherQueue.HasThreadAccess)
+            {
+                Debug.WriteLine("Do have UI ThreadAccess @LoadChart");
+            }
+            else
+            {
+                Debug.WriteLine("No UI ThreadAccess @LoadChart");
+            }
+
+            //SectionYi = (double)_ltp;
+            //SectionYj = (double)_ltp;
+            //Debug.WriteLine($"LoadChart SectionYi{SectionYi} SectionYj{SectionYj}");
+            if (Sections[0] is RectangularSection secn)
+            {
+                secn.Yi = (double)_ltp;
+                secn.Yj = (double)_ltp;
+            }
         }
     }
 
@@ -2267,6 +2316,12 @@ public partial class PairViewModel : ObservableRecipient
 
         Series[0].Values = vols;
         Series[1].Values = ohlcs;
+
+        if (Sections[0] is RectangularSection secn)
+        {
+            secn.Yi = (double)_ltp;
+            secn.Yj = (double)_ltp;
+        }
 
         IsChartInitAndLoaded = true;
 

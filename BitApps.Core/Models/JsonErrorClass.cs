@@ -10,7 +10,7 @@ namespace BitApps.Core.Models;
 [JsonSerializable(typeof(JsonData))]
 [JsonSerializable(typeof(JsonErrorObject))]
 [JsonSourceGenerationOptions(PropertyNameCaseInsensitive = true)]
-internal partial class ErrorJsonSerializerContext : JsonSerializerContext
+public partial class ErrorJsonSerializerContext : JsonSerializerContext
 {
 }
 

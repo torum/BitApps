@@ -153,11 +153,11 @@ public partial class PairViewModel : ViewModelBase
 
             if (IsSelectedActive && IsEnabled) // 
             {
-                App.CurrentDispatcherQueue?.TryEnqueue(() =>
+                if (Sections[0] is RectangularSection secn)
                 {
-                    Sections[0].Yi = (double)_ltp;
-                    Sections[0].Yj = (double)_ltp;
-                });
+                    secn.Yi = (double)_ltp;
+                    secn.Yj = (double)_ltp;
+                }
 
                 // a little hack to update Section...
                 App.CurrentDispatcherQueue?.TryEnqueue(() =>
@@ -1182,6 +1182,7 @@ public partial class PairViewModel : ViewModelBase
 
     #region == Charts ==
 
+    /*
     public RectangularSection[] Sections { get; set; } =
     [
         new RectangularSection
@@ -1197,6 +1198,37 @@ public partial class PairViewModel : ViewModelBase
             }
         }
     ];
+    */
+
+    private IChartElement[] _sections =
+[
+    new RectangularSection
+        {
+            Yi = 1,
+            Yj = 1,
+            ScalesYAt = 1,
+            Stroke = new SolidColorPaint
+            {
+                Color = SKColors.Silver.WithAlpha(80),
+                StrokeThickness = 1,
+                PathEffect = new DashEffect(new float[] { 6, 6 })
+            }
+        }
+];
+    public IChartElement[] Sections
+    {
+        get => _sections;
+        set
+        {
+            if (_sections == value)
+            {
+                return;
+            }
+
+            _sections = value;
+            NotifyPropertyChanged(nameof(Sections));
+        }
+    }
 
     public ICartesianAxis[] XAxes {get; set;} =
     [
@@ -1252,6 +1284,7 @@ public partial class PairViewModel : ViewModelBase
         {
             Name = "Depth",
             ScalesYAt = 0,
+            ZIndex = -10,
             //Stroke = new SolidColorPaint((new SKColor(198, 167, 0)), 0),
             Fill =  new SolidColorPaint(new SKColor(127, 127, 127).WithAlpha(80), 1),
             /*
@@ -1492,8 +1525,11 @@ public partial class PairViewModel : ViewModelBase
         }
         else
         {
-            Sections[0].Yi = 0;
-            Sections[0].Yj = 0;
+            if (Sections[0] is RectangularSection secn)
+            {
+                secn.Yi = (double)_ltp;
+                secn.Yj = (double)_ltp;
+            }
 
             // Little hack to init. This is required after upgrading Livechart2 to 2.0 rc.
             // clear chart data.
@@ -1625,8 +1661,11 @@ public partial class PairViewModel : ViewModelBase
 
     private async Task LoadChart(CandleTypes ct)
     {
-        Sections[0].Yi = (double)_ltp;
-        Sections[0].Yj = (double)_ltp;
+        if (Sections[0] is RectangularSection secn)
+        {
+            secn.Yi = (double)_ltp;
+            secn.Yj = (double)_ltp;
+        }
 
         // gets new data.
         var res = await GetCandlesticks(PairCode, ct);

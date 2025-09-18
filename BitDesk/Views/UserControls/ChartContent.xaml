@@ -374,13 +374,23 @@
                 <Grid Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" BorderThickness="0,0,0,1" BorderBrush="{ThemeResource NavigationViewContentGridBorderBrush}">
 
                     <!-- Chart -->
-                    <lvc:CartesianChart x:Name="LiveChart" Background="Transparent"
-                                        Margin="0,0,0,0" 
-                                    Series="{x:Bind PairViewModel.Series, Mode=OneWay}" 
-                                    XAxes="{x:Bind PairViewModel.XAxes, Mode=OneWay}" 
-                                    YAxes="{x:Bind PairViewModel.YAxes, Mode=OneWay}" 
+                    <lvc:CartesianChart x:Name="LiveChart" Background="Transparent" Margin="0,0,0,0" 
+                                        Series="{x:Bind PairViewModel.Series, Mode=OneWay}"
+                                        Sections="{x:Bind PairViewModel.Sections, Mode=OneWay}"
+                                        XAxes="{x:Bind PairViewModel.XAxes, Mode=OneWay}"
+                                    YAxes="{x:Bind PairViewModel.YAxes, Mode=OneWay}"
                                     TooltipPosition="{x:Bind PairViewModel.IsChartTooltipVisibleTemp, Mode=OneWay}"
-                                    ZoomMode="X">
+                                    ZoomMode="X"  >
+                        
+                        <!--
+                        <lvc:CartesianChart.Sections>
+                            <lvc:SectionsCollection>
+                                <lvc:XamlRectangularSection ZIndex="10" Yi="{x:Bind PairViewModel.SectionYi, Mode=OneWay}" Yj="{x:Bind PairViewModel.SectionYj, Mode=OneWay}" Stroke="{lvc:SolidColorPaint Color='#F00', StrokeWidth=3, PathEffect={lvc:Dashed Array='6, 6'}}"/>
+                            </lvc:SectionsCollection>
+                        </lvc:CartesianChart.Sections>
+
+-->
+
                         <!--
                         <lvc:CartesianChart.Sections>
                             <lvc:SectionsCollection>

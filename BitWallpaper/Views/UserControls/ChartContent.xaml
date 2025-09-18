@@ -522,13 +522,17 @@
                                     XAxes="{x:Bind PairVM.XAxes, Mode=OneWay}" 
                                     YAxes="{x:Bind PairVM.YAxes, Mode=OneWay}" 
                                     Series="{x:Bind PairVM.Series, Mode=OneWay}" 
+                                        Sections="{x:Bind PairVM.Sections, Mode=OneWay}"
                                     TooltipPosition="{x:Bind PairVM.IsChartTooltipVisibleTemp, Mode=OneWay}"
-                                    ZoomMode="X"
-                                        >
+                                    ZoomMode="X">
+                        <!--
+                        <lvc:CartesianChart.Sections>
+                            <lvc:XamlRectangularSection Yi="{x:Bind PairVM.Yi1, Mode=OneWay}" Yj="{x:Bind PairVM.Yj1, Mode=OneWay}" Stroke="{lvc:SolidColorPaint Color='#F00', StrokeWidth=3, PathEffect={lvc:Dashed Array='6, 6'}}"/>
+                        </lvc:CartesianChart.Sections>
+                        -->
                     </lvc:CartesianChart>
                     <!--  
-                    Sections="{x:Bind PairVM.Sections, Mode=OneWay}"
-                                        Sections="{x:Bind PairVM.Sections, Mode=OneWay}"
+                    Sections="{x:Bind PairVM.Sections, Mode=OneWay}" Sections="{x:Bind PairVM.Sections, Mode=OneWay}"
                                     
                     -->
 
