@@ -6,11 +6,14 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using BitDesk.Contracts;
+using Microsoft.UI;
 using Microsoft.UI.Windowing;
+using Microsoft.UI.Xaml;
+using WinRT.Interop;
 
 namespace BitDesk.Services;
 
-public class ModalDialogService : IModalDialogService
+public partial class ModalDialogService : IModalDialogService
 {
     public ModalDialogService()
     {
@@ -19,6 +22,8 @@ public class ModalDialogService : IModalDialogService
 
     public void ShowOrderDialog(ViewModels.PairViewModel vm)
     {
+        var mainWindow = App.MainWindow;
+
         var modalShell = new Views.Modal.ModalShell(vm)
         {
             DataContext = vm
@@ -30,75 +35,95 @@ public class ModalDialogService : IModalDialogService
 
         //modalWindow.AppWindow.MoveAndResize(new Windows.Graphics.RectInt32(EditorWinLeft, EditorWinTop, EditorWinWidth, EditorWinHeight));
 
-        var mainWindow = App.MainWindow;
+        var appWindow = modalWindow.AppWindow;
+        if (appWindow is null)
+        {
+            return;
+        }
+
+        /*
         var hWndParent = WinRT.Interop.WindowNative.GetWindowHandle(mainWindow);
         var hWndDialog = WinRT.Interop.WindowNative.GetWindowHandle(modalWindow);
-        SetWindowLong(hWndDialog, GWL_HWNDPARENT, hWndParent);
+        SetWindow(hWndDialog, GWL_HWNDPARENT, hWndParent);
+        */
 
-        var appWindow = modalWindow.AppWindow;
-        if (appWindow != null)
+        SetWindowOwner(mainWindow, modalWindow);
+
+        /*
+        if (appWindow.Presenter is OverlappedPresenter presenter)
         {
-            if (appWindow.Presenter is OverlappedPresenter presenter)
-            {
-                presenter.IsModal = true;
-
-                modalWindow.Closed += (sender, e) =>
-                {
-                    // This causes all sorts of problems. (as of WinAppSDK 1.7.25)
-                    //EnableWindow(hWndParent, true);
-
-                    mainWindow.Activate();
-                };
-
-                if (mainWindow != null)
-                {
-                    mainWindow.Closed += (sender, e) =>
-                    {
-                        modalWindow.Close();
-                    };
-                }
-
-                // This causes all sorts of problems. (as of WinAppSDK 1.7.25)
-                //EnableWindow(hWndParent, false);
-
-                //appWindow.Show(true);// Same as EnableWindow. This causes all sorts of problems. (as of WinAppSDK 1.7.25)
-
-                modalWindow.Activate();
-                //modalWindow.Show();
-            }
         }
+        */
+        var presenter = OverlappedPresenter.CreateForDialog();
+
+        presenter.IsModal = true;
+
+        appWindow.SetPresenter(presenter);
+
+
+        modalWindow.Closed += (sender, e) =>
+        {
+            // This causes all sorts of problems. (as of WinAppSDK 1.7.25)
+            //EnableWindow(hWndParent, true);
+
+            mainWindow.Activate();
+        };
+
+        if (mainWindow != null)
+        {
+            mainWindow.Closed += (sender, e) =>
+            {
+                modalWindow.Close();
+            };
+        }
+
+        // This causes all sorts of problems. (as of WinAppSDK 1.7.25)
+        //EnableWindow(hWndParent, false);
+
+        appWindow.Show(true);// Same as EnableWindow. This causes all sorts of problems. (as of WinAppSDK 1.7.25)
+
+        //modalWindow.Activate();
+        //modalWindow.Show();
     }
 
     #region == TEMP code for modal window(for setting an owner) ==
 
-#pragma warning disable IDE0079
-#pragma warning disable SYSLIB1054
 
-    [DllImport("User32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
+    [LibraryImport("User32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool EnableWindow(IntPtr hWnd, [MarshalAs(UnmanagedType.Bool)] bool bEnable);
 
-    internal static extern bool EnableWindow(IntPtr hWnd, bool bEnable);
+    private const int GWL_HWNDPARENT = (-8);
 
-    internal const int GWL_HWNDPARENT = (-8);
 
-    internal static IntPtr SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong)
+    private static void SetWindowOwner(Window owner, Window child)
     {
-        if (IntPtr.Size == 4)
+        // Get the HWND (window handle) of the owner window (main window).
+        var ownerHwnd = WindowNative.GetWindowHandle(owner);
+
+        // Get the HWND of the AppWindow (modal window).
+        var ownedHwnd = Win32Interop.GetWindowFromWindowId(child.AppWindow.Id);
+
+        // Set the owner window using SetWindowLongPtr for 64-bit systems
+        // or SetWindowLong for 32-bit systems.
+        if (IntPtr.Size == 8) // Check if the system is 64-bit
         {
-            return SetWindowLongPtr32(hWnd, nIndex, dwNewLong);
+            SetWindowLongPtr(ownedHwnd, GWL_HWNDPARENT, ownerHwnd); // -8 = GWLP_HWNDPARENT
         }
-        return SetWindowLongPtr64(hWnd, nIndex, dwNewLong);
+        else // 32-bit system
+        {
+            SetWindowLong(ownedHwnd, GWL_HWNDPARENT, ownerHwnd); // -8 = GWL_HWNDPARENT
+        }
     }
 
-    // Import the Windows API function SetWindowLong for modifying window properties on 32-bit systems.
-    [DllImport("User32.dll", CharSet = CharSet.Auto, EntryPoint = "SetWindowLong")]
-    internal static extern IntPtr SetWindowLongPtr32(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
-
     // Import the Windows API function SetWindowLongPtr for modifying window properties on 64-bit systems.
-    [DllImport("User32.dll", CharSet = CharSet.Auto, EntryPoint = "SetWindowLongPtr")]
-    internal static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+    [LibraryImport("User32.dll", EntryPoint = "SetWindowLongPtrW")]
+    private static partial IntPtr SetWindowLongPtr(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
 
-#pragma warning restore SYSLIB1054
-#pragma warning restore IDE0079
+    // Import the Windows API function SetWindowLong for modifying window properties on 32-bit systems.
+    [LibraryImport("User32.dll", EntryPoint = "SetWindowLongW")]
+    private static partial IntPtr SetWindowLong(IntPtr hWnd, int nIndex, IntPtr dwNewLong);
+
 
     #endregion
 }

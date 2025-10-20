@@ -198,15 +198,6 @@ public partial class PairViewModel : ObservableRecipient
 
             if (IsSelectedActive && IsEnabled) // 
             {
-                if (App.CurrentDispatcherQueue.HasThreadAccess)
-                {
-                    Debug.WriteLine("Do have UI ThreadAccess @Ltp");
-                }
-                else
-                {
-                    Debug.WriteLine("No UI ThreadAccess @Ltp");
-                }
-
                 if (Sections[0] is RectangularSection secn)
                 {
                     secn.Yi = (double)_ltp;
@@ -2170,15 +2161,6 @@ public partial class PairViewModel : ObservableRecipient
         if (res.Count > 0)
         {
             DoLoadChart(res, ct);
-
-            if (App.CurrentDispatcherQueue.HasThreadAccess)
-            {
-                Debug.WriteLine("Do have UI ThreadAccess @LoadChart");
-            }
-            else
-            {
-                Debug.WriteLine("No UI ThreadAccess @LoadChart");
-            }
 
             //SectionYi = (double)_ltp;
             //SectionYj = (double)_ltp;
