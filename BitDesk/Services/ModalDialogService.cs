@@ -35,7 +35,34 @@ public class ModalDialogService : IModalDialogService
         var hWndDialog = WinRT.Interop.WindowNative.GetWindowHandle(modalWindow);
         SetWindowLong(hWndDialog, GWL_HWNDPARENT, hWndParent);
 
-        var appWindow = modalWindow.AppWindow;
+        Microsoft.UI.Windowing.AppWindow? appWindow = modalWindow.AppWindow;
+
+        OverlappedPresenter presenter = OverlappedPresenter.CreateForDialog();
+
+        presenter.IsModal = true;
+
+        appWindow.SetPresenter(presenter);
+
+        modalWindow.Closed += (sender, e) =>
+        {
+            // This causes all sorts of problems. (as of WinAppSDK 1.7.25)
+            //EnableWindow(hWndParent, true);
+
+            mainWindow.Activate();
+        };
+
+        if (mainWindow != null)
+        {
+            mainWindow.Closed += (sender, e) =>
+            {
+                modalWindow.Close();
+            };
+        }
+
+        appWindow.Show();
+        //modalWindow.Activate();
+
+        /*
         if (appWindow != null)
         {
             if (appWindow.Presenter is OverlappedPresenter presenter)
@@ -67,6 +94,7 @@ public class ModalDialogService : IModalDialogService
                 //modalWindow.Show();
             }
         }
+        */
     }
 
     #region == TEMP code for modal window(for setting an owner) ==

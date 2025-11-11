@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
+		<TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
 		<!-- <WindowsSdkPackageVersion>10.0.26100.38</WindowsSdkPackageVersion> -->
 		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
 		<RootNamespace>BitWallpaper</RootNamespace>
@@ -24,6 +24,7 @@
 		<!--
 		<WindowsPackageType>None</WindowsPackageType>
 		-->
+		
 		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<PublishAot>True</PublishAot>
@@ -91,8 +92,7 @@
 	</ItemGroup>
 	<PropertyGroup Label="Globals">
 	  <WebView2EnableCsWinRTProjection>True</WebView2EnableCsWinRTProjection>
-	  <AppxPackageDir>C:\Users\torum\Desktop\</AppxPackageDir>
-	  <WindowsPackageType>MSIX</WindowsPackageType>
+
 	</PropertyGroup>
 
 	<!-- 
@@ -136,17 +136,17 @@
 
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-		<PackageReference Include="HarfBuzzSharp" Version="8.3.1.1" />
+		<PackageReference Include="HarfBuzzSharp" Version="8.3.1.2" />
 		<PackageReference Include="LiveChartsCore.SkiaSharpView.WinUI" Version="2.0.0-rc6.1" />
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4948" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250907003">
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.6901" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251003001">
 		</PackageReference>
-		<PackageReference Include="SkiaSharp" Version="3.119.0" />
-		<PackageReference Include="SkiaSharp.HarfBuzz" Version="3.119.0" />
-		<PackageReference Include="SkiaSharp.NativeAssets.WinUI" Version="3.119.0" />
-		<PackageReference Include="SkiaSharp.Views.WinUI" Version="3.119.0" />
-		<PackageReference Include="System.Text.Json" Version="9.0.9" />
-		<PackageReference Include="WinUIEx" Version="2.8.0" />
+		<PackageReference Include="SkiaSharp" Version="3.119.1" />
+		<PackageReference Include="SkiaSharp.HarfBuzz" Version="3.119.1" />
+		<PackageReference Include="SkiaSharp.NativeAssets.WinUI" Version="3.119.1" />
+		<PackageReference Include="SkiaSharp.Views.WinUI" Version="3.119.1" />
+		<PackageReference Include="System.Text.Json" Version="10.0.0" />
+		<PackageReference Include="WinUIEx" Version="2.9.0" />
 		<Manifest Include="$(ApplicationManifest)" />
 	</ItemGroup>
 
