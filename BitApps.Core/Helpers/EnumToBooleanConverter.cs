@@ -1,6 +1,7 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Data;
 
+
 namespace BitApps.Core.Helpers;
 
 public partial class ElementThemeEnumToBooleanConverter : IValueConverter

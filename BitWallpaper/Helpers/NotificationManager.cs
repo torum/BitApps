@@ -31,11 +31,14 @@ internal class NotificationManager
         // To ensure all Notification handling happens in this process instance, register for
         // NotificationInvoked before calling Register(). Without this a new process will
         // be launched to handle the notification.
-        var notificationManager = AppNotificationManager.Default;
+
+        //var notificationManager = AppNotificationManager.Default;
 
         //notificationManager.NotificationInvoked += OnNotificationInvoked;
 
-        notificationManager.Register();
+        // Crash due to WinAppSDK bug.
+        //https://github.com/microsoft/WindowsAppSDK/issues/6071
+        AppNotificationManager.Default.Register();
         m_isRegistered = true;
     }
 
