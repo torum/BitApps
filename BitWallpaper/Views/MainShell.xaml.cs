@@ -581,7 +581,10 @@ public sealed partial class MainShell : Page
 
         try
         {
-            doc.Save(App.AppConfigFilePath);
+            //doc.Save(App.AppConfigFilePath);
+            var temporaryPath = App.AppConfigFilePath + ".tmp";
+            doc.Save(temporaryPath);
+            File.Move(temporaryPath, App.AppConfigFilePath, overwrite: true);
         }
         //catch (System.IO.FileNotFoundException) { }
         catch (Exception ex)

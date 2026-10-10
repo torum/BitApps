@@ -38,8 +38,17 @@ internal class NotificationManager
 
         // Crash due to WinAppSDK bug.
         //https://github.com/microsoft/WindowsAppSDK/issues/6071
-        AppNotificationManager.Default.Register();
-        m_isRegistered = true;
+        try
+        {
+            AppNotificationManager.Default.Register();
+            m_isRegistered = true;
+        }
+        catch (System.Runtime.InteropServices.COMException ex)
+        {
+            m_isRegistered = false;
+            // Log ex.Message and ex.HResult; continue gracefully without notifications
+            System.Diagnostics.Debug.WriteLine(ex);
+        }
     }
 
     public void Unregister()

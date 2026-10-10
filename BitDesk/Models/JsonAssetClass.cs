@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-//using Newtonsoft.Json;
-//using Newtonsoft.Json.Converters;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+
+// https://github.com/bitbankinc/bitbank-api-docs/blob/master/rest-api.md#assets
 
 namespace BitDesk.Models;
 
@@ -14,6 +12,8 @@ namespace BitDesk.Models;
 [JsonSerializable(typeof(JsonAssetResult))]
 [JsonSerializable(typeof(JsonAssetData))]
 [JsonSerializable(typeof(JsonAsset))]
+[JsonSerializable(typeof(CryptoWithdrawalFee))]
+[JsonSerializable(typeof(JpyWithdrawalFee))]
 internal partial class AssetJsonSerializerContext : JsonSerializerContext
 {
 }
@@ -55,12 +55,67 @@ public partial class JsonAsset
 
     [JsonPropertyName("stop_withdrawal")]
     public bool StopWithdrawal { get; set; }
-    
-    /*
+
     [JsonPropertyName("withdrawal_fee")]
-    public WithdrawalFeeUnion WithdrawalFee { get; set; }
-    */
+    //[JsonConverter(typeof(WithdrawalFeeConverter))] // This is now handled by the polymorphic converter on the WithdrawalFee class
+    public required WithdrawalFee WithdrawalFee {get; set;}
+
 }
+
+
+
+// Polymorphic types for Withdrawal Fee
+[JsonConverter(typeof(WithdrawalFeeConverter))]
+public abstract class WithdrawalFee
+{
+}
+
+public class CryptoWithdrawalFee : WithdrawalFee
+{
+    [JsonPropertyName("min")]
+    public string Min { get; set; } = null!;
+
+    [JsonPropertyName("max")]
+    public string Max { get; set; } = null!;
+}
+
+public class JpyWithdrawalFee : WithdrawalFee
+{
+    [JsonPropertyName("under")]
+    public string Under { get; set; } = null!;
+
+    [JsonPropertyName("over")]
+    public string Over { get; set; } = null!;
+
+    [JsonPropertyName("threshold")]
+    public string Threshold { get; set; } = null!;
+}
+
+public class WithdrawalFeeConverter : JsonConverter<WithdrawalFee>
+{
+    public override WithdrawalFee? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        using var jsonDoc = JsonDocument.ParseValue(ref reader);
+        var root = jsonDoc.RootElement;
+
+        // Check unique properties to detect type
+        if (root.TryGetProperty("under", out _))
+        {
+            return JsonSerializer.Deserialize<JpyWithdrawalFee>(root.GetRawText(), options);
+        }
+        else
+        {
+            return JsonSerializer.Deserialize<CryptoWithdrawalFee>(root.GetRawText(), options);
+        }
+    }
+
+    public override void Write(Utf8JsonWriter writer, WithdrawalFee value, JsonSerializerOptions options)
+    {
+        // Polymorphic serialization matching runtime type
+        JsonSerializer.Serialize(writer, (object)value, options);
+    }
+}
+
 
 /*
 public partial class WithdrawalFeeClass
